@@ -6,9 +6,6 @@
 (function () {
 	var SELF, nimblePic;
 
-
-
-
 	var getDynamicHeight = function (src, srcIsSelector, cb) {
         setTimeout(function () {
 
@@ -112,10 +109,10 @@
 
 
     var getResponsiveWidth = function() {
-        var winWidth = SELF.winWidth();
-        if (winWidth < 480) return 'xs';
-        if (winWidth < 768) return 'sm';
-        if (winWidth < 992) return 'md';
+        var w = winWidth();
+        if (w < 480) return 'xs';
+        if (w < 768) return 'sm';
+        if (w < 992) return 'md';
         return 'lg';
     }
 
@@ -124,7 +121,7 @@
      * @description Get the width of the window including the scroll bars. If not supported (ie8 and below) will return width but scroll bars will affect the resukt.
      * @return (number/int) The width of the window including the scroll bars.
      */
-    var winWidth = function() {
+    function winWidth() {
         return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     }
 
@@ -323,6 +320,8 @@
 
         , testable: {
         	getDynamicHeight: getDynamicHeight
+        	, getResponsiveWidth: getResponsiveWidth
+        	, winWidth: winWidth
         }
     }
 

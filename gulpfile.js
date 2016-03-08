@@ -56,7 +56,7 @@ gulp.task('e2e-tests', function (done) {
 		proxies: {
 		  '/demos/img/': 'http://localhost:8081/demos/img/'
 		},
-		singleRun: true
+		// singleRun: true
 	}, function() {
 		if(webserverStream) webserverStream.emit("kill");
 		gutil.log(gutil.colors.magenta('gulp task "done" callback not working because karma process still running, so manually exiting.'));
