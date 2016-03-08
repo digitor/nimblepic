@@ -4,8 +4,135 @@
 //var isJasmine = typeof jasmine !== "undefined";
 
 (function () {
-	var SELF;
-    var nimblePic = {
+	var SELF, nimblePic;
+
+
+
+
+	var getDynamicHeight = function (src, srcIsSelector, cb) {
+        setTimeout(function () {
+
+            if (srcIsSelector) src = $(src).css("background-image").replace("url(", "").replace(")", "").replace('"', '"').replace("'", "'");
+            var img = new Image();
+            img.onload = function () {
+                console.log( "image loaded", this.src);
+                cb(src, true, this.height);
+            }
+            img.onerror = function () {
+                console.log("image error", this.src);
+                cb(src, false);
+            }
+            img.src = src;
+        }, 100);
+    }
+
+    /*
+     * For setting element heights at various media queries.
+     */
+    var responsiveHeight = function (justClear, customID, sel, heightSm, heightMd, heightLg, clearExisting) {
+
+        var id = customID || "elresp-styles";
+
+        if (justClear || clearExisting) {
+            //console.log("removed", id, justClear, clearExisting);
+            //debugger
+            $("#" + id).remove();
+            if(justClear) return;
+        }
+
+        var css = "";
+
+        // defaults to srcMd (medium)
+        if (heightMd) {
+            css = sel + '{';
+            css += 'height: ' + heightMd + 'px;';
+            css += '}';
+        }
+
+        if (heightSm) {
+            // smaller devices get srcSm (small)
+            css += '@media only screen and (max-width: 767px) {';
+            css += sel + '{';
+            css += 'height: ' + heightSm + 'px;';
+            css += '}}';
+        }
+
+
+        // If a large height is passed, still uses srcMd, but can specify another height
+        if (heightLg) {
+            css += '@media only screen and (min-width: 992px) {';
+            css += sel + '{';
+            css += 'height: ' + heightLg + 'px;';
+            css += '}}';
+        }
+
+        /* Can't add media queries inline, so we attach style tag dynamically. */
+
+        if ($("#" + id).length === 0) {
+            var styleTag = '<style type="text/css" id="' + id + '" data-resp-styles >' + css + '</style>'
+                  , $existing = $("[data-resp-styles]");
+            if ($existing.length) {
+                $existing.last().after(styleTag);
+            } else {
+                $("body").prepend(styleTag);
+            }
+        } else {
+            $("#" + id).append(css);
+        }
+    }
+
+
+    /**
+     * @description Utility for checking JS breakpoints, so they behave the same as CSS media query breakpoints.
+     * @param breakName (string) - Possible values are "xs", "sm", "md", "lg".
+     * @param isMoreThan (boolean) - whether or not to use ">" logic.
+     * @param andIsEqual (boolean) - whether or not to use ">=" or "<=" logic (combines with isMoreThan).
+     * @return (boolean) - whether window width fell below or above the specified break point.
+     */
+    var responsiveWidth = function (breakName, isMoreThan, andIsEqual) {
+        var winWidth = SELF.winWidth();
+
+        var logic = function (val) {
+            if (isMoreThan) {
+                if (andIsEqual) return winWidth >= val;
+                return winWidth > val;
+            }
+            
+            if (andIsEqual) return winWidth <= val;
+            return winWidth < val;
+        }
+
+        switch (breakName) {
+            case "xs": return logic(480);
+            case "sm": return logic(768);
+            case "md": return logic(992);
+            case "lg": return logic(1200);
+        }
+    }
+
+
+    var getResponsiveWidth = function() {
+        var winWidth = SELF.winWidth();
+        if (winWidth < 480) return 'xs';
+        if (winWidth < 768) return 'sm';
+        if (winWidth < 992) return 'md';
+        return 'lg';
+    }
+
+
+    /**
+     * @description Get the width of the window including the scroll bars. If not supported (ie8 and below) will return width but scroll bars will affect the resukt.
+     * @return (number/int) The width of the window including the scroll bars.
+     */
+    var winWidth = function() {
+        return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    }
+
+    var getUID = function(pref) {
+        return (pref || "") + Math.random().toString().replace(".", "");
+    }
+
+    nimblePic = {
 
 
         /*
@@ -19,9 +146,9 @@
 
                 if (!data || !data.styleIds) return;
 
-                _.forEach(data.styleIds, function (styleId) {
-                    $("#" + styleId).remove();
-                });
+                for(var i = 0; i < data.styleIds.length; i++) {
+                    $("#" + data.styleIds[i]).remove();
+                }
             });
 
             var doClearImg = true
@@ -83,7 +210,7 @@
             if (!$container) $container = $(document);
 
             $(function () {
-                var type = "viewport", $th, srcSm, srcMd, sel, hSm, hMd, $img;//, isDynamicHeight;
+                var type = "viewport", $th, srcSm, srcMd, sel, hSm, hMd, hLg, $img;//, isDynamicHeight;
                 var breakPointSize = SELF.getResponsiveWidth();
                 
                 var $list = $container.find("." + customCls)
@@ -95,7 +222,8 @@
                     srcSm = $th.attr("data-img-sm");
                     srcMd = $th.attr("data-img-md");
 
-                    if (srcSm && srcSm !== "" && srcSm === srcMd) sav.warn("Utils.js -> setResponsiveAllImages()", "'srcSm' and 'srcMd' must not be the same url!", srcSm);
+                    if (srcSm && srcSm !== "" && srcSm === srcMd)
+                    	console.warn("Utils.js -> setResponsiveAllImages()", "'srcSm' and 'srcMd' must not be the same url!", srcSm);
                     
 
                     // optional
@@ -193,128 +321,8 @@
             });
         }
 
-
-    	, getDynamicHeight: function (src, srcIsSelector, cb) {
-            setTimeout(function () {
-
-                if (srcIsSelector) src = $(src).css("background-image").replace("url(", "").replace(")", "").replace('"', '"').replace("'", "'");
-                var img = new Image();
-                img.onload = function (evt) {
-                    console.log( "image loaded", this.src);
-                    cb(src, true, this.height);
-                }
-                img.onerror = function () {
-                    console.log("image error", this.src);
-                    cb(src, false);
-                }
-                img.src = src;
-            }, 100);
-        }
-
-        /*
-         * For setting element heights at various media queries.
-         */
-        , responsiveHeight: function (justClear, customID, sel, heightSm, heightMd, heightLg, clearExisting) {
-
-            var id = customID || "elresp-styles";
-
-            if (justClear || clearExisting) {
-                //console.log("removed", id, justClear, clearExisting);
-                //debugger
-                $("#" + id).remove();
-                if(justClear) return;
-            }
-
-            var css = "";
-
-            // defaults to srcMd (medium)
-            if (heightMd) {
-                css = sel + '{';
-                css += 'height: ' + heightMd + 'px;';
-                css += '}';
-            }
-
-            if (heightSm) {
-                // smaller devices get srcSm (small)
-                css += '@media only screen and (max-width: 767px) {';
-                css += sel + '{';
-                css += 'height: ' + heightSm + 'px;';
-                css += '}}';
-            }
-
-
-            // If a large height is passed, still uses srcMd, but can specify another height
-            if (heightLg) {
-                css += '@media only screen and (min-width: 992px) {';
-                css += sel + '{';
-                css += 'height: ' + heightLg + 'px;';
-                css += '}}';
-            }
-
-            /* Can't add media queries inline, so we attach style tag dynamically. */
-
-            if ($("#" + id).length === 0) {
-                var styleTag = '<style type="text/css" id="' + id + '" data-resp-styles >' + css + '</style>'
-                      , $existing = $("[data-resp-styles]");
-                if ($existing.length) {
-                    $existing.last().after(styleTag);
-                } else {
-                    $("body").prepend(styleTag);
-                }
-            } else {
-                $("#" + id).append(css);
-            }
-        }
-
-
-        /**
-         * @description Utility for checking JS breakpoints, so they behave the same as CSS media query breakpoints.
-         * @param breakName (string) - Possible values are "xs", "sm", "md", "lg".
-         * @param isMoreThan (boolean) - whether or not to use ">" logic.
-         * @param andIsEqual (boolean) - whether or not to use ">=" or "<=" logic (combines with isMoreThan).
-         * @return (boolean) - whether window width fell below or above the specified break point.
-         */
-        , responsiveWidth: function (breakName, isMoreThan, andIsEqual) {
-            var winWidth = SELF.winWidth();
-
-            var logic = function (val) {
-                if (isMoreThan) {
-                    if (andIsEqual) return winWidth >= val;
-                    return winWidth > val;
-                }
-                
-                if (andIsEqual) return winWidth <= val;
-                return winWidth < val;
-            }
-
-            switch (breakName) {
-                case "xs": return logic(480);
-                case "sm": return logic(768);
-                case "md": return logic(992);
-                case "lg": return logic(1200);
-            }
-        }
-
-
-        , getResponsiveWidth: function() {
-            var winWidth = SELF.winWidth();
-            if (winWidth < 480) return 'xs';
-            if (winWidth < 768) return 'sm';
-            if (winWidth < 992) return 'md';
-            return 'lg';
-        }
-
-
-        /**
-         * @description Get the width of the window including the scroll bars. If not supported (ie8 and below) will return width but scroll bars will affect the resukt.
-         * @return (number/int) The width of the window including the scroll bars.
-         */
-        , winWidth: function() {
-            return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        }
-
-        , getUID: function(pref) {
-            return (pref || "") + Math.random().toString().replace(".", "");
+        , testable: {
+        	getDynamicHeight: getDynamicHeight
         }
     }
 

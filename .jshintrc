@@ -1,5 +1,4 @@
 {
-  "curly": true,
   "eqeqeq": true,
   "forin": true,
   "indent": 2,
@@ -8,9 +7,10 @@
   "noarg": true,
   "noempty": true,
   "nonbsp": true,
-  "quotmark": "single",
   "undef": true,
-  "unused": true,
+  "predef": ["$"],
+  "browser": true,
+  "jasmine": true,
 
   "asi": true,
   "eqnull": true,
