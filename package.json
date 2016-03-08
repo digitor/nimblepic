@@ -1,0 +1,33 @@
+{
+  "name": "nimblepic",
+  "version": "1.0.0",
+  "description": "Responsive image loader that uses data attributes and events to define media query-sized images",
+  "main": "src/nimblepic.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digitor/nimblepic.git"
+  },
+  "keywords": [
+    "responsive",
+    "image",
+    "loader",
+    "resize",
+    "media",
+    "query",
+    "attribute"
+  ],
+  "author": "Jim Doyle",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/digitor/nimblepic/issues"
+  },
+  "homepage": "https://github.com/digitor/nimblepic#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-webserver": "0.9.1",
+    "jquery": "2.2.1"
+  }
+}

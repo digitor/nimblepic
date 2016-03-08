@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Example w</title>
+</head>
+<body>
+
+    <p class="p-sm">This example uses dynamic height, based on the source file. Also uses delayed event</p>
+    <span id="delayed-image-load"
+          class="imgresp"
+          data-img-sm="img/volunteers-35.jpg"
+          data-img-md="img/volunteers-58.jpg"
+          data-delay-image-load-event="unique-event-name">
+        Alternative text
+    </span>
+
+  <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="src/nimblepic.js"></script>
+
+
+  <script>
+      $(function () {
+          // trigger the delayed event (must be after DOM fully loaded)
+          $(window).trigger($("#delayed-image-load").attr("data-delay-image-load-event"));
+      });
+  </script>
+
+</body>
+</html>
