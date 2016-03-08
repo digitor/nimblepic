@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+ <testsuite name="The utility function" timestamp="2016-03-08T21:52:26" hostname="localhost" time="0.001" errors="0" tests="4" skipped="4" disabled="0" failures="0">
+  <testcase classname="The utility function" name="&apos;getDynamicHeight&apos; should get the height of the image loaded" time="0">
+   <skipped message="Temporarily disabled with xit" />
+  </testcase>
+  <testcase classname="The utility function" name="&apos;getDynamicHeight&apos; should return the source of the specified image" time="0">
+   <skipped message="Temporarily disabled with xit" />
+  </testcase>
+  <testcase classname="The utility function" name="&apos;getDynamicHeight&apos; should say if the image was loaded and able to get height successfully, when src exists" time="0">
+   <skipped message="Temporarily disabled with xit" />
+  </testcase>
+  <testcase classname="The utility function" name="&apos;getDynamicHeight&apos; should say if the image was loaded and able to get height successfully, when src DOESN&apos;T exist" time="0">
+   <skipped message="Temporarily disabled with xit" />
+  </testcase>
+ </testsuite>
+</testsuites>
