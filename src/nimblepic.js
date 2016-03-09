@@ -86,17 +86,17 @@
      * @param andIsEqual (boolean) - whether or not to use ">=" or "<=" logic (combines with isMoreThan).
      * @return (boolean) - whether window width fell below or above the specified break point.
      */
-    var responsiveWidth = function (breakName, isMoreThan, andIsEqual) {
-        var winWidth = SELF.winWidth();
+    function responsiveWidth(breakName, isMoreThan, andIsEqual) {
+        var w = winWidth();
 
         var logic = function (val) {
             if (isMoreThan) {
-                if (andIsEqual) return winWidth >= val;
-                return winWidth > val;
+                if (andIsEqual) return w >= val;
+                return w > val;
             }
             
-            if (andIsEqual) return winWidth <= val;
-            return winWidth < val;
+            if (andIsEqual) return w <= val;
+            return w < val;
         }
 
         switch (breakName) {
@@ -108,7 +108,7 @@
     }
 
 
-    var getResponsiveWidth = function() {
+    function getResponsiveWidth() {
         var w = winWidth();
         if (w < 480) return 'xs';
         if (w < 768) return 'sm';
@@ -118,14 +118,14 @@
 
 
     /**
-     * @description Get the width of the window including the scroll bars. If not supported (ie8 and below) will return width but scroll bars will affect the resukt.
+     * @description Get the width of the window including the scroll bars. If not supported (ie8 and below) will return width but scroll bars will affect the result.
      * @return (number/int) The width of the window including the scroll bars.
      */
     function winWidth() {
         return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     }
 
-    var getUID = function(pref) {
+    function getUID(pref) {
         return (pref || "") + Math.random().toString().replace(".", "");
     }
 
@@ -322,6 +322,8 @@
         	getDynamicHeight: getDynamicHeight
         	, getResponsiveWidth: getResponsiveWidth
         	, winWidth: winWidth
+        	, getUID: getUID
+        	, responsiveWidth: responsiveWidth
         }
     }
 

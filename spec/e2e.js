@@ -42,18 +42,20 @@ describe("getDynamicHeight", function() {
 });
 
 
+describe("getUID", function() {
+	var fun = window.nimblePic.testable.getUID
+	  , uid1 = fun()
+	  , uid2 = fun();
 
-describe("getResponsiveWidth", function() {
-	var fun = window.nimblePic.testable.getResponsiveWidth
-	  , isNarrowMb = window.outerWidth === 320
-	  , isMb = window.outerWidth === 480
-	  , isTb = window.outerWidth === 991
-	  , isDt = window.outerWidth === 1200
+	it("should get a string", function() {
+		expect(typeof uid1).toBe("string");
+	});
 
-	it("should get extra small (narrow mobile) width break-point name", function() {
-			 if(isNarrowMb) expect(fun()).toBe('xs');
-		else if(isMb) 		expect(fun()).toBe('sm');
-		else if(isTb) 		expect(fun()).toBe('md');
-		else if(isDt) 		expect(fun()).toBe('lg');
+	it("should not contain spaces", function() {
+		expect(uid1).not.toContain(" ");
+	});
+
+	it("should get a unique value each time", function() {
+		expect(uid1).not.toBe(uid2);
 	});
 });
