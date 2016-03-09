@@ -77,3 +77,67 @@ if(isDt || isTb || isMb || isNarrowMb) {
 		});
 	});
 }
+
+
+describe("responsiveHeight", function() {
+	var fun = window.nimblePic.testable.responsiveHeight;
+
+	var createEl = function(id, type, cls) {
+		var styleEl = document.createElement(type);
+		styleEl.setAttribute("id", id);
+		document.body.appendChild(styleEl);
+
+		var el = document.getElementById(id);
+
+		if(cls) el.classList.add(cls);
+
+		// just checking element was created
+		expect(el.getAttribute("id")).toBe(id);
+
+		return el;
+	}
+
+	// no need to run these tests on every breakpoint
+	if(isDt) {
+
+		it("should clear a style element by id, by just passing 'justClear' param and 'customID'.", function() {
+			var customID = "some-unique-id-1"
+			  , justClear = true;
+
+			createEl(customID, "style");
+
+			fun(true, customID);
+		});
+
+
+		it("should clear a style element by id, by just passing 'justClear' param and 'customID'.", function() {
+			var customID = "some-unique-id-2"
+			  , clearExisting = true;
+			  
+			createEl(customID, "style");
+
+			fun(null, customID, null, null, null, null, clearExisting);
+		});
+	}
+
+
+	if(isMb) {
+
+		it("should add a custom 'height' property for mobile on a custom selector", function() {
+
+			var customID = "some-unique-id-3"
+			  , customCls = "some-class"
+			  , heightSm = 400;
+
+			fun(null, customID, "."+customCls, heightSm);
+
+			var tempDivId = ".temp-div-1"
+			  , divEl = createEl(tempDivId, "div", customCls)
+			  , divH = divEl.offsetHeight
+
+			//console.log(document.getElementById(customID))
+			
+			expect(divH).toBe(heightSm);
+		});
+	}
+});
