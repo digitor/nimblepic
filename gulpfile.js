@@ -8,7 +8,7 @@ var gulp = require('gulp')
   , Server = require('karma').Server
   , runSequence = require('run-sequence')
 
-var webserverStream;
+var webserverStream, forceKill = false;
 
 gulp.task('lint', function () {
   return gulp.src(['**/*.js', '!node_modules{,/**}']).pipe(jshint()).pipe(jshint.reporter(stylish))
@@ -47,6 +47,14 @@ gulp.task("test", function(done) {
 	runSequence(['webserver-for-test', 'unit-tests', 'lint'], 'e2e-tests', 'e2e-tests-responsive', done);
 });
 
+gulp.task("test-just-e2e", function(done) {
+	forceKill = true;
+	runSequence(['webserver-for-test', 'lint'], 'e2e-tests', done);
+});
+
+
+
+
 gulp.task('e2e-tests', function (done) {
 
 	gutil.log(gutil.colors.magenta('WARNING: you must have `gulp webserver` going before running this task, plus an active internet connection (for karma proxies).'));
@@ -58,6 +66,7 @@ gulp.task('e2e-tests', function (done) {
 		},
 		 singleRun: true
 	}, function() {
+		if(forceKill && webserverStream) webserverStream.emit("kill");
 		done();
 	}).start();
 });
@@ -75,9 +84,12 @@ gulp.task('e2e-tests-responsive', function (done) {
 		 singleRun: true
 	}, function() {
 		if(webserverStream) webserverStream.emit("kill");
-		//gutil.log(gutil.colors.magenta('gulp task "done" callback not working because karma process still running, so manually exiting.'));
+		
+		if(forceKill) gutil.log(gutil.colors.magenta('gulp task "done" callback not working because karma process still running, so manually exiting.'));
+		
 		done();
-		//process.exit(1);
+		
+		if(forceKill) process.exit(1);
 	}).start();
 });
 

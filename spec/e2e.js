@@ -1,5 +1,5 @@
 
-describe("getDynamicHeight", function() {
+xdescribe("getDynamicHeight", function() {
 
 	var fun = window.nimblePic.testable.getDynamicHeight;
 	var mbImgSrc = "/demos/img/example-1-35.jpg"
@@ -42,7 +42,7 @@ describe("getDynamicHeight", function() {
 });
 
 
-describe("getUID", function() {
+xdescribe("getUID", function() {
 	var fun = window.nimblePic.testable.getUID
 	  , uid1 = fun()
 	  , uid2 = fun();
@@ -57,5 +57,37 @@ describe("getUID", function() {
 
 	it("should get a unique value each time", function() {
 		expect(uid1).not.toBe(uid2);
+	});
+});
+
+describe("responsiveHeight", function() {
+	var fun = window.nimblePic.testable.responsiveHeight;
+
+	var createStyleEl = function(id) {
+		var styleEl = document.createElement("style");
+		styleEl.setAttribute("id", id);
+		document.body.appendChild(styleEl);
+
+		// just checking element was created
+		expect(document.getElementById(id).getAttribute("id")).toBe(id);
+	}
+
+	it("should clear a style element by id, by just passing 'justClear' param and 'customID'.", function() {
+		var customID = "some-unique-id"
+		  , justClear = true;
+
+		createStyleEl(customID);
+
+		fun(true, customID);
+	});
+
+
+	it("should clear a style element by id, by just passing 'justClear' param and 'customID'.", function() {
+		var customID = "some-unique-id"
+		  , clearExisting = true;
+		  
+		createStyleEl(customID);
+
+		fun(null, customID, null, null, null, null, clearExisting);
 	});
 });

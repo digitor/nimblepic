@@ -324,6 +324,7 @@
         	, winWidth: winWidth
         	, getUID: getUID
         	, responsiveWidth: responsiveWidth
+        	, responsiveHeight: responsiveHeight
         }
     }
 
