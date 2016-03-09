@@ -2,8 +2,10 @@ module.exports = function(config) {
 
 	var chromeScrollBarW = 34; // needs this to compensate for scroll bars
   config.set({
-  	browsers: ['narrowMobileNonEx', 'mobileNonEx', 'tabletNonEx', 'desktopNonEx', 
-               'narrowMobileEx',    'mobileEx',    'tabletEx',    'desktopEx'],
+  	browsers: ['narrowMobileNonEx', 'mobileNonEx', 'tabletNonEx', 'desktopNonEx'
+               ,
+               'narrowMobileEx',    'mobileEx',    'tabletEx',    'desktopEx', 'desktopWideEx'
+               ],
     customLaunchers: {
       narrowMobileNonEx: {
         base: "Chrome",
@@ -19,10 +21,10 @@ module.exports = function(config) {
       },
       desktopNonEx: {
         base: "Chrome",
-        flags: ["--window-size="+(1199)+",1400"]
+        flags: ["--window-size="+(1199 + chromeScrollBarW)+",1400"]
       },
 
-      // for 
+      // for exact matches
       narrowMobileEx: {
         base: "Chrome",
         flags: ["--window-size="+(320 + chromeScrollBarW)+",600"],
@@ -37,11 +39,11 @@ module.exports = function(config) {
       },
       desktopEx: {
         base: "Chrome",
-        flags: ["--window-size="+(992)+",1400"]
+        flags: ["--window-size="+(992 + chromeScrollBarW)+",1400"]
       },
       desktopWideEx: {
         base: "Chrome",
-        flags: ["--window-size="+(1200)+",1400"]
+        flags: ["--window-size="+(1200 + chromeScrollBarW)+",1400"]
       }
     },
     frameworks: ['jasmine'],
