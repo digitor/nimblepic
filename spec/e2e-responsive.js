@@ -18,7 +18,7 @@ console.log("winW", winW);
 if(isDt || isTb || isMb || isNarrowMb) {
 
 
-	describe("getResponsiveWidth with non-exact breakpoint values", function() {
+	xdescribe("getResponsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.getResponsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points", function() {
@@ -30,7 +30,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 	});
 
 
-	describe("responsiveWidth with non-exact breakpoint values", function() {
+	xdescribe("responsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'less than' params", function() {
@@ -58,7 +58,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 	if(!isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
 		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
 
-	describe("responsiveWidth with exact breakpoint values", function() {
+	xdescribe("responsiveWidth with exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'more than or equal' params", function() {
@@ -80,9 +80,13 @@ if(isDt || isTb || isMb || isNarrowMb) {
 
 
 describe("responsiveHeight", function() {
-	var fun = window.nimblePic.testable.responsiveHeight;
+	var fun = window.nimblePic.testable.responsiveHeight
+	  , getUID = window.nimblePic.testable.getUID
+	  , heightSm = 400
+	  , heightMd = 768
+	  , heightLg = 992;
 
-	var createEl = function(id, type, cls) {
+	var createEl = function(id, type, cls, skipTest) {
 		var styleEl = document.createElement(type);
 		styleEl.setAttribute("id", id);
 		document.body.appendChild(styleEl);
@@ -92,7 +96,7 @@ describe("responsiveHeight", function() {
 		if(cls) el.classList.add(cls);
 
 		// just checking element was created
-		expect(el.getAttribute("id")).toBe(id);
+		if(!skipTest) expect(el.getAttribute("id")).toBe(id);
 
 		return el;
 	}
@@ -101,7 +105,7 @@ describe("responsiveHeight", function() {
 	if(isDt) {
 
 		it("should clear a style element by id, by just passing 'justClear' param and 'customID'.", function() {
-			var customID = "some-unique-id-1"
+			var customID = getUID("some-unique-id-")
 			  , justClear = true;
 
 			createEl(customID, "style");
@@ -111,7 +115,7 @@ describe("responsiveHeight", function() {
 
 
 		it("should clear a style element by id, by just passing 'justClear' param and 'customID'.", function() {
-			var customID = "some-unique-id-2"
+			var customID = getUID("some-unique-id-")
 			  , clearExisting = true;
 			  
 			createEl(customID, "style");
@@ -121,23 +125,115 @@ describe("responsiveHeight", function() {
 	}
 
 
-	if(isMb) {
 
-		it("should add a custom 'height' property for mobile on a custom selector", function() {
+	it("should add a custom 'height' property for mobile on a custom selector and fail for all others", function() {
 
-			var customID = "some-unique-id-3"
-			  , customCls = "some-class"
-			  , heightSm = 400;
+		var customID = getUID("some-unique-id-")
+		  , customCls = getUID("some-class-")
+		  
 
-			fun(null, customID, "."+customCls, heightSm);
+		fun(null, customID, "."+customCls, heightSm);
 
-			var tempDivId = ".temp-div-1"
-			  , divEl = createEl(tempDivId, "div", customCls)
-			  , divH = divEl.offsetHeight
+		var tempDivId = getUID(".temp-div-")
+		  , divEl = createEl(tempDivId, "div", customCls)
+		  , divH = divEl.offsetHeight
 
-			//console.log(document.getElementById(customID))
-			
-			expect(divH).toBe(heightSm);
+		if(isMb || isNarrowMb)	expect(divH).toEqual(heightSm);
+		else					expect(divH).toEqual(0);
+	});
+
+
+
+	it("should add a custom 'height' property for all breakpoints on a custom selector", function() {
+
+		var customID = getUID("some-unique-id-")
+		  , customCls = getUID("some-class-")
+
+		fun(null, customID, "."+customCls, null, heightMd);
+
+		var tempDivId = getUID(".temp-div-")
+		  , divEl = createEl(tempDivId, "div", customCls)
+		  , divH = divEl.offsetHeight
+
+		expect(divH).toEqual(heightMd);
+	});
+
+
+	it("should add a custom 'height' property for all breakpoints (but a different value for mobile) on a custom selector", function() {
+
+		var customID = getUID("some-unique-id-")
+		  , customCls = getUID("some-class-")
+
+		fun(null, customID, "."+customCls, heightSm, heightMd);
+
+		var tempDivId = getUID(".temp-div-")
+		  , divEl = createEl(tempDivId, "div", customCls)
+		  , divH = divEl.offsetHeight
+
+		if(isMb || isNarrowMb)	expect(divH).toEqual(heightSm);
+		else					expect(divH).toEqual(heightMd);
+	});
+
+
+	it("should add a custom 'height' property for desktop breakpoints (and fail for others) on a custom selector", function() {
+
+		var customID = getUID("some-unique-id-")
+		  , customCls = getUID("some-class-")
+
+		fun(null, customID, "."+customCls, null, null, heightLg);
+
+		var tempDivId = getUID(".temp-div-")
+		  , divEl = createEl(tempDivId, "div", customCls)
+		  , divH = divEl.offsetHeight
+
+		if(isDt || isWideDt)	expect(divH).toEqual(heightLg);
+		else					expect(divH).toEqual(0);
+	});
+
+
+	describe("3 media queries on same element by ID, but with different classes", function() {
+
+		var customID = getUID("some-unique-id-")
+		  , cls1 = getUID("example1")
+		  , cls2 = getUID("example2")
+		  , cls3 = getUID("example3")
+
+		// uses different classes for each call, but ame ID
+		fun(null, customID, "."+cls1, heightSm);
+		fun(null, customID, "."+cls2, null, heightMd);
+		fun(null, customID, "."+cls3, null, null, heightLg);
+
+		
+		// should just affect mobile
+		var tempDivId1 = getUID(".temp-div-")
+		  , divEl1 = createEl(tempDivId1, "div", cls1, true)
+		  , divH1 = divEl1.offsetHeight
+		
+		// should affect all
+		var tempDivId2 = getUID(".temp-div-")
+		  , divEl2 = createEl(tempDivId2, "div", cls2, true)
+		  , divH2 = divEl2.offsetHeight
+		
+		// just desktops
+		var tempDivId3 = getUID(".temp-div-")
+		  , divEl3 = createEl(tempDivId3, "div", cls3, true)
+		  , divH3 = divEl3.offsetHeight
+
+
+		it("should just succeed for mobile on div1", function() {
+			if(isMb || isNarrowMb)	expect(divH1).toEqual(heightSm);
+			else					expect(divH1).toEqual(0);
 		});
-	}
+
+
+		it("should succeed for all on div2", function() {
+			expect(divH2).toEqual(heightMd);
+		});
+
+
+		it("should just succeed for desktop on div3", function() {
+			if(isDt || isWideDt)	expect(divH3).toEqual(heightLg);
+			else					expect(divH3).toEqual(0);
+		});
+	});
 });
