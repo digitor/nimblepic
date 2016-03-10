@@ -101,6 +101,13 @@ describe("responsiveHeight", function() {
 		return el;
 	}
 
+	var getNewDivHeight = function(customCls, skipTest) {
+		var tempDivId = getUID(".temp-div-")
+		  , divEl = createEl(tempDivId, "div", customCls, skipTest);
+		
+		return divEl.offsetHeight;
+	}
+
 	// no need to run these tests on every breakpoint
 	if(isDt) {
 
@@ -134,9 +141,7 @@ describe("responsiveHeight", function() {
 
 		fun(null, customID, "."+customCls, heightSm);
 
-		var tempDivId = getUID(".temp-div-")
-		  , divEl = createEl(tempDivId, "div", customCls)
-		  , divH = divEl.offsetHeight
+		var divH = getNewDivHeight(customCls);
 
 		if(isMb || isNarrowMb)	expect(divH).toEqual(heightSm);
 		else					expect(divH).toEqual(0);
@@ -151,9 +156,7 @@ describe("responsiveHeight", function() {
 
 		fun(null, customID, "."+customCls, null, heightMd);
 
-		var tempDivId = getUID(".temp-div-")
-		  , divEl = createEl(tempDivId, "div", customCls)
-		  , divH = divEl.offsetHeight
+		var divH = getNewDivHeight(customCls);
 
 		expect(divH).toEqual(heightMd);
 	});
@@ -166,9 +169,7 @@ describe("responsiveHeight", function() {
 
 		fun(null, customID, "."+customCls, heightSm, heightMd);
 
-		var tempDivId = getUID(".temp-div-")
-		  , divEl = createEl(tempDivId, "div", customCls)
-		  , divH = divEl.offsetHeight
+		var divH = getNewDivHeight(customCls);
 
 		if(isMb || isNarrowMb)	expect(divH).toEqual(heightSm);
 		else					expect(divH).toEqual(heightMd);
@@ -182,12 +183,29 @@ describe("responsiveHeight", function() {
 
 		fun(null, customID, "."+customCls, null, null, heightLg);
 
-		var tempDivId = getUID(".temp-div-")
-		  , divEl = createEl(tempDivId, "div", customCls)
-		  , divH = divEl.offsetHeight
+		var divH = getNewDivHeight(customCls);
 
 		if(isDt || isWideDt)	expect(divH).toEqual(heightLg);
 		else					expect(divH).toEqual(0);
+	});
+
+
+	xit("should add a custom 'height' property for only the 2nd selector, because 'clearExisting' is set to true", function() {
+
+		var customID = getUID("some-unique-id-")
+		  , cls1 = getUID("some-class-")
+		  , cls2 = getUID("some-class-")
+
+		//fun(null, customID, "."+cls1, null, null, heightLg);
+		fun(null, customID, "."+cls2, null, null, heightLg, true); // passes 'clearExisting' as true
+
+		var divH1 = getNewDivHeight(cls1)
+		  , divH2 = getNewDivHeight(cls2);
+
+		if(isDt || isWideDt) {
+			//expect(divH1).toEqual(0);
+			expect(divH2).toEqual(heightLg);
+		}
 	});
 
 
@@ -203,21 +221,9 @@ describe("responsiveHeight", function() {
 		fun(null, customID, "."+cls2, null, heightMd);
 		fun(null, customID, "."+cls3, null, null, heightLg);
 
-		
-		// should just affect mobile
-		var tempDivId1 = getUID(".temp-div-")
-		  , divEl1 = createEl(tempDivId1, "div", cls1, true)
-		  , divH1 = divEl1.offsetHeight
-		
-		// should affect all
-		var tempDivId2 = getUID(".temp-div-")
-		  , divEl2 = createEl(tempDivId2, "div", cls2, true)
-		  , divH2 = divEl2.offsetHeight
-		
-		// just desktops
-		var tempDivId3 = getUID(".temp-div-")
-		  , divEl3 = createEl(tempDivId3, "div", cls3, true)
-		  , divH3 = divEl3.offsetHeight
+		var divH1 = getNewDivHeight(cls1, true)
+		  , divH2 = getNewDivHeight(cls2, true)
+		  , divH3 = getNewDivHeight(cls3, true)
 
 
 		it("should just succeed for mobile on div1", function() {
