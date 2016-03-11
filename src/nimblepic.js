@@ -4,9 +4,9 @@
 //var isJasmine = typeof jasmine !== "undefined";
 
 (function () {
-	var SELF, nimblePic;
+	var SELF, nimblePic, NS = "nimblePic";
 
-	var getDynamicHeight = function (src, srcIsSelector, cb) {
+	function getDynamicHeight(src, srcIsSelector, cb) {
         setTimeout(function () {
 
             if (srcIsSelector) src = $(src).css("background-image").replace("url(", "").replace(")", "").replace('"', '"').replace("'", "'");
@@ -23,10 +23,94 @@
         }, 100);
     }
 
+
+    /*
+     * For setting bg images on a `<span>` element, to replicate `<img>` element, but give control over image sizes at various media queries.
+     * Type 'viewport' Will ignore pixel density and just server "data-img-sm" and "data-img-md" sizes, according to Bootstrap breakpoints. Not possible with <img> element alone.
+     */
+    function responsiveImage(type, srcSm, srcMd, sel, heightSm, heightMd, heightLg, clearExisting, customID, grad) {
+        
+        if ( typeof Modernizr === "undefined" || Modernizr.cssgradients === undefined)
+            console.warn("Utils.js", "responsiveImage", "'Modernizr.cssgradients' was not availale, which older browsers, such as ie9 need in order for this function to work properly.");
+
+        if (!Modernizr.cssgradients) grad = null;
+
+
+        var id = customID || "imgresp-styles";
+
+        //console.log($("#" + id).html());
+        if (clearExisting) {
+            $("#" + id).remove();
+        }
+
+
+        if( !type || type === "viewport" ) {
+
+        	if(!srcSm || !srcMd || !sel) {
+        		console.warn(NS, "responsiveImage", "You must define srcSm, srcMd & sel");
+        		return;
+        	}
+
+            // defaults to srcMd (medium)
+            var css = sel + ' { background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
+            if (heightMd) css += 'height: ' + heightMd + 'px;';
+            css += '}';
+
+
+        
+            // smaller devices get srcSm (small)
+            css += '@media only screen and (max-width: 767px) {';
+            css += sel + ' {background-image:' + (grad ? grad + "," : "") + 'url(' + srcSm + ')' + (grad ? "!important" : "") + ';';
+            if (heightSm) css += 'height: ' + heightSm + 'px;';
+            css += '}';
+            css += sel + '.no-mb { background-image: ' + (grad || "none") + (grad ? "!important" : "") + '; }';
+            css += '}';
+
+
+            // If a large height is passed, still uses srcMd, but can specify another height
+            if (heightLg) {
+                css += '@media only screen and (min-width: 992px) {';
+                css += sel + ' {background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
+                css += 'height: ' + heightLg + 'px;';
+                css += '}}';
+            }
+        }
+
+        // Bases breakpoints on pixel density, rather than viewport width - same as `img srcset 2x`
+        /* TODO
+        if( type === "density" ) {
+
+            var css = sel + ' {' +
+                                'background-image:' + (grad ? grad + "," : "") + 'url(' + srcSm + ')' + (grad ? "!important" : "") + ';' +
+                            '}';
+        
+            css += '@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) {' +
+                        sel + ' {' +
+                            'background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';' +
+                        '}' +
+                    '}';
+        }
+        */
+
+        /* Can't add media queries inline, so we attach style tag dynamically. */
+        if ($("#" + id).length === 0) {
+            var styleTag = '<style type="text/css" id="' + id + '" data-resp-styles >' + css + '</style>'
+              , $existing = $("[data-resp-styles]");
+            if ($existing.length) {
+                $existing.last().after(styleTag);
+            } else {
+                $("body").prepend(styleTag);
+            }
+        } else {
+            $("#" + id).append(css);
+        }
+    }
+
+
     /*
      * For setting element heights at various media queries.
      */
-    var responsiveHeight = function (justClear, customID, sel, heightSm, heightMd, heightLg, clearExisting) {
+    function responsiveHeight(justClear, customID, sel, heightSm, heightMd, heightLg, clearExisting) {
 
         var id = customID || "elresp-styles";
 
@@ -129,6 +213,20 @@
         return (pref || "") + Math.random().toString().replace(".", "");
     }
 
+    function setClearImgStyles($) {
+
+        $(window).off("clear-img-styles").on("clear-img-styles", function (evt, data) {
+
+            if (!data || !data.styleIds) return;
+
+            for(var i = 0; i < data.styleIds.length; i++) {
+                var styleEl = document.getElementById(data.styleIds[i]);
+                if(styleEl)	document.body.removeChild( styleEl );
+                else 		console.warn(NS, "setClearImgStyles", "Couldn't find style element with ID " + data.styleIds[i] );
+            }
+        });
+    }
+
     nimblePic = {
 
 
@@ -138,15 +236,8 @@
          */
         setResponsiveAllImages: function ($, $container, customCls, customStyleID, parentCls) {
             // On DOM Ready
-            
-            $(window).off("clear-img-styles").on("clear-img-styles", function (evt, data) {
 
-                if (!data || !data.styleIds) return;
-
-                for(var i = 0; i < data.styleIds.length; i++) {
-                    $("#" + data.styleIds[i]).remove();
-                }
-            });
+            setClearImgStyles($);
 
             var doClearImg = true
               , doClearEl = true
@@ -325,6 +416,8 @@
         	, getUID: getUID
         	, responsiveWidth: responsiveWidth
         	, responsiveHeight: responsiveHeight
+        	, responsiveImage: responsiveImage
+        	, setClearImgStyles: setClearImgStyles
         }
     }
 

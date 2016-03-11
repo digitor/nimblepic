@@ -12,6 +12,11 @@ var isDt = winW === 1199
   , isMb = winW === 767
   , isNarrowMb = winW === 479
 
+
+var createEl = window.testUtils.createEl
+  , getNewDivHeight = window.testUtils.getNewDivHeight
+  , getUID = window.nimblePic.testable.getUID
+
 console.log("winW", winW);
 
 // testing specific break points with non-exact breakpoint values
@@ -79,34 +84,12 @@ if(isDt || isTb || isMb || isNarrowMb) {
 }
 
 
-describe("responsiveHeight", function() {
+xdescribe("responsiveHeight", function() {
 	var fun = window.nimblePic.testable.responsiveHeight
-	  , getUID = window.nimblePic.testable.getUID
 	  , heightSm = 400
 	  , heightMd = 768
 	  , heightLg = 992;
 
-	var createEl = function(id, type, cls, skipTest) {
-		var styleEl = document.createElement(type);
-		styleEl.setAttribute("id", id);
-		document.body.appendChild(styleEl);
-
-		var el = document.getElementById(id);
-
-		if(cls) el.classList.add(cls);
-
-		// just checking element was created
-		if(!skipTest) expect(el.getAttribute("id")).toBe(id);
-
-		return el;
-	}
-
-	var getNewDivHeight = function(customCls, skipTest) {
-		var tempDivId = getUID(".temp-div-")
-		  , divEl = createEl(tempDivId, "div", customCls, skipTest);
-		
-		return divEl.offsetHeight;
-	}
 
 	// no need to run these tests on every breakpoint
 	if(isDt) {
@@ -190,20 +173,21 @@ describe("responsiveHeight", function() {
 	});
 
 
-	xit("should add a custom 'height' property for only the 2nd selector, because 'clearExisting' is set to true", function() {
+	// TEST NOT WORKING (NEED TO FIX)
+	it("should add a custom 'height' property for only the 2nd selector, because 'clearExisting' is set to true", function() {
 
 		var customID = getUID("some-unique-id-")
 		  , cls1 = getUID("some-class-")
 		  , cls2 = getUID("some-class-")
 
-		//fun(null, customID, "."+cls1, null, null, heightLg);
+		fun(null, customID, "."+cls1, null, null, heightLg);
 		fun(null, customID, "."+cls2, null, null, heightLg, true); // passes 'clearExisting' as true
 
 		var divH1 = getNewDivHeight(cls1)
 		  , divH2 = getNewDivHeight(cls2);
 
 		if(isDt || isWideDt) {
-			//expect(divH1).toEqual(0);
+			expect(divH1).toEqual(0);
 			expect(divH2).toEqual(heightLg);
 		}
 	});
@@ -242,4 +226,29 @@ describe("responsiveHeight", function() {
 			else					expect(divH3).toEqual(0);
 		});
 	});
+});
+
+describe("responsiveImage", function() {
+	var fun = window.nimblePic.testable.responsiveImage
+	  , srcSm = "/demos/img/example-1-35.jpg"
+	  , srcMd = "/demos/img/example-1-58.jpg"
+	  , defId = "imgresp-styles"
+
+	if(isMb || isNarrowMb) {
+		it("should show mobile image", function() {
+			var cls = getUID("example1");
+			fun(null, srcSm, srcMd, "."+cls);
+			createEl(defId, "span", cls);
+
+			expect($("#"+defId).css("background-image")).toContain(srcSm);
+		});
+	} else {
+		it("should show tabet/desktop image", function() {
+			var cls = getUID("example2");
+			fun(null, srcSm, srcMd, "."+cls);
+			createEl(defId, "span", cls);
+
+			expect($("#"+defId).css("background-image")).toContain(srcMd);
+		});
+	}
 });

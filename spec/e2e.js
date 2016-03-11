@@ -1,4 +1,8 @@
 
+
+var createEl = window.testUtils.createEl
+  , getUID = window.nimblePic.testable.getUID
+
 describe("getDynamicHeight", function() {
 
 	var fun = window.nimblePic.testable.getDynamicHeight;
@@ -57,5 +61,19 @@ describe("getUID", function() {
 
 	it("should get a unique value each time", function() {
 		expect(uid1).not.toBe(uid2);
+	});
+});
+
+describe("setClearImgStyles", function() {
+	var fun = window.nimblePic.testable.setClearImgStyles;
+
+	it("should create an element, then remove it when event is triggered", function() {
+		var customID = getUID("some-unique-id-")
+
+		fun($);
+		createEl(customID, "style");
+		expect(document.getElementById(customID)).toBeTruthy();
+		$(window).trigger("clear-img-styles", { styleIds: [customID] });
+		expect(document.getElementById(customID)).toBeFalsy();
 	});
 });
