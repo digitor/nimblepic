@@ -36,7 +36,6 @@
         if (!Modernizr.cssgradients) grad = null;
 
 
-
         if( !type || type === "viewport" ) {
 
         	if(!srcSm || !srcMd || !sel) {
@@ -51,7 +50,6 @@
             var css = sel + ' { background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
             if (heightMd) css += 'height: ' + heightMd + 'px;';
             css += '}';
-
 
         
             // smaller devices get srcSm (small)

@@ -266,8 +266,9 @@ describe("responsiveImage", function() {
 		});
 	}
 
-	if(isMb || isNarrowMb) {
-		it("should show mobile image using custom style id and 'clearExisting' removing it", function() {
+	// could be on any break point, just adding condition so we're running it more than needed
+	if(isMb) {
+		it("should show image using custom style id and 'clearExisting' removing it", function() {
 			var id = getUID("example3")
 			  , cls = getUID("example3")
 			  , customStyleID = getUID("example3");
@@ -285,5 +286,29 @@ describe("responsiveImage", function() {
 
 			expect($("#"+id).css("background-image")).toContain("fake-src");
 		});
+	} 
+
+	// STILL WORKING ON THIS ONE
+	if(isMb || isNarrowMb) {
+		xit("should show mobile image height applied", function(done) {
+			var id = getUID("example4")
+			  , cls = getUID("example4")
+			  , heightSm = 200;
+
+			fun(null, srcSm, srcMd, "."+cls, heightSm);
+			createEl(id, "span", cls);
+
+			//$("#"+id).width(300);
+
+			expect($("#"+id).height()).toEqual(heightSm);
+
+			setTimeout(function() {
+
+				console.log($("#"+id).length);
+				done();
+			}, 1000);
+		});
+	} else {
+
 	}
 });
