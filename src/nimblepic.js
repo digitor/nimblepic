@@ -36,13 +36,6 @@
         if (!Modernizr.cssgradients) grad = null;
 
 
-        var id = customID || "imgresp-styles";
-
-        //console.log($("#" + id).html());
-        if (clearExisting) {
-            $("#" + id).remove();
-        }
-
 
         if( !type || type === "viewport" ) {
 
@@ -50,6 +43,9 @@
         		console.warn(NS, "responsiveImage", "You must define srcSm, srcMd & sel");
         		return;
         	}
+
+	        var id = customID || "imgresp-styles";
+	        if (clearExisting) $("#" + id).remove();
 
             // defaults to srcMd (medium)
             var css = sel + ' { background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
@@ -104,6 +100,8 @@
         } else {
             $("#" + id).append(css);
         }
+
+        return id;
     }
 
 

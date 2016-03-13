@@ -232,23 +232,58 @@ describe("responsiveImage", function() {
 	var fun = window.nimblePic.testable.responsiveImage
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"
-	  , defId = "imgresp-styles"
+	  , defId = "imgresp-styles";
+
+	function bgImgExp(id, src, customID) {
+		expect($("#"+id).css("background-image")).toContain(src);
+
+		if(!customID) customID = defId;
+
+		$("#"+customID).remove();
+		
+		expect($("#"+id).css("background-image")).not.toContain(src);
+	}
 
 	if(isMb || isNarrowMb) {
-		it("should show mobile image", function() {
-			var cls = getUID("example1");
-			fun(null, srcSm, srcMd, "."+cls);
-			createEl(defId, "span", cls);
+		it("should show mobile image using default style id", function() {
+			var id = getUID("example1")
+			  , cls = getUID("example1");
 
-			expect($("#"+defId).css("background-image")).toContain(srcSm);
+			fun(null, srcSm, srcMd, "."+cls);
+			createEl(id, "span", cls);
+
+			bgImgExp(id, srcSm);
 		});
 	} else {
-		it("should show tabet/desktop image", function() {
-			var cls = getUID("example2");
-			fun(null, srcSm, srcMd, "."+cls);
-			createEl(defId, "span", cls);
+		it("should show tabet/desktop image using default style id", function() {
+			var id = getUID("example2")
+			  , cls = getUID("example2");
 
-			expect($("#"+defId).css("background-image")).toContain(srcMd);
+			fun(null, srcSm, srcMd, "."+cls);
+			createEl(id, "span", cls);
+
+			bgImgExp(id, srcMd);
+		});
+	}
+
+	if(isMb || isNarrowMb) {
+		it("should show mobile image using custom style id and 'clearExisting' removing it", function() {
+			var id = getUID("example3")
+			  , cls = getUID("example3")
+			  , customStyleID = getUID("example3");
+
+			// runs the main function on a custom ID (for the style element)
+			fun(null, srcSm, srcMd, "."+cls, null, null, null, null, customStyleID);
+			createEl(id, "span", cls);
+
+			// tests that elements created contains the default bg image for the small size
+			expect($("#"+id).css("background-image")).toContain(srcSm);
+
+			// now runs the main function again with the 'clearExisting' param as true, so we can verify the new (fake) src value gets applied
+			var clearExisting = true;
+			fun(null, "fake-src", srcMd, "."+cls, null, null, null, clearExisting, customStyleID);
+
+			expect($("#"+id).css("background-image")).toContain("fake-src");
 		});
 	}
 });
