@@ -35,19 +35,19 @@
 
         if (!Modernizr.cssgradients) grad = null;
 
+        var css, id = customID || "imgresp-styles";
 
         if( !type || type === "viewport" ) {
 
-        	if(!srcSm || !srcMd || !sel) {
-        		console.warn(NS, "responsiveImage", "You must define srcSm, srcMd & sel");
-        		return;
-        	}
+            if(!srcSm || !srcMd || !sel) {
+                console.warn(NS, "responsiveImage", "You must define srcSm, srcMd & sel");
+                return;
+            }
 
-	        var id = customID || "imgresp-styles";
 	        if (clearExisting) $("#" + id).remove();
 
             // defaults to srcMd (medium)
-            var css = sel + ' { background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
+            css = sel + ' { background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
             if (heightMd) css += 'height: ' + heightMd + 'px;';
             css += '}';
 

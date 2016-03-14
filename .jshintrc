@@ -8,7 +8,7 @@
   "noempty": true,
   "nonbsp": true,
   "undef": true,
-  "predef": ["$"],
+  "predef": ["$", "Modernizr"],
   "browser": true,
   "jasmine": true,
 

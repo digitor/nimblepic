@@ -52,6 +52,11 @@ gulp.task("test-just-e2e", function(done) {
 	runSequence(['webserver-for-test', 'lint'], 'e2e-tests', done);
 });
 
+gulp.task("test-just-resp", function(done) {
+	forceKill = true;
+	runSequence(['webserver-for-test', 'lint'], 'e2e-tests-responsive', done);
+});
+
 
 
 

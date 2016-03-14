@@ -23,6 +23,12 @@
             return el;
         }
 
+        ,createImgEl: function(id, cls) {
+            var el = SELF.createEl(id, "span", cls);
+            el.classList.add("imgresp");
+            return el;
+        }
+
         ,getNewDivHeight: function(customCls, skipTest) {
             var tempDivId = getUID(".temp-div-")
               , divEl = SELF.createEl(tempDivId, "div", customCls, skipTest);

@@ -14,10 +14,11 @@ var isDt = winW === 1199
 
 
 var createEl = window.testUtils.createEl
+  , createImgEl = window.testUtils.createImgEl
   , getNewDivHeight = window.testUtils.getNewDivHeight
   , getUID = window.nimblePic.testable.getUID
 
-console.log("winW", winW);
+//console.log("winW", winW);
 
 // testing specific break points with non-exact breakpoint values
 if(isDt || isTb || isMb || isNarrowMb) {
@@ -250,7 +251,7 @@ describe("responsiveImage", function() {
 			  , cls = getUID("example1");
 
 			fun(null, srcSm, srcMd, "."+cls);
-			createEl(id, "span", cls);
+			createImgEl(id, cls);
 
 			bgImgExp(id, srcSm);
 		});
@@ -260,7 +261,7 @@ describe("responsiveImage", function() {
 			  , cls = getUID("example2");
 
 			fun(null, srcSm, srcMd, "."+cls);
-			createEl(id, "span", cls);
+			createImgEl(id, cls);
 
 			bgImgExp(id, srcMd);
 		});
@@ -275,7 +276,7 @@ describe("responsiveImage", function() {
 
 			// runs the main function on a custom ID (for the style element)
 			fun(null, srcSm, srcMd, "."+cls, null, null, null, null, customStyleID);
-			createEl(id, "span", cls);
+			createImgEl(id, cls);
 
 			// tests that elements created contains the default bg image for the small size
 			expect($("#"+id).css("background-image")).toContain(srcSm);
@@ -290,23 +291,15 @@ describe("responsiveImage", function() {
 
 	// STILL WORKING ON THIS ONE
 	if(isMb || isNarrowMb) {
-		xit("should show mobile image height applied", function(done) {
+		it("should show mobile image height applied", function() {
 			var id = getUID("example4")
 			  , cls = getUID("example4")
 			  , heightSm = 200;
 
 			fun(null, srcSm, srcMd, "."+cls, heightSm);
-			createEl(id, "span", cls);
-
-			//$("#"+id).width(300);
+			createImgEl(id, cls);
 
 			expect($("#"+id).height()).toEqual(heightSm);
-
-			setTimeout(function() {
-
-				console.log($("#"+id).length);
-				done();
-			}, 1000);
 		});
 	} else {
 
