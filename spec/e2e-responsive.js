@@ -289,7 +289,6 @@ describe("responsiveImage", function() {
 		});
 	} 
 
-	// STILL WORKING ON THIS ONE
 	if(isMb || isNarrowMb) {
 		it("should show mobile image height applied", function() {
 			var id = getUID("example4")
@@ -301,7 +300,42 @@ describe("responsiveImage", function() {
 
 			expect($("#"+id).height()).toEqual(heightSm);
 		});
-	} else {
+	} else if(isTb) {
+		it("should show tablet image height applied", function() {
+			var id = getUID("example5")
+			  , cls = getUID("example5")
+			  , heightMd = 400;
 
+			fun(null, srcSm, srcMd, "."+cls, null, heightMd);
+			createImgEl(id, cls);
+
+			expect($("#"+id).height()).toEqual(heightMd);
+		});
+	} else if(isDt) {
+		it("should show desktop image height applied", function() {
+			var id = getUID("example5")
+			  , cls = getUID("example5")
+			  , heightLg = 600;
+
+			fun(null, srcSm, srcMd, "."+cls, null, heightLg);
+			createImgEl(id, cls);
+
+			expect($("#"+id).height()).toEqual(heightLg);
+		});
+	}
+
+	if(isMb || isNarrowMb) {
+		it("should not show the bg image when on mobile and CSS class 'no-mb' is applied", function() {
+			var id = getUID("example6")
+			  , cls = getUID("example6")
+
+			fun(null, srcSm, srcMd, "."+cls);
+			var el = createImgEl(id, cls);
+
+			el.classList.add("no-mb");
+
+			// tests that elements created contains the default bg image for the small size
+			expect($("#"+id).css("background-image")).not.toContain(srcSm);
+		});
 	}
 });

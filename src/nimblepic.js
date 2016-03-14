@@ -24,9 +24,9 @@
     }
 
 
-    /*
-     * For setting bg images on a `<span>` element, to replicate `<img>` element, but give control over image sizes at various media queries.
-     * Type 'viewport' Will ignore pixel density and just server "data-img-sm" and "data-img-md" sizes, according to Bootstrap breakpoints. Not possible with <img> element alone.
+    /**
+     * @description Sets bg images on a `<span>` element, to replicate `<img>` element, but give control over image sizes at various media queries.
+     * @param type (string) optional - either 'viewport' or 'density'. A null value will default 'viewport' (which is currently the only supported type anyway).
      */
     function responsiveImage(type, srcSm, srcMd, sel, heightSm, heightMd, heightLg, clearExisting, customID, grad) {
         
@@ -64,7 +64,6 @@
             // If a large height is passed, still uses srcMd, but can specify another height
             if (heightLg) {
                 css += '@media only screen and (min-width: 992px) {';
-                css += sel + ' {background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
                 css += 'height: ' + heightLg + 'px;';
                 css += '}}';
             }
