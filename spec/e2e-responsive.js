@@ -24,7 +24,7 @@ var createEl = window.testUtils.createEl
 if(isDt || isTb || isMb || isNarrowMb) {
 
 
-	xdescribe("getResponsiveWidth with non-exact breakpoint values", function() {
+	describe("getResponsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.getResponsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points", function() {
@@ -36,7 +36,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 	});
 
 
-	xdescribe("responsiveWidth with non-exact breakpoint values", function() {
+	describe("responsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'less than' params", function() {
@@ -64,7 +64,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 	if(!isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
 		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
 
-	xdescribe("responsiveWidth with exact breakpoint values", function() {
+	describe("responsiveWidth with exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'more than or equal' params", function() {
@@ -86,7 +86,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 
 
 
-xdescribe("responsiveHeight", function() {
+describe("responsiveHeight", function() {
 	var fun = window.nimblePic.testable.responsiveHeight
 	  , heightSm = 400
 	  , heightMd = 768
@@ -195,7 +195,7 @@ xdescribe("responsiveHeight", function() {
 	});
 
 
-	xdescribe("3 media queries on same element by ID, but with different classes", function() {
+	describe("3 media queries on same element by ID, but with different classes", function() {
 
 		var customID = getUID("some-unique-id-")
 		  , cls1 = getUID("example1")
@@ -230,7 +230,7 @@ xdescribe("responsiveHeight", function() {
 	});
 });
 
-xdescribe("responsiveImage", function() {
+describe("responsiveImage", function() {
 	var fun = window.nimblePic.testable.responsiveImage
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"

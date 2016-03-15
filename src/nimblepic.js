@@ -361,14 +361,14 @@
         return false;
     }
 
-    function setCustomEventHandler($img, srcSm, srcMd, sel, hSm, hMd, hLg, styleId, customEvent, uid, cb) {
+    function setCustomEventHandler($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, styleId, customEvent, uid, cb) {
         $(window).one(customEvent, function (evt, data) {
 
             if (data && data.refresh) {
                 srcSm = $img.attr("data-img-sm");
                 srcMd = $img.attr("data-img-md");
             }
-            cb($img, srcSm, srcMd, sel, hSm, hMd, hLg, uid, data ? data.cb : null, styleId);
+            cb($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, data ? data.cb : null, styleId);
         });
     }
 
@@ -417,37 +417,28 @@
               , UID = getUID()
               , delayedImageEls = []
 
-            var startLoading = function ($img, srcSm, srcMd, sel, hSm, hMd, hLg, uid, cb, styleId) {
+            var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, cb, styleId) {
 
                 // stops late events from interfering
                 if (uid !== UID) return;
 
                 var breakPointSize = getResponsiveWidth();
 
-                var thisSrc = breakPointSize === 'sm' ? srcSm : srcMd
-                  , selector = getSpecificSelector(parentCls, sel);
-                
-                styleId = styleId || customStyleID;
+                var thisSrc = breakPointSize === 'sm' ? srcSm : srcMd;
 
                 // marks the image as "loading in progress", so other attempts to load it are blocked
                 $img.data(D_CUR_IMG_SRC, thisSrc);
-
                 
                 getDynamicHeight(thisSrc, false, function (url, isSuccess, height) {
 
                     setLoadingStates($img[0], "loaded");
 
                     if (isSuccess) {
-
-                        var heightSm = hSm || height
-                          , heightMd = hMd || height
-                          , heightLg = hLg || height;
-                        
                         var grad = $img.attr("data-grad") || null;
-                        responsiveImage(null, srcSm, srcMd, selector, heightSm, heightMd, heightLg, doClearImg, styleId, grad);
+                        responsiveImage(null, srcSm, srcMd, specificSel, (hSm || height), (hMd || height), (hLg || height), doClearImg, styleId, grad);
                     } else {
                         // if image failed to load, still add it's heights to the styles id for this group
-                        responsiveHeight(false, styleId || 'imgresp-styles', selector, hSm, hMd, hLg, doClearImg);
+                        responsiveHeight(false, styleId || 'imgresp-styles', specificSel, hSm, hMd, hLg, doClearImg);
                         $img.addClass(CLS_NO_IMG);
                     }
                     doClearImg = false; // just clears the first time
@@ -459,16 +450,16 @@
             if (!$container) $container = $(document);
 
             $(function () { // Uses DOM Ready to ensure all html elements in $container exist
-                var prp, sel, $img;
+                var prp, singleCls, $img;
 
                 $container.find("." + customCls).each(function (i) {
                     
                     prp = getImgProps(this);
 
-                    sel = customCls + "-" + i;
-                    this.classList.add(sel);
+                    singleCls = customCls + "-" + i;
+                    this.classList.add(singleCls);
                     
-                    $img = $("." + sel);
+                    $img = $("." + singleCls);
 
                     // if in process of loading or pending an event to be triggered, do nothing
                     var isLoading = addLoader($img);
@@ -480,11 +471,16 @@
 
 
                     var noSrc = !prp.srcSm && !prp.srcMd
-                      , selector = getSpecificSelector(parentCls, sel)
+                      , specificSel = getSpecificSelector(parentCls, singleCls)
                       , styleId = getCustomStyleId(customStyleID, noSrc, prp.group, prp.customEvent);
 
-                    sel = setUniqueImgClass(sel, $img[0], prp.group, prp.customEvent);
-                    responsiveHeight(false, styleId, selector, prp.hSm, prp.hMd, prp.hLg, doClearEl);
+                    // Doesn't need the unique image class (so should come before 'setUniqueImgClass'), as the heights will be the same 
+                    // TODO: need to verify this
+                    responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, doClearEl);
+                    
+                    // Doesn't need the 'parentCls' prefix, so uses 'singleCls', rather than 'specificSel'
+                    // TODO: need to verify this
+                    setUniqueImgClass(singleCls, $img[0], prp.group, prp.customEvent);
 
                     /**
                      * If you're using a group, or there no custom event being used, this sets the 'doClearEl' flag to false. 
@@ -501,9 +497,9 @@
                     setLoadingStates(this, "loading");
 
                     if (prp.customEvent) {
-                        setCustomEventHandler($img, prp.srcSm, prp.srcMd, sel, prp.hSm, prp.hMd, prp.hLg, styleId, customEvent, UID, startLoading);
+                        setCustomEventHandler($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, styleId, customEvent, UID, startLoading);
                     } else {
-                        startLoading($img, prp.srcSm, prp.srcMd, sel, prp.hSm, prp.hMd, prp.hLg, UID, null, styleId);
+                        startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, null, styleId);
                     }
                 
                 });

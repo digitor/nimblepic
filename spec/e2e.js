@@ -4,7 +4,7 @@ var createEl = window.testUtils.createEl
   , cleanupElement = window.testUtils.cleanupElement
   , getUID = window.nimblePic.testable.getUID
 
-xdescribe("getDynamicHeight", function() {
+describe("getDynamicHeight", function() {
 
 	var fun = window.nimblePic.testable.getDynamicHeight;
 	var mbImgSrc = "/demos/img/example-1-35.jpg"
@@ -47,7 +47,7 @@ xdescribe("getDynamicHeight", function() {
 });
 
 
-xdescribe("getUID", function() {
+describe("getUID", function() {
 	var fun = window.nimblePic.testable.getUID
 	  , uid1 = fun()
 	  , uid2 = fun();
@@ -65,7 +65,7 @@ xdescribe("getUID", function() {
 	});
 });
 
-xdescribe("setClearImgStyles", function() {
+describe("setClearImgStyles", function() {
 	var fun = window.nimblePic.testable.setClearImgStyles;
 
 	it("should create an element, then remove it when event is triggered", function() {
