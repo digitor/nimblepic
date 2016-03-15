@@ -4,7 +4,13 @@
 //var isJasmine = typeof jasmine !== "undefined";
 
 (function () {
-	var SELF, nimblePic, NS = "nimblePic";
+	var SELF
+      , nimblePic
+      , NS = "nimblePic"
+      , CLS_NO_IMG = "no-img"
+      , D_CUR_IMG_SRC = "current-image-src"
+      , CLS_IS_IMG_LOADING = "is-imgloading"
+      , CLS_IS_IMG_LOADED = "is-imgloaded";
 
 	function getDynamicHeight(src, srcIsSelector, cb) {
         setTimeout(function () {
@@ -228,15 +234,22 @@
         });
     }
 
+
+    /**
+     * @description Gets properties from the data attributes of the image (span) element.
+     * @param img (HTML Element) - The image (span) element.
+     */
     function getImgProps(img) {
         var srcSm = img.getAttribute("data-img-sm") || null
           , srcMd = img.getAttribute("data-img-md") || null;
 
 
         // optional
-        var hSm = img.getAttribute("data-height-sm")
-          , hMd = img.getAttribute("data-height-md")
-          , hLg = img.getAttribute("data-height-lg");
+        var hSm         = img.getAttribute("data-height-sm")
+          , hMd         = img.getAttribute("data-height-md")
+          , hLg         = img.getAttribute("data-height-lg")
+          , customEvent = img.getAttribute("data-delay-image-load-event")
+          , group       = img.getAttribute("data-img-group");
 
         if(hSm && parseInt(hSm).toString() !== "NaN") hSm = parseInt(hSm);
         else                                          hSm = null;
@@ -252,9 +265,116 @@
             srcMd: srcMd,
             hSm: hSm,
             hMd: hMd,
-            hLg: hLg
+            hLg: hLg,
+            customEvent: customEvent || null,
+            group: group || null
         }
     }
+
+    function addLoader($img) {
+        // if in process of loading or pending an event to be triggered, do nothing
+        if ($img.hasClass(CLS_IS_IMG_LOADING)) return true;
+
+        if ($img.find(".imgresp-ldr").length === 0)
+            $img.prepend('<span class="imgresp-ldr"></span>');
+
+        return false;
+    }
+
+    /**
+     * @description Uses query selector to target a more specific class by using a parent class as well.
+     * @param parentCls (string) - The class of a parent element. Doesn't have to be immediate parent.
+     * @param cls (string) - The class of the target image (span) element.
+     */
+    function getSpecificSelector(parentCls, cls) {
+        return (parentCls ? "." + parentCls + " " : "") + "." + cls;
+    }
+
+    /**
+     * @description Uses the customStyleID passed in, unless it detects an invalid src ("noSrc"). Then it generates a new unique ID.
+     * @param customStyleID (string) - The custom ID to use if src is valid.
+     * @param noSrc (boolean) - If true, means the src was not valid.
+     * @param group (string) - Name of the group.
+     * @param customEvent (string) - Name of the customEvent.
+     */
+    function getCustomStyleId(customStyleID, noSrc, group, customEvent) {
+        var uid = getUID();
+
+        // If loading from a custom event, must have it's own styleId (which is named same as the custom event), or else heights will get lost
+        if (group)       styleId = group;
+        if (customEvent) styleId = customEvent;
+
+        return noSrc ? (customStyleID ? customStyleID + "-" + uid : 'imgresp-styles-' + uid) : customStyleID;
+    }
+
+    /**
+     * @description Uses query selector to target a more specific class by using a parent class as well.
+     * @param existingCls (string) - The existing class selector to use if no group or custom event exists.
+     * @param img (HTML Element) - The image (span) element.
+     * @param group (string) - Name of the group.
+     * @param customEvent (string) - Name of the customEvent.
+     */
+    function setUniqueImgClass(existingCls, img, group, customEvent) {
+
+        if (customEvent || group) {
+            var uniqueCls = "imgresp-" + i + "-" + getUID();
+            img.classList.add(uniqueCls);
+            return uniqueCls;
+        }
+
+        return existingCls;
+    }
+
+    function getValidSrc(srcSm, srcMd) {
+        return !srcSm && !srcMd;
+    }
+
+    function validateImgSrc($img, srcSm, srcMd) {
+        var breakPointSize = getResponsiveWidth()
+          , noSrc = getValidSrc(srcSm, srcMd);
+
+        if (noSrc) return true;
+
+        var approvedSrc = breakPointSize === 'sm' ? srcSm : srcMd;
+
+        if (!approvedSrc) {
+            $img.addClass(CLS_NO_IMG);
+            $img.data(D_CUR_IMG_SRC, null);
+            return true; // if no image, stop here
+        }
+
+        // check if loaded already (or currently loading)
+        var curImg = $img.data(D_CUR_IMG_SRC);
+        if (curImg) {
+            // do nothing if approved image is already loaded
+            if (curImg === approvedSrc) return true;
+        }
+
+        return false;
+    }
+
+    function setCustomEventHandler($img, srcSm, srcMd, sel, hSm, hMd, hLg, styleId, customEvent, cb) {
+        $(window).one(customEvent, function (evt, data) {
+
+            if (data && data.refresh) {
+                srcSm = $img.attr("data-img-sm");
+                srcMd = $img.attr("data-img-md");
+            }
+            //console.log("customEvent", customEvent, $img, srcSm, srcMd, sel, hSm, hMd, hLg, UID);
+            cb($img, srcSm, srcMd, sel, hSm, hMd, hLg, UID, data ? data.cb : null, styleId);
+        });
+    }
+
+    /**
+     * @description Resets the loading states, assuming a fresh image load was successful.
+     * @param img (HTML Element) - The image (span) element.
+     */
+    function setLoadingStates(img) {
+        img.classList.remove(CLS_NO_IMG);
+        img.classList.remove(CLS_IS_IMG_LOADED);
+        img.classList.add(CLS_IS_IMG_LOADING);
+    }
+
 
     nimblePic = {
 
@@ -272,50 +392,39 @@
               , doClearEl = true
               , UID = SELF.getUID()
               , delayedImageEls = []
-              , CLS_IS_IMG_LOADING = "is-imgloading"
-              , CLS_IS_IMG_LOADED = "is-imgloaded"
-              , CLS_NO_IMG = "no-img"
-              , D_CUR_IMG = "current-image"
 
-            var startLoading = function (type, $img, srcSm, srcMd, sel, hSm, hMd, hLg, breakPointSize, uid, cb, styleId) {
+            var startLoading = function ($img, srcSm, srcMd, sel, hSm, hMd, hLg, uid, cb, styleId) {
 
                 // stops late events from interfering
                 if (uid !== UID) return;
 
+                var breakPointSize = getResponsiveWidth();
+
                 var thisSrc = breakPointSize === 'sm' ? srcSm : srcMd
-                  , selector = (parentCls ? "." + parentCls + " " : "") + "." + sel;
+                  , selector = getSpecificSelector(parentCls, sel);
                 
                 styleId = styleId || customStyleID;
 
                 // need to determine the src beforehand if we want to preload (based on the window width)
-                $img.data(D_CUR_IMG, thisSrc);
+                $img.data(D_CUR_IMG_SRC, thisSrc);
 
                 
                 SELF.getDynamicHeight(thisSrc, false, function (url, isSuccess, height) {
 
-                    // DOM takes a little while to update for some reason, event though image CSS has been added. Timeout stops loader fading out fraction too early
-                    //setTimeout(function () {
-                        //$img.prepareTransition().removeClass(CLS_IS_IMG_LOADING);
-                        $img.removeClass(CLS_IS_IMG_LOADING);
-                        $img.addClass(CLS_IS_IMG_LOADED);
-                   // }, 100);
+                    $img.removeClass(CLS_IS_IMG_LOADING);
+                    $img.addClass(CLS_IS_IMG_LOADED);
 
                     if (isSuccess) {
-
-                        // Clear predefined heights, but only if image was loaded successfully. Wait awhile so that all images should have loaded by then
-                        //setTimeout(function () {
-                        //    SELF.responsiveHeight(true, styleId);
-                        //}, 10000);
 
                         var heightSm = hSm || height
                           , heightMd = hMd || height
                           , heightLg = hLg || height;
                         
                         var grad = $img.attr("data-grad") || null;
-                        SELF.responsiveImage(type, srcSm, srcMd, selector, heightSm, heightMd, heightLg, doClearImg, styleId, grad);
+                        SELF.responsiveImage(null, srcSm, srcMd, selector, heightSm, heightMd, heightLg, doClearImg, styleId, grad);
                     } else {
                         // if image failed to load, still add it's heights to the styles id for this group
-                        SELF.responsiveHeight(false, styleId || 'imgresp-styles', selector, hSm, hMd, hLg, doClearImg);
+                        responsiveHeight(false, styleId || 'imgresp-styles', selector, hSm, hMd, hLg, doClearImg);
                         $img.addClass(CLS_NO_IMG);
                     }
                     doClearImg = false; // just clears the first time
@@ -327,102 +436,51 @@
             if (!$container) $container = $(document);
 
             $(function () {
-                var type = "viewport", $th, srcSm, srcMd, sel, hSm, hMd, hLg, $img;//, isDynamicHeight;
-                var breakPointSize = SELF.getResponsiveWidth();
-                
-                var $list = $container.find("." + customCls)
-                  , total = $list.length;
-                $list.each(function (i) {
-                    $th = $(this);
+                var prp, sel, $img;
 
-                    // mandatory
-                    srcSm = $th.attr("data-img-sm");
-                    srcMd = $th.attr("data-img-md");
-
-                    if (srcSm && srcSm !== "" && srcSm === srcMd)
-                    	console.warn("Utils.js -> setResponsiveAllImages()", "'srcSm' and 'srcMd' must not be the same url!", srcSm);
+                $container.find("." + customCls).each(function (i) {
                     
-
-                    // optional
-                    hSm = $th.attr("data-height-sm") || null;
-                    hMd = $th.attr("data-height-md") || null;
-                    hLg = $th.attr("data-height-lg") || null;
+                    prp = getImgProps(this);
 
                     sel = customCls + "-" + i;
-                    $th.addClass(sel);
-
+                    this.classList.add(sel);
                     
                     $img = $("." + sel);
 
                     // if in process of loading or pending an event to be triggered, do nothing
-                    if ($img.hasClass(CLS_IS_IMG_LOADING)) return;
-
-                    if ($img.find(".imgresp-ldr").length === 0)
-                        $img.prepend('<span class="imgresp-ldr"></span>');
-
-                    var noSrc = !srcSm && !srcMd
-                      , customEvent = $img.attr("data-delay-image-load-event")
-                      , group = $img.attr("data-img-group");
-
-                    // if no image set, still set the heights
-                    var selector = (parentCls ? "." + parentCls + " " : "") + "." + sel
-                      , styleId = noSrc ? (customStyleID ? customStyleID + "-" + SELF.getUID() : 'imgresp-styles-' + SELF.getUID()) : customStyleID;
-
-                    // If loading from a custom event, must have it's own styleId (which is named same as the custom event), or else heights will get lost when 
-                    if (group) styleId = group;
-                    if (customEvent) styleId = customEvent;
-
-                    if (customEvent || group) {
-                        var thisUID = SELF.getUID();
-                        var uniqueCls = "imgresp-" + i + "-" + thisUID;
-                        $img.addClass(uniqueCls);
-                        sel = uniqueCls;
-                        //styleId = "imgresp-custom-event-" + thisUID;
-                    }
-
-                    SELF.responsiveHeight(false, styleId, selector, hSm, hMd, hLg, doClearEl);
-
-                    if (group)                  doClearEl = false;
-                    if (!noSrc && !customEvent) doClearEl = false;
-
-                    if (noSrc) return;
-
-                    var approvedSrc = breakPointSize === 'sm' ? srcSm : srcMd;
-
-                    if (!approvedSrc) {
-                        $img.addClass(CLS_NO_IMG);
-                        $img.data(D_CUR_IMG, null);
-                        return; // if no image, stop here
-                    }
+                    var isLoading = addLoader($img);
+                    if(isLoading) return;
 
 
-                    var curImg = $img.data(D_CUR_IMG);
-                    if (curImg) {
-                        // do nothing if approved image is already loaded
-                        if (curImg === approvedSrc) return;
-                    }
+                    if (prp.srcSm && prp.srcSm !== "" && prp.srcSm === prp.srcMd)
+                    	console.warn("Utils.js -> setResponsiveAllImages()", "'srcSm' and 'srcMd' must not be the same url! Placeholder image will be used.", prp.srcSm);
 
+
+                    var noSrc = !prp.srcSm && !prp.srcMd
+                      , selector = getSpecificSelector(parentCls, sel)
+                      , styleId = getCustomStyleId(customStyleID, noSrc, prp.group, prp.customEvent);
+
+                    sel = setUniqueImgClass(sel, $img[0], prp.group, prp.customEvent);
+                    responsiveHeight(false, styleId, selector, prp.hSm, prp.hMd, prp.hLg, doClearEl);
+
+                    /**
+                     * If you're using a group, or there no custom event being used, this sets the 'doClearEl' flag to false. 
+                     * This means that the first item in the loop will clear existing styles associated with this group 
+                     * (or the generic ID within 'responsiveHeight()' method) and the rest will get appended to the same style element.
+                     */
+                    if (prp.group)                  doClearEl = false;
+                    if (!noSrc && !prp.customEvent) doClearEl = false;
+
+                    // Checks if image is already loading or if the src is not valid and blocks further logic if so.
+                    var notValid = validateImgSrc($img, prp.srcSm, prp.srcMd);
+                    if (notValid) return;
                     
-                    $img.removeClass(CLS_NO_IMG);
-                    $img.removeClass(CLS_IS_IMG_LOADED);
-                    $img.addClass(CLS_IS_IMG_LOADING);
+                    setLoadingStates(this);
 
-                    if (customEvent) {
-                        // Needs closure so props stay in sync
-                        (function ($img, srcSm, srcMd, sel, hSm, hMd, hLg, styleId) {
-                            
-                            $(window).one(customEvent, function (evt, data) {
-
-                                if (data && data.refresh) {
-                                    srcSm = $img.attr("data-img-sm");
-                                    srcMd = $img.attr("data-img-md");
-                                }
-                                //console.log("customEvent", customEvent, type, $img, srcSm, srcMd, sel, hSm, hMd, hLg, breakPointSize, UID);
-                                startLoading(type, $img, srcSm, srcMd, sel, hSm, hMd, hLg, breakPointSize, UID, data ? data.cb : null, styleId);
-                            });
-                        })($img, srcSm, srcMd, sel, hSm, hMd, hLg, styleId);
+                    if (prp.customEvent) {
+                        setCustomEventHandler($img, prp.srcSm, prp.srcMd, sel, prp.hSm, prp.hMd, prp.hLg, styleId, customEvent, startLoading);
                     } else {
-                        startLoading(type, $img, srcSm, srcMd, sel, hSm, hMd, hLg, breakPointSize, UID, null, styleId);
+                        startLoading($img, prp.srcSm, prp.srcMd, sel, prp.hSm, prp.hMd, prp.hLg, UID, null, styleId);
                     }
                 
                 });
