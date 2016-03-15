@@ -334,7 +334,7 @@ describe("responsiveImage", function() {
 
 			el.classList.add("no-mb");
 
-			// tests that elements created contains the default bg image for the small size
+			// tests that elements created DOES NOT contain a bg image for the small size
 			expect($("#"+id).css("background-image")).not.toContain(srcSm);
 		});
 	}

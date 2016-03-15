@@ -1,4 +1,5 @@
 var gulp = require('gulp')
+  , autoprefixer = require('gulp-autoprefixer')
   , gutil = require('gulp-util')
   , jshint = require('gulp-jshint')
   , stylish = require('jshint-stylish')
@@ -9,6 +10,31 @@ var gulp = require('gulp')
   , runSequence = require('run-sequence')
 
 var webserverStream, forceKill = false;
+
+gulp.task("vendor-prefix", function() {
+
+	var autoPrefixerBrowsers = [
+	    // Desktop
+	      'last 3 Chrome versions'
+	    , 'last 2 Firefox versions'
+	    , 'last 2 Safari versions'
+	    , 'last 2 Edge versions'
+	    , 'ie >= 9'
+	    // Mobile
+	    , 'last 3 ChromeAndroid versions'
+	    , 'last 3 Android versions'
+	    , 'last 3 FirefoxAndroid versions'
+	    , 'last 3 iOS versions'
+	    , 'last 2 ExplorerMobile versions'
+	    , 'last 2 OperaMobile versions'
+	    // Other
+	    , '> 2% in AU'
+	]
+
+	return gulp.src("./src/nimblepic.css")
+		.pipe(autoprefixer({browsers: autoPrefixerBrowsers}))
+		.pipe(gulp.dest("./demos/css"));
+});
 
 gulp.task('lint', function () {
   return gulp.src(['**/*.js', '!node_modules{,/**}']).pipe(jshint()).pipe(jshint.reporter(stylish))
@@ -44,7 +70,7 @@ gulp.task('unit-tests', function() {
 
 
 gulp.task("test", function(done) {
-	runSequence(['webserver-for-test', 'unit-tests', 'lint'], 'e2e-tests', 'e2e-tests-responsive', done);
+	runSequence(['webserver-for-test', 'unit-tests', 'lint', 'vendor-prefix'], 'e2e-tests', 'e2e-tests-responsive', done);
 });
 
 gulp.task("test-just-e2e", function(done) {

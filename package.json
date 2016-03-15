@@ -35,6 +35,7 @@
     "karma-chrome-launcher": "0.2.0",
     "karma-jasmine": "0.3.6",
     "lodash": "*",
-    "run-sequence": "^1.1.5"
+    "run-sequence": "^1.1.5",
+    "gulp-autoprefixer": "3.0.2"
   }
 }
