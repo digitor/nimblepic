@@ -9,6 +9,9 @@
 
     testUtils = {
         createEl: function(id, type, cls, skipTest) {
+
+            if(!id) id = getUID();
+
             var styleEl = document.createElement(type);
             styleEl.setAttribute("id", id);
             document.body.appendChild(styleEl);

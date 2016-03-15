@@ -85,6 +85,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 }
 
 
+
 xdescribe("responsiveHeight", function() {
 	var fun = window.nimblePic.testable.responsiveHeight
 	  , heightSm = 400
@@ -194,7 +195,7 @@ xdescribe("responsiveHeight", function() {
 	});
 
 
-	describe("3 media queries on same element by ID, but with different classes", function() {
+	xdescribe("3 media queries on same element by ID, but with different classes", function() {
 
 		var customID = getUID("some-unique-id-")
 		  , cls1 = getUID("example1")
@@ -229,7 +230,7 @@ xdescribe("responsiveHeight", function() {
 	});
 });
 
-describe("responsiveImage", function() {
+xdescribe("responsiveImage", function() {
 	var fun = window.nimblePic.testable.responsiveImage
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"

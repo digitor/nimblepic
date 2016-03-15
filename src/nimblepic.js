@@ -86,18 +86,7 @@
         */
 
         /* Can't add media queries inline, so we attach style tag dynamically. */
-        if ($("#" + id).length === 0) {
-            var styleTag = '<style type="text/css" id="' + id + '" data-resp-styles >' + css + '</style>'
-              , $existing = $("[data-resp-styles]");
-            if ($existing.length) {
-                $existing.last().after(styleTag);
-            } else {
-                $("body").prepend(styleTag);
-            }
-        } else {
-            $("#" + id).append(css);
-        }
-
+        addStyle(id, css);
         return id;
     }
 
@@ -143,10 +132,21 @@
         }
 
         /* Can't add media queries inline, so we attach style tag dynamically. */
+        addStyle(id, css);
+        return id;
+    }
+
+
+    /**
+     * @description Adds CSS to a style element with the given unique ID. If element already exists it will append it, otherwise it will create a new one after the opening body tag.
+     * @param id (string) - ID to use on the style element
+     * @param id (string) - Styles to add
+     */
+    function addStyle(id, css) {
 
         if ($("#" + id).length === 0) {
             var styleTag = '<style type="text/css" id="' + id + '" data-resp-styles >' + css + '</style>'
-                  , $existing = $("[data-resp-styles]");
+              , $existing = $("[data-resp-styles]");
             if ($existing.length) {
                 $existing.last().after(styleTag);
             } else {
@@ -205,7 +205,13 @@
     }
 
     function getUID(pref) {
-        return (pref || "") + Math.random().toString().replace(".", "");
+        var uid = (pref || "") + Math.random().toString().replace(".", "");
+
+        // ensure starts with a letter, as CSS class names should not start with a number
+        var firstChar = uid.substr(0,1);
+        if( parseInt(firstChar).toString() !== "NaN" ) uid = "a-"+uid;
+
+        return uid;
     }
 
     function setClearImgStyles($) {
@@ -409,10 +415,11 @@
         	, getResponsiveWidth: getResponsiveWidth
         	, winWidth: winWidth
         	, getUID: getUID
-        	, responsiveWidth: responsiveWidth
-        	, responsiveHeight: responsiveHeight
-        	, responsiveImage: responsiveImage
-        	, setClearImgStyles: setClearImgStyles
+            , addStyle: addStyle
+            , responsiveWidth: responsiveWidth
+            , responsiveHeight: responsiveHeight
+            , responsiveImage: responsiveImage
+            , setClearImgStyles: setClearImgStyles
         }
     }
 

@@ -3,7 +3,7 @@
 var createEl = window.testUtils.createEl
   , getUID = window.nimblePic.testable.getUID
 
-describe("getDynamicHeight", function() {
+xdescribe("getDynamicHeight", function() {
 
 	var fun = window.nimblePic.testable.getDynamicHeight;
 	var mbImgSrc = "/demos/img/example-1-35.jpg"
@@ -46,7 +46,7 @@ describe("getDynamicHeight", function() {
 });
 
 
-describe("getUID", function() {
+xdescribe("getUID", function() {
 	var fun = window.nimblePic.testable.getUID
 	  , uid1 = fun()
 	  , uid2 = fun();
@@ -64,7 +64,7 @@ describe("getUID", function() {
 	});
 });
 
-describe("setClearImgStyles", function() {
+xdescribe("setClearImgStyles", function() {
 	var fun = window.nimblePic.testable.setClearImgStyles;
 
 	it("should create an element, then remove it when event is triggered", function() {
@@ -77,3 +77,48 @@ describe("setClearImgStyles", function() {
 		expect(document.getElementById(customID)).toBeFalsy();
 	});
 });
+
+
+describe("addStyle", function() {
+	var fun = window.nimblePic.testable.addStyle
+
+	it("should add CSS to a style element with the given unique ID", function() {
+		var cls = "example-1"
+
+		fun(getUID(), "."+cls+" { width:10px; height: 10px; }");
+		var el = createEl(null, "div", cls);
+
+		expect(el.offsetWidth).toEqual(10);
+		expect(el.offsetHeight).toEqual(10);
+
+		// just cleaning up after self so other tests are not affected
+		document.body.removeChild(el);
+	});
+
+
+	it("should add CSS to a style element with the same unique ID", function() {
+		var id = getUID("style-id-")
+		  , cls = "example-2"
+
+		// adds styles with a different id, which will remain
+		fun(getUID(), "."+cls+" { width:30px; height: 30px; }");
+
+		// adds styles with an id that will be removed
+		fun(id, "."+cls+" { width:20px; }");
+		fun(id, "."+cls+" { height: 20px; }");
+		
+		var el = createEl(null, "div", cls);
+
+		// first test the 2 styles exist on a div
+		expect(el.offsetWidth).toEqual(20);
+		expect(el.offsetHeight).toEqual(20);
+
+		// then remove the style element by ID
+		var styleEl = document.getElementById(id);
+		document.body.removeChild(styleEl);
+
+		// and expect the div element to have the first set of styles attached
+		expect(el.offsetWidth).toEqual(30);
+		expect(el.offsetHeight).toEqual(30);
+	});
+})
