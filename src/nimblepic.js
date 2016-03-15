@@ -271,6 +271,12 @@
         }
     }
 
+
+    /**
+     * @description Adds a loader element, if one doesn't already exist.
+     * @param $img (jQuery element) - The parent element to add to.
+     * @return (boolean) - Returns loading state, so 'true' if load is in progress.
+     */
     function addLoader($img) {
         // if in process of loading or pending an event to be triggered, do nothing
         if ($img.hasClass(CLS_IS_IMG_LOADING)) return true;
@@ -292,19 +298,21 @@
 
     /**
      * @description Uses the customStyleID passed in, unless it detects an invalid src ("noSrc"). Then it generates a new unique ID.
-     * @param customStyleID (string) - The custom ID to use if src is valid.
+     * @param customStyleID (string) optional - The custom ID to use if src is valid. 
      * @param noSrc (boolean) - If true, means the src was not valid.
      * @param group (string) - Name of the group.
      * @param customEvent (string) - Name of the customEvent.
+     * @return (string/null) - If src is valid and 'customStyleID' is falsy, will return null. Otherwise will return a unique id. If 'group' or 
+     *    'customEvent' supplied, it will return those, with preference to the latter.
      */
     function getCustomStyleId(customStyleID, noSrc, group, customEvent) {
         var uid = getUID();
 
         // If loading from a custom event, must have it's own styleId (which is named same as the custom event), or else heights will get lost
-        if (group)       styleId = group;
-        if (customEvent) styleId = customEvent;
+        if (customEvent) return customEvent;
+        if (group)       return group;
 
-        return noSrc ? (customStyleID ? customStyleID + "-" + uid : 'imgresp-styles-' + uid) : customStyleID;
+        return noSrc ? (customStyleID ? customStyleID + "-" + uid : 'imgresp-styles-' + uid) : (customStyleID || null);
     }
 
     /**
@@ -353,44 +361,60 @@
         return false;
     }
 
-    function setCustomEventHandler($img, srcSm, srcMd, sel, hSm, hMd, hLg, styleId, customEvent, cb) {
+    function setCustomEventHandler($img, srcSm, srcMd, sel, hSm, hMd, hLg, styleId, customEvent, uid, cb) {
         $(window).one(customEvent, function (evt, data) {
 
             if (data && data.refresh) {
                 srcSm = $img.attr("data-img-sm");
                 srcMd = $img.attr("data-img-md");
             }
-            //console.log("customEvent", customEvent, $img, srcSm, srcMd, sel, hSm, hMd, hLg, UID);
-            cb($img, srcSm, srcMd, sel, hSm, hMd, hLg, UID, data ? data.cb : null, styleId);
+            cb($img, srcSm, srcMd, sel, hSm, hMd, hLg, uid, data ? data.cb : null, styleId);
         });
     }
 
     /**
      * @description Resets the loading states, assuming a fresh image load was successful.
      * @param img (HTML Element) - The image (span) element.
+     * @param state (string) optional - Either "loading" or "loaded". Omit this if you just want to clear all states.
      */
-    function setLoadingStates(img) {
+    function setLoadingStates(img, state) {
         img.classList.remove(CLS_NO_IMG);
         img.classList.remove(CLS_IS_IMG_LOADED);
-        img.classList.add(CLS_IS_IMG_LOADING);
+        img.classList.remove(CLS_IS_IMG_LOADING);
+
+        if(state === "loading")
+            img.classList.add(CLS_IS_IMG_LOADING);
+        else if(state === "loaded")
+            img.classList.add(CLS_IS_IMG_LOADED);
     }
 
 
     nimblePic = {
 
 
-        /*
-         * Utils generally have no dependencies, so here we just pass in an instance of jQuery
-         * CSS should also be applied to these images, such as `min-height`, `background-repeat: no-repeat;`, but that's up to the individual case.
+        /**
+         * @description Searches DOM to find the '$container' and child elements of 'customCls' (these can be omitted to use defaults), 
+         *   then starts loading images and setting heights based on data attributes for different responsive breakpoints.
+         *
+         * @param $ (jQuery global object) - Just a reference to the jQuery global object.
+         *
+         * $container (jQuery element/null) optional - If supplied, only children images (spans) of this element will be affected. Omit this to default to $(document).
+         *
+         * customCls (string/null) optional - If supplied, only image (span) elements will be affected. Omit this to use the default 'imgresp' class. Only use the default
+         *   if you're calling this function once. Future calls should use custom classes, to avoid classes referencing the wrong images.
+         *
+         * customStyleID (string) optional - If suppied, will use this id on the dynamic <style> elements created. Keep in mind that calls to the function will remove styles
+         *   previously attached to this ID. So if you're calling this function more than once on a page, you should pass this property with a new unique ID each time.
+         *
+         * parentCls (string) optional - Use this if you 'customCls' is not specific enough. Should be a class name of any parent element within the '$container'.
          */
         setResponsiveAllImages: function ($, $container, customCls, customStyleID, parentCls) {
-            // On DOM Ready
 
             setClearImgStyles($);
 
             var doClearImg = true
               , doClearEl = true
-              , UID = SELF.getUID()
+              , UID = getUID()
               , delayedImageEls = []
 
             var startLoading = function ($img, srcSm, srcMd, sel, hSm, hMd, hLg, uid, cb, styleId) {
@@ -405,14 +429,13 @@
                 
                 styleId = styleId || customStyleID;
 
-                // need to determine the src beforehand if we want to preload (based on the window width)
+                // marks the image as "loading in progress", so other attempts to load it are blocked
                 $img.data(D_CUR_IMG_SRC, thisSrc);
 
                 
-                SELF.getDynamicHeight(thisSrc, false, function (url, isSuccess, height) {
+                getDynamicHeight(thisSrc, false, function (url, isSuccess, height) {
 
-                    $img.removeClass(CLS_IS_IMG_LOADING);
-                    $img.addClass(CLS_IS_IMG_LOADED);
+                    setLoadingStates($img[0], "loaded");
 
                     if (isSuccess) {
 
@@ -421,7 +444,7 @@
                           , heightLg = hLg || height;
                         
                         var grad = $img.attr("data-grad") || null;
-                        SELF.responsiveImage(null, srcSm, srcMd, selector, heightSm, heightMd, heightLg, doClearImg, styleId, grad);
+                        responsiveImage(null, srcSm, srcMd, selector, heightSm, heightMd, heightLg, doClearImg, styleId, grad);
                     } else {
                         // if image failed to load, still add it's heights to the styles id for this group
                         responsiveHeight(false, styleId || 'imgresp-styles', selector, hSm, hMd, hLg, doClearImg);
@@ -435,7 +458,7 @@
             if (!customCls) customCls = "imgresp";
             if (!$container) $container = $(document);
 
-            $(function () {
+            $(function () { // Uses DOM Ready to ensure all html elements in $container exist
                 var prp, sel, $img;
 
                 $container.find("." + customCls).each(function (i) {
@@ -475,10 +498,10 @@
                     var notValid = validateImgSrc($img, prp.srcSm, prp.srcMd);
                     if (notValid) return;
                     
-                    setLoadingStates(this);
+                    setLoadingStates(this, "loading");
 
                     if (prp.customEvent) {
-                        setCustomEventHandler($img, prp.srcSm, prp.srcMd, sel, prp.hSm, prp.hMd, prp.hLg, styleId, customEvent, startLoading);
+                        setCustomEventHandler($img, prp.srcSm, prp.srcMd, sel, prp.hSm, prp.hMd, prp.hLg, styleId, customEvent, UID, startLoading);
                     } else {
                         startLoading($img, prp.srcSm, prp.srcMd, sel, prp.hSm, prp.hMd, prp.hLg, UID, null, styleId);
                     }
@@ -498,6 +521,9 @@
             , responsiveImage: responsiveImage
             , setClearImgStyles: setClearImgStyles
             , getImgProps: getImgProps
+            , addLoader: addLoader
+            , getSpecificSelector: getSpecificSelector
+            , getCustomStyleId: getCustomStyleId
         }
     }
 

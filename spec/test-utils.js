@@ -38,6 +38,10 @@
             
             return divEl.offsetHeight;
         }
+
+        , cleanupElement: function(el) {
+            el.parentElement.removeChild(el);
+        }
     }
 	
 	SELF = window.testUtils = testUtils;
