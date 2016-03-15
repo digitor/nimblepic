@@ -228,6 +228,34 @@
         });
     }
 
+    function getImgProps(img) {
+        var srcSm = img.getAttribute("data-img-sm") || null
+          , srcMd = img.getAttribute("data-img-md") || null;
+
+
+        // optional
+        var hSm = img.getAttribute("data-height-sm")
+          , hMd = img.getAttribute("data-height-md")
+          , hLg = img.getAttribute("data-height-lg");
+
+        if(hSm && parseInt(hSm).toString() !== "NaN") hSm = parseInt(hSm);
+        else                                          hSm = null;
+
+        if(hMd && parseInt(hMd).toString() !== "NaN") hMd = parseInt(hMd);
+        else                                          hMd = null;
+
+        if(hLg && parseInt(hLg).toString() !== "NaN") hLg = parseInt(hLg);
+        else                                          hLg = null;
+
+        return {
+            srcSm: srcSm,
+            srcMd: srcMd,
+            hSm: hSm,
+            hMd: hMd,
+            hLg: hLg
+        }
+    }
+
     nimblePic = {
 
 
@@ -361,15 +389,6 @@
 
                     var approvedSrc = breakPointSize === 'sm' ? srcSm : srcMd;
 
-                    /*if (customEvent) {
-                        (function ($img) {
-                            // Custom events are really just meant to be used for items that are added dynamically, so can be ignored on resize
-                            setTimeout(function () {
-                                $img.attr("data-delay-image-load-event", null);
-                            }, 0);
-                        })($img);
-                    }*/
-
                     if (!approvedSrc) {
                         $img.addClass(CLS_NO_IMG);
                         $img.data(D_CUR_IMG, null);
@@ -420,6 +439,7 @@
             , responsiveHeight: responsiveHeight
             , responsiveImage: responsiveImage
             , setClearImgStyles: setClearImgStyles
+            , getImgProps: getImgProps
         }
     }
 

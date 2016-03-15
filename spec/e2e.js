@@ -121,4 +121,25 @@ describe("addStyle", function() {
 		expect(el.offsetWidth).toEqual(30);
 		expect(el.offsetHeight).toEqual(30);
 	});
-})
+});
+
+
+describe("getImgProps", function() {
+	var fun = window.nimblePic.testable.getImgProps
+
+	it("should return an object with all valid values", function() {
+		var el = createEl(null, "div");
+		el.setAttribute("data-img-sm", "url-sm");
+		el.setAttribute("data-img-md", "url-md");
+		el.setAttribute("data-height-sm", "some invalid value");
+		el.setAttribute("data-height-md", "10");
+		el.setAttribute("data-height-lg", 20);
+
+		var result = fun(el);
+		expect(result.srcSm).toBe("url-sm");
+		expect(result.srcMd).toBe("url-md");
+		expect(result.hSm).toBeFalsy();
+		expect(result.hMd).toEqual(10);
+		expect(result.hLg).toEqual(20);
+	});
+});
