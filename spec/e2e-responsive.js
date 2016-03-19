@@ -396,3 +396,27 @@ describe("isInvalidResponsiveSrc", function() {
 		})
 	}
 })
+
+if(isDt) { // Still working on this
+	xdescribe("setImages", function() {
+		var fun = window.nimblePic.setImages
+		  , srcSm = "/demos/img/example-1-35.jpg"
+		  , srcMd = "/demos/img/example-1-58.jpg"
+
+		it("should load desktop image by default CSS class name", function(done) {
+			
+			var img1 = createImgEl()
+
+			img1.setAttribute("data-img-sm", srcSm);
+			img1.setAttribute("data-img-md", srcMd);
+
+			fun($);
+
+			setTimeout(function() {
+				console.log(img1.style.backgroundImage)
+				expect(img1.style.backgroundImage).toBe(srcMd)
+				done();
+			}, 1000);
+		})
+	})
+}

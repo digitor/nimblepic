@@ -483,6 +483,7 @@
                     
                     prp = getImgProps(this);
 
+
                     singleCls = customCls + "-" + i;
                     this.classList.add(singleCls);
                     
@@ -494,7 +495,7 @@
 
 
                     if (prp.srcSm && prp.srcSm !== "" && prp.srcSm === prp.srcMd)
-                    	console.warn("Utils.js -> setImages()", "'srcSm' and 'srcMd' must not be the same url! Placeholder image will be used.", prp.srcSm);
+                        console.warn("Utils.js -> setImages()", "'srcSm' and 'srcMd' must not be the same url! Placeholder image will be used.", prp.srcSm);
 
 
                     var invalidSrc = isInvalidSrc(prp)
@@ -519,6 +520,7 @@
                     if (invalidSrc) return;
                     
                     setLoadingStates(this, "loading");
+                   
 
                     if (prp.customEvent) {
                         setCustomEventHandler(customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId);

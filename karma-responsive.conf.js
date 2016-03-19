@@ -7,7 +7,7 @@ module.exports = function(config) {
                'narrowMobileEx',    'mobileEx',    'tabletEx',    'desktopEx', 'desktopWideEx'
                ],
     customLaunchers: {
-      narrowMobileNonEx: {
+      /*narrowMobileNonEx: {
         base: "Chrome",
         flags: ["--window-size="+(479 + chromeScrollBarW)+",600"],
       },
@@ -36,15 +36,15 @@ module.exports = function(config) {
       tabletEx: {
         base: "Chrome",
         flags: ["--window-size="+(768 + chromeScrollBarW)+",1000"]
-      },
+      },*/
       desktopEx: {
         base: "Chrome",
         flags: ["--window-size="+(992 + chromeScrollBarW)+",1400"]
       },
-      desktopWideEx: {
+      /*desktopWideEx: {
         base: "Chrome",
         flags: ["--window-size="+(1200 + chromeScrollBarW)+",1400"]
-      }
+      }*/
     },
     frameworks: ['jasmine'],
     files: [

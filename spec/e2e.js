@@ -1,8 +1,10 @@
 
 
 var createEl = window.testUtils.createEl
+  , createImgEl = window.testUtils.createImgEl
   , cleanupElement = window.testUtils.cleanupElement
   , getUID = window.nimblePic.testable.getUID
+  , $doc = $(document)
 
 describe("getDynamicHeight", function() {
 
@@ -243,9 +245,8 @@ describe("isInvalidSrc", function() {
 describe("setCustomEventHandler", function() {
 	var fun = window.nimblePic.testable.setCustomEventHandler
 
-	it("should test the callback works and includes expected params", function(done) {
-		//setCustomEventHandler($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId)
-
+	it("should show the callback works and includes expected params", function(done) {
+		
 		var customEvent = getUID("custom-event-1")
 		  , cb = function() {
 		  		// testing arguments match the sequence passed as 'setCustomEventHandler' params
@@ -259,6 +260,42 @@ describe("setCustomEventHandler", function() {
 		fun(customEvent, cb, 0, 1,2,3,4,5,6,7,8);
 
 		// Last argument will be the callback passed to the event, so we make that sequential too
-		$(document).trigger(customEvent, {cb:9});
+		$doc.trigger(customEvent, {cb:9});
+	})
+
+
+	it("should show the params 'srcSm' and 'srcMd' can be overridden by the event data object", function(done) {
+		var customEvent = getUID("custom-event-2")
+		  , paramsToTest
+		  , cb = function() {
+		  		// testing arguments match expected params
+		  		for(var i=0; i<arguments.length; i++) {
+		  			expect(arguments[i]).toEqual(paramsToTest[i]);
+		  		}
+		  	done();
+		  }
+
+
+		var img = createImgEl()
+		  , PATH_1 = "/path/1.jpg"
+		  , PATH_2 = "/path/2.jpg"
+		  , SOME_VAL = "some value"
+
+		// add data attributes to override null values
+		img.setAttribute("data-img-sm", PATH_1);
+		img.setAttribute("data-img-md", PATH_2);
+
+		// passing null for srcSm and srcMd, so they can be overridden in event dispatch
+		paramsToTest = [$(img),null,null,3,4,5,6,7,8];
+
+		fun.apply(this, [customEvent, cb].concat(paramsToTest) );
+
+		// adds missing params before triggering event so we can test they have been added as expected
+		paramsToTest[1] = PATH_1;
+		paramsToTest[2] = PATH_2;
+		paramsToTest.push(SOME_VAL);
+
+		// Last argument will be the callback passed to the event, so we make that sequential too
+		$doc.trigger(customEvent, {cb:SOME_VAL, refresh: true});
 	})
 })
