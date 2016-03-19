@@ -340,3 +340,59 @@ describe("responsiveImage", function() {
 		});
 	}
 });
+
+describe("isInvalidResponsiveSrc", function() {
+	var fun = window.nimblePic.testable.isInvalidResponsiveSrc
+
+	if(isMb || isNarrowMb) {
+		it("should return FALSE when mobile source is VALID", function() {
+			
+			var $el = $(createImgEl()); // must be a jQuery element
+			expect(fun($el, "/path-to/img/mobile.jpg")).toBe(false);
+		})
+
+		it("should return TRUE when mobile source is INVALID", function() {
+			
+			var $el = $(createImgEl()); // must be a jQuery element
+			
+			// shouldn't be a boolean, should be a string
+			expect(fun($el, true, "/a-valid/desktop/img.jpg")).toBe(true);
+		})
+		
+		it("should return TRUE when loaded/loading data is added to jQuery element and source MATCHES", function() {
+			
+			var $el = $(createImgEl()) // must be a jQuery element
+			  , imgPath = "/path-to/img/mobile.jpg"
+
+			$el.data("current-image-src", imgPath)
+			
+			expect(fun($el, imgPath)).toBe(true);
+		})
+
+		it("should return FALSE when loaded/loading data is added to jQuery element and source DOESN'T MATCH", function() {
+			
+			var $el = $(createImgEl()) // must be a jQuery element
+			  , imgPath = "/path-to/img/mobile.jpg"
+
+			$el.data("current-image-src", "a-different/img.jpg")
+			
+			expect(fun($el, "/path-to/img/mobile.jpg")).toBe(false);
+		})		
+	} else if(isDt) {
+		it("should return FALSE when desktop source is VALID", function() {
+			
+			var $el = $(createImgEl()); // must be a jQuery element
+			
+			// first param is invalid because it's not a string
+			expect(fun($el, 1, "/path-to/img/desktop.jpg")).toBe(false);
+		})
+
+		it("should return TRUE when desktop source is INVALID", function() {
+			
+			var $el = $(createImgEl()); // must be a jQuery element
+			
+			// shouldn't be a boolean, should be a string
+			expect(fun($el, "/a-valid/mobile/img.jpg", true)).toBe(true);
+		})
+	}
+})

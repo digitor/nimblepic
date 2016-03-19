@@ -297,30 +297,31 @@
     }
 
     /**
-     * @description Uses the customStyleID passed in, unless it detects an invalid src ("noSrc"). Then it generates a new unique ID.
+     * @description Uses the customStyleID passed in, unless it detects an invalid src ("invalidSrc"). Then it generates a new unique ID.
      * @param customStyleID (string) optional - The custom ID to use if src is valid. 
-     * @param noSrc (boolean) - If true, means the src was not valid.
+     * @param invalidSrc (boolean) - If true, means the src was not valid.
      * @param group (string) - Name of the group.
      * @param customEvent (string) - Name of the customEvent.
      * @return (string/null) - If src is valid and 'customStyleID' is falsy, will return null. Otherwise will return a unique id. If 'group' or 
      *    'customEvent' supplied, it will return those, with preference to the latter.
      */
-    function getCustomStyleId(customStyleID, noSrc, group, customEvent) {
+    function getCustomStyleId(customStyleID, invalidSrc, group, customEvent) {
         var uid = getUID();
 
         // If loading from a custom event, must have it's own styleId (which is named same as the custom event), or else heights will get lost
         if (customEvent) return customEvent;
         if (group)       return group;
 
-        return noSrc ? (customStyleID ? customStyleID + "-" + uid : 'imgresp-styles-' + uid) : (customStyleID || null);
+        return invalidSrc ? (customStyleID ? customStyleID + "-" + uid : 'imgresp-styles-' + uid) : (customStyleID || null);
     }
 
     /**
-     * @description Uses query selector to target a more specific class by using a parent class as well.
+     * @description If a group or customEvent exists, creates a new unique class name for each image (span) and returns it.
      * @param existingCls (string) - The existing class selector to use if no group or custom event exists.
      * @param img (HTML Element) - The image (span) element.
      * @param group (string) - Name of the group.
      * @param customEvent (string) - Name of the customEvent.
+     * @return (string) - CSS class to use as a selector on the image.
      */
     function setUniqueImgClass(existingCls, img, group, customEvent) {
 
@@ -333,20 +334,46 @@
         return existingCls;
     }
 
-    function getValidSrc(srcSm, srcMd) {
+
+    /**
+     * @description Checks if supplied image sources are valid.
+     * @param srcSm (string/object) - Source path for the mobile image. Also accepts an object with properties 'srcSm' and 'srcMd'.
+     * @param srcMd (string) optional - Source path for the tablet/desktop image. If srcSm is an object, this can be omitted.
+     * @return (boolean) - If neither small nor medium src is valid, returns true, otherwise false
+     */
+    function isInvalidSrc(srcSm, srcMd) {
+        // also accepts a proptery object as first arg
+        if(typeof srcSm === "object") {
+            srcSm = srcSm.srcSm;
+            srcMd = srcSm.srcMd;
+        }
+        
+        // enforces strings
+        if(typeof srcSm !== "string") srcSm = false;
+        if(typeof srcMd !== "string") srcMd = false;
+
         return !srcSm && !srcMd;
     }
 
-    function validateImgSrc($img, srcSm, srcMd) {
+    /**
+     * @description Checks if image is already loading or if the src is not valid at current breakpoint.
+     * @param $img (jQuery Element) - The image (span) element.
+     * @param srcSm (string) - Source path for the mobile image.
+     * @param srcMd (string) - Source path for the tablet/desktop image.
+     * @return (boolean) - If source is INVALID for current breakpoint, or if currently loading, returns true. Otherwise returns false. 
+     */
+    function isInvalidResponsiveSrc($img, srcSm, srcMd) {
         var breakPointSize = getResponsiveWidth()
-          , noSrc = getValidSrc(srcSm, srcMd);
+          , invalidSrc = isInvalidSrc(srcSm, srcMd);
 
-        if (noSrc) return true;
+        if (invalidSrc) return true;
 
-        var approvedSrc = breakPointSize === 'sm' ? srcSm : srcMd;
+        var approvedSrc = (breakPointSize === 'sm' || breakPointSize === 'xs') ? srcSm : srcMd;
 
-        if (!approvedSrc) {
-            $img.addClass(CLS_NO_IMG);
+        //console.log("approvedSrc", approvedSrc)
+
+        if (!approvedSrc || typeof approvedSrc !== "string") {
+            $img[0].classList.add(CLS_NO_IMG);
             $img.data(D_CUR_IMG_SRC, null);
             return true; // if no image, stop here
         }
@@ -361,14 +388,14 @@
         return false;
     }
 
-    function setCustomEventHandler($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, styleId, customEvent, uid, cb) {
-        $(window).one(customEvent, function (evt, data) {
+    function setCustomEventHandler(customEvent, cb, $img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId) {
+        $(document).one(customEvent, function (evt, data) {
 
             if (data && data.refresh) {
                 srcSm = $img.attr("data-img-sm");
                 srcMd = $img.attr("data-img-md");
             }
-            cb($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, data ? data.cb : null, styleId);
+            cb($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, data ? data.cb : null);
         });
     }
 
@@ -408,7 +435,7 @@
          *
          * parentCls (string) optional - Use this if you 'customCls' is not specific enough. Should be a class name of any parent element within the '$container'.
          */
-        setResponsiveAllImages: function ($, $container, customCls, customStyleID, parentCls) {
+        setImages: function ($, $container, customCls, customStyleID, parentCls) {
 
             setClearImgStyles($);
 
@@ -417,7 +444,7 @@
               , UID = getUID()
               , delayedImageEls = []
 
-            var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, cb, styleId) {
+            var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, cb) {
 
                 // stops late events from interfering
                 if (uid !== UID) return;
@@ -467,39 +494,36 @@
 
 
                     if (prp.srcSm && prp.srcSm !== "" && prp.srcSm === prp.srcMd)
-                    	console.warn("Utils.js -> setResponsiveAllImages()", "'srcSm' and 'srcMd' must not be the same url! Placeholder image will be used.", prp.srcSm);
+                    	console.warn("Utils.js -> setImages()", "'srcSm' and 'srcMd' must not be the same url! Placeholder image will be used.", prp.srcSm);
 
 
-                    var noSrc = !prp.srcSm && !prp.srcMd
+                    var invalidSrc = isInvalidSrc(prp)
                       , specificSel = getSpecificSelector(parentCls, singleCls)
-                      , styleId = getCustomStyleId(customStyleID, noSrc, prp.group, prp.customEvent);
+                      , styleId = getCustomStyleId(customStyleID, invalidSrc, prp.group, prp.customEvent);
 
-                    // Doesn't need the unique image class (so should come before 'setUniqueImgClass'), as the heights will be the same 
-                    // TODO: need to verify this
-                    responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, doClearEl);
+                    // TODO: need to verify this what this is useful for, with regards to group and customEvent
+                    specificSel = setUniqueImgClass(specificSel, $img[0], prp.group, prp.customEvent);
                     
-                    // Doesn't need the 'parentCls' prefix, so uses 'singleCls', rather than 'specificSel'
-                    // TODO: need to verify this
-                    setUniqueImgClass(singleCls, $img[0], prp.group, prp.customEvent);
+                    // TODO: need to verify if this should come after 'setUniqueImgClass' or before, with regards to group and customEvent
+                    responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, doClearEl);
 
                     /**
                      * If you're using a group, or there no custom event being used, this sets the 'doClearEl' flag to false. 
                      * This means that the first item in the loop will clear existing styles associated with this group 
                      * (or the generic ID within 'responsiveHeight()' method) and the rest will get appended to the same style element.
                      */
-                    if (prp.group)                  doClearEl = false;
-                    if (!noSrc && !prp.customEvent) doClearEl = false;
+                    if (prp.group)                       doClearEl = false;
+                    if (!invalidSrc && !prp.customEvent) doClearEl = false;
 
-                    // Checks if image is already loading or if the src is not valid and blocks further logic if so.
-                    var notValid = validateImgSrc($img, prp.srcSm, prp.srcMd);
-                    if (notValid) return;
+                    invalidSrc = isInvalidResponsiveSrc($img, prp.srcSm, prp.srcMd);
+                    if (invalidSrc) return;
                     
                     setLoadingStates(this, "loading");
 
                     if (prp.customEvent) {
-                        setCustomEventHandler($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, styleId, customEvent, UID, startLoading);
+                        setCustomEventHandler(customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId);
                     } else {
-                        startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, null, styleId);
+                        startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, null);
                     }
                 
                 });
@@ -520,6 +544,9 @@
             , addLoader: addLoader
             , getSpecificSelector: getSpecificSelector
             , getCustomStyleId: getCustomStyleId
+            , isInvalidSrc: isInvalidSrc
+            , isInvalidResponsiveSrc: isInvalidResponsiveSrc
+            , setCustomEventHandler: setCustomEventHandler
         }
     }
 

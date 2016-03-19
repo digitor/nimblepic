@@ -198,7 +198,7 @@ describe("getSpecificSelector", function() {
 describe("getCustomStyleId", function() {
 	var fun = window.nimblePic.testable.getCustomStyleId
 
-	it("should return the 'customStyleID' passed in with 'noSrc', 'group' and 'customEvent' omitted", function() {
+	it("should return the 'customStyleID' passed in with 'invalidSrc', 'group' and 'customEvent' omitted", function() {
 		expect(fun("example-id")).toBe("example-id");
 	})
 
@@ -206,19 +206,59 @@ describe("getCustomStyleId", function() {
 		expect(fun()).toBeFalsy();
 	})
 
-	it("should should contain default id prefix if 'noSrc' is truthy, but 'customStyleID' is falsy", function() {
+	it("should should contain default id prefix if 'invalidSrc' is truthy, but 'customStyleID' is falsy", function() {
 		expect(fun(null, true)).toContain("imgresp-styles-");
 	})
 
-	it("should should contain custom id prefix (from 'customStyleID') if 'noSrc' is truthy", function() {
+	it("should should contain custom id prefix (from 'customStyleID') if 'invalidSrc' is truthy", function() {
 		expect(fun('example-id', true)).toContain("example-id-");
 	})
 
-	it("should should return supplied 'group', despite 'customStyleID' and 'noSrc' being truthy.", function() {
+	it("should should return supplied 'group', despite 'customStyleID' and 'invalidSrc' being truthy.", function() {
 		expect(fun('example-id', true, 'example-group')).toBe("example-group");
 	})
 
-	it("should should return supplied 'customEvent', despite 'customStyleID', 'noSrc' and 'group' being truthy.", function() {
+	it("should should return supplied 'customEvent', despite 'customStyleID', 'invalidSrc' and 'group' being truthy.", function() {
 		expect(fun('example-id', true, 'example-group', 'example-custom-event')).toBe("example-custom-event");
 	})
 });
+
+describe("isInvalidSrc", function() {
+	var fun = window.nimblePic.testable.isInvalidSrc
+
+	it("should return FALSE when both mobile and tablet/desktop sources are VALID", function() {
+		expect(fun("/path-to/img/mobile.jpg", "/path-to/img/desktop.jpg")).toBe(false);
+	})
+
+	it("should return FALSE when mobile source is INVALID and tablet/desktop sources are VALID", function() {
+		expect(fun(1, "/path-to/img/desktop.jpg")).toBe(false);
+	})
+
+	it("should return TRUE when both mobile and tablet/desktop sources are INVALID", function() {
+		// they are not strings, so should be marked as invalid
+		expect(fun(1, true)).toBe(true);
+	})
+})
+
+describe("setCustomEventHandler", function() {
+	var fun = window.nimblePic.testable.setCustomEventHandler
+
+	it("should test the callback works and includes expected params", function(done) {
+		//setCustomEventHandler($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId)
+
+		var customEvent = getUID("custom-event-1")
+		  , cb = function() {
+		  		// testing arguments match the sequence passed as 'setCustomEventHandler' params
+		  		for(var i=0; i<arguments.length; i++) {
+		  			expect(arguments[i]).toEqual(i);
+		  		}
+		  	done();
+		  }
+
+		// We're just checking that the 8 params get passed using a sequence - their type doesn't really matter for this test
+		fun(customEvent, cb, 0, 1,2,3,4,5,6,7,8);
+
+		// Last argument will be the callback passed to the event, so we make that sequential too
+		$(document).trigger(customEvent, {cb:9});
+	})
+})
