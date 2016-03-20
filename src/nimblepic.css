@@ -10,8 +10,6 @@
     min-height: 200px;
     background-color: #ccc;
 
-    background-image: "test";
-
     /*placeholder is 53px wide, so must be largeer than that*/
     min-width: 60px;
     min-height: 60px;

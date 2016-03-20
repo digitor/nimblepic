@@ -317,14 +317,14 @@
 
     /**
      * @description If a group or customEvent exists, creates a new unique class name for each image (span) and returns it.
-     * @param existingCls (string) - The existing class selector to use if no group or custom event exists.
+     * @param existingSel (string) - The existing class-based selector to use if no group or custom event exists.
      * @param img (HTML Element) - The image (span) element.
      * @param index (number) optional - Index within the group. Will default to zero if not supplied.
      * @param group (string) optional - Name of the group.
      * @param customEvent (string) optional - Name of the customEvent.
      * @return (string) - CSS class to use as a selector on the image.
      */
-    function setUniqueImgClass(existingCls, img, index, group, customEvent) {
+    function setUniqueImgClass(existingSel, img, index, group, customEvent) {
 
         if (customEvent || group) {
             if(typeof index !== "number") {
@@ -333,10 +333,10 @@
             }
             var uniqueCls = getUID("imgresp-" + index + "-");
             img.classList.add(uniqueCls);
-            return uniqueCls;
+            return "." + uniqueCls;
         }
 
-        return existingCls;
+        return existingSel;
     }
 
 
@@ -513,6 +513,7 @@
                       , specificSel = getSpecificSelector(parentCls, singleCls)
                       , styleId = getCustomStyleId(customStyleID, invalidSrc, prp.group, prp.customEvent);
 
+
                     // TODO: need to verify this what this is useful for, with regards to group and customEvent
                     specificSel = setUniqueImgClass(specificSel, $img[0], i, prp.group, prp.customEvent);
                     
@@ -534,7 +535,8 @@
                    
 
                     if (prp.customEvent) {
-                        setCustomEventHandler(customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId);
+                        console.log(NS, "specificSel", specificSel)
+                        setCustomEventHandler(prp.customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId);
                     } else {
                         startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, null);
                     }

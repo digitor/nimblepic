@@ -22,10 +22,10 @@
 
   <script>
       nimblePic.setImages($);
-      $(function () {
+      setTimeout(function() {
           // trigger the delayed event (must be after DOM fully loaded)
-          $(window).trigger($("#delayed-image-load").attr("data-delay-image-load-event"));
-      });
+          $(document).trigger($("#delayed-image-load").attr("data-delay-image-load-event"));
+      }, 2000);
   </script>
 
 </body>
