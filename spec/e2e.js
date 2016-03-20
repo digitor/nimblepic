@@ -6,7 +6,7 @@ var createEl = window.testUtils.createEl
   , getUID = window.nimblePic.testable.getUID
   , $doc = $(document)
 
-describe("getDynamicHeight", function() {
+xdescribe("getDynamicHeight", function() {
 
 	var fun = window.nimblePic.testable.getDynamicHeight;
 	var mbImgSrc = "/demos/img/example-1-35.jpg"
@@ -49,7 +49,7 @@ describe("getDynamicHeight", function() {
 });
 
 
-describe("getUID", function() {
+xdescribe("getUID", function() {
 	var fun = window.nimblePic.testable.getUID
 	  , uid1 = fun()
 	  , uid2 = fun();
@@ -67,7 +67,7 @@ describe("getUID", function() {
 	});
 });
 
-describe("setClearImgStyles", function() {
+xdescribe("setClearImgStyles", function() {
 	var fun = window.nimblePic.testable.setClearImgStyles;
 
 	it("should create an element, then remove it when event is triggered", function() {
@@ -82,7 +82,7 @@ describe("setClearImgStyles", function() {
 });
 
 
-describe("addStyle", function() {
+xdescribe("addStyle", function() {
 	var fun = window.nimblePic.testable.addStyle
 
 	it("should add CSS to a style element with the given unique ID", function() {
@@ -128,7 +128,7 @@ describe("addStyle", function() {
 });
 
 
-describe("getImgProps", function() {
+xdescribe("getImgProps", function() {
 	var fun = window.nimblePic.testable.getImgProps
 
 	it("should return an object with all valid values", function() {
@@ -154,7 +154,7 @@ describe("getImgProps", function() {
 	});
 });
 
-describe("addLoader", function() {
+xdescribe("addLoader", function() {
 	var fun = window.nimblePic.testable.addLoader
 
 	it("should add a loader element the element passed only once", function() {
@@ -185,7 +185,7 @@ describe("addLoader", function() {
 	});
 });
 
-describe("getSpecificSelector", function() {
+xdescribe("getSpecificSelector", function() {
 	var fun = window.nimblePic.testable.getSpecificSelector
 
 	it("should return a selector that includes the parent class name", function() {
@@ -197,7 +197,7 @@ describe("getSpecificSelector", function() {
 	});
 });
 
-describe("getCustomStyleId", function() {
+xdescribe("getCustomStyleId", function() {
 	var fun = window.nimblePic.testable.getCustomStyleId
 
 	it("should return the 'customStyleID' passed in with 'invalidSrc', 'group' and 'customEvent' omitted", function() {
@@ -225,7 +225,7 @@ describe("getCustomStyleId", function() {
 	})
 });
 
-describe("isInvalidSrc", function() {
+xdescribe("isInvalidSrc", function() {
 	var fun = window.nimblePic.testable.isInvalidSrc
 
 	it("should return FALSE when both mobile and tablet/desktop sources are VALID", function() {
@@ -242,7 +242,7 @@ describe("isInvalidSrc", function() {
 	})
 })
 
-describe("setCustomEventHandler", function() {
+xdescribe("setCustomEventHandler", function() {
 	var fun = window.nimblePic.testable.setCustomEventHandler
 
 	it("should show the callback works and includes expected params", function(done) {
@@ -298,4 +298,35 @@ describe("setCustomEventHandler", function() {
 		// Last argument will be the callback passed to the event, so we make that sequential too
 		$doc.trigger(customEvent, {cb:SOME_VAL, refresh: true});
 	})
+})
+
+describe("setUniqueImgClass", function() {
+	var fun = window.nimblePic.testable.setUniqueImgClass
+
+	it("should return existing class", function() {
+		var cls = getUID()
+
+		expect(fun(cls)).toBe(cls);
+	})
+
+	it("should include the 'index' in the class name when a 'group' is supplied and check class is added to DOM element", function() {
+		var el = createEl()
+		  , cls = getUID()
+
+		// checks return value
+		expect(fun(cls, el, 2, "some-group-name")).toContain("imgresp-2-");
+		
+		// checks DOM element has class added
+		expect(el.classList[0]).toContain("imgresp-2-");
+	})
+
+	it("should check the 'index' defaults to '0' in the class name when a 'customEvent' is supplied and an invalid 'index' is supplied", function() {
+		var el = createEl()
+		  , cls = getUID()
+
+		// checks return value
+		expect(fun(cls, el, 'an-invalid-number', null, "some-custom-event")).toContain("imgresp-0-");
+	})
+
+	
 })

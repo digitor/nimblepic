@@ -319,14 +319,19 @@
      * @description If a group or customEvent exists, creates a new unique class name for each image (span) and returns it.
      * @param existingCls (string) - The existing class selector to use if no group or custom event exists.
      * @param img (HTML Element) - The image (span) element.
-     * @param group (string) - Name of the group.
-     * @param customEvent (string) - Name of the customEvent.
+     * @param index (number) optional - Index within the group. Will default to zero if not supplied.
+     * @param group (string) optional - Name of the group.
+     * @param customEvent (string) optional - Name of the customEvent.
      * @return (string) - CSS class to use as a selector on the image.
      */
-    function setUniqueImgClass(existingCls, img, group, customEvent) {
+    function setUniqueImgClass(existingCls, img, index, group, customEvent) {
 
         if (customEvent || group) {
-            var uniqueCls = "imgresp-" + i + "-" + getUID();
+            if(typeof index !== "number") {
+                console.warn(NS, "setUniqueImgClass", "Argument 'index' was not a valid number. Defaulting to '0'.");
+                index = 0;
+            }
+            var uniqueCls = getUID("imgresp-" + index + "-");
             img.classList.add(uniqueCls);
             return uniqueCls;
         }
@@ -446,6 +451,8 @@
 
             var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, cb) {
 
+                console.log("startLoading 1");
+
                 // stops late events from interfering
                 if (uid !== UID) return;
 
@@ -456,9 +463,13 @@
                 // marks the image as "loading in progress", so other attempts to load it are blocked
                 $img.data(D_CUR_IMG_SRC, thisSrc);
                 
+                console.log("startLoading 2");
+
                 getDynamicHeight(thisSrc, false, function (url, isSuccess, height) {
 
                     setLoadingStates($img[0], "loaded");
+
+                    //console.log("startLoading 3", url, isSuccess, height, $img.css("background-image"), styleId);
 
                     if (isSuccess) {
                         var grad = $img.attr("data-grad") || null;
@@ -503,7 +514,7 @@
                       , styleId = getCustomStyleId(customStyleID, invalidSrc, prp.group, prp.customEvent);
 
                     // TODO: need to verify this what this is useful for, with regards to group and customEvent
-                    specificSel = setUniqueImgClass(specificSel, $img[0], prp.group, prp.customEvent);
+                    specificSel = setUniqueImgClass(specificSel, $img[0], i, prp.group, prp.customEvent);
                     
                     // TODO: need to verify if this should come after 'setUniqueImgClass' or before, with regards to group and customEvent
                     responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, doClearEl);
@@ -549,6 +560,7 @@
             , isInvalidSrc: isInvalidSrc
             , isInvalidResponsiveSrc: isInvalidResponsiveSrc
             , setCustomEventHandler: setCustomEventHandler
+            , setUniqueImgClass: setUniqueImgClass
         }
     }
 

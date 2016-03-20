@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>Example w</title>
+  <link rel="stylesheet" href="/src/nimblepic.css">
 </head>
 <body>
 
@@ -15,6 +16,10 @@
   </span>
 
   <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="/src/lib/modernizr-custom.js"></script>
 	<script src="/src/nimblepic.js"></script>
+  <script>
+    nimblePic.setImages($);
+  </script>
 </body>
 </html>

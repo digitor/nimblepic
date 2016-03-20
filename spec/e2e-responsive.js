@@ -24,7 +24,7 @@ var createEl = window.testUtils.createEl
 if(isDt || isTb || isMb || isNarrowMb) {
 
 
-	describe("getResponsiveWidth with non-exact breakpoint values", function() {
+	xdescribe("getResponsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.getResponsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points", function() {
@@ -36,7 +36,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 	});
 
 
-	describe("responsiveWidth with non-exact breakpoint values", function() {
+	xdescribe("responsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'less than' params", function() {
@@ -64,7 +64,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 	if(!isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
 		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
 
-	describe("responsiveWidth with exact breakpoint values", function() {
+	xdescribe("responsiveWidth with exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'more than or equal' params", function() {
@@ -86,7 +86,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 
 
 
-describe("responsiveHeight", function() {
+xdescribe("responsiveHeight", function() {
 	var fun = window.nimblePic.testable.responsiveHeight
 	  , heightSm = 400
 	  , heightMd = 768
@@ -195,7 +195,7 @@ describe("responsiveHeight", function() {
 	});
 
 
-	describe("3 media queries on same element by ID, but with different classes", function() {
+	xdescribe("3 media queries on same element by ID, but with different classes", function() {
 
 		var customID = getUID("some-unique-id-")
 		  , cls1 = getUID("example1")
@@ -230,7 +230,7 @@ describe("responsiveHeight", function() {
 	});
 });
 
-describe("responsiveImage", function() {
+xdescribe("responsiveImage", function() {
 	var fun = window.nimblePic.testable.responsiveImage
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"
@@ -262,7 +262,9 @@ describe("responsiveImage", function() {
 			  , cls = getUID("example2");
 
 			fun(null, srcSm, srcMd, "."+cls);
-			createImgEl(id, cls);
+			var el = createImgEl(id, cls);
+
+			//console.log(el.style.backgroundImage);
 
 			bgImgExp(id, srcMd);
 		});
@@ -341,7 +343,7 @@ describe("responsiveImage", function() {
 	}
 });
 
-describe("isInvalidResponsiveSrc", function() {
+xdescribe("isInvalidResponsiveSrc", function() {
 	var fun = window.nimblePic.testable.isInvalidResponsiveSrc
 
 	if(isMb || isNarrowMb) {
@@ -398,23 +400,30 @@ describe("isInvalidResponsiveSrc", function() {
 })
 
 if(isDt) { // Still working on this
-	xdescribe("setImages", function() {
+	describe("setImages", function() {
 		var fun = window.nimblePic.setImages
 		  , srcSm = "/demos/img/example-1-35.jpg"
 		  , srcMd = "/demos/img/example-1-58.jpg"
 
 		it("should load desktop image by default CSS class name", function(done) {
 			
-			var img1 = createImgEl()
+			var id = getUID();
+			createImgEl(id);
 
+			var img1 = document.getElementById(id);
 			img1.setAttribute("data-img-sm", srcSm);
 			img1.setAttribute("data-img-md", srcMd);
 
-			fun($);
+			var styleId = getUID();
+			fun($, null, null, styleId);
 
 			setTimeout(function() {
-				console.log(img1.style.backgroundImage)
-				expect(img1.style.backgroundImage).toBe(srcMd)
+				//console.log(img1)
+				//console.log($("#"+styleId))
+
+				console.log($("#"+id).css("background-image"), img1.style.backgroundImage)
+
+				expect($("#"+id).css("background-image")).toContain(srcMd)
 				done();
 			}, 1000);
 		})
