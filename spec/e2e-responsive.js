@@ -7,11 +7,13 @@
 var winW = window.nimblePic.testable.winWidth();
 
 // non-exact breakpoint values
-var isDt = winW === 1199
+var isWideDt = false
+  , isDt = winW === 1199
   , isTb = winW === 991
   , isMb = winW === 767
   , isNarrowMb = winW === 479
 
+var isNonExact = isDt || isTb || isMb || isNarrowMb;
 
 var createEl = window.testUtils.createEl
   , createImgEl = window.testUtils.createImgEl
@@ -19,12 +21,22 @@ var createEl = window.testUtils.createEl
   , getUID = window.nimblePic.testable.getUID
   , getCompProp = window.testUtils.getCompProp
   , cleanupElement = window.testUtils.cleanupElement
+  , $doc = $(document)
 
 //console.log("winW", winW);
 
-// testing specific break points with non-exact breakpoint values
-if(isDt || isTb || isMb || isNarrowMb) {
 
+function printBreakPoint() {
+	if(isWideDt) return "isWideDt";
+	if(isDt) return "isDt";
+	if(isTb) return "Tb";
+	if(isMb) return "isMb";
+	if(isNarrowMb) return "isNarrowMb";
+	//return ["isDt:"+isDt, "isTb:"+isTb, "isMb:"+isMb, "isNarrowMb:"+isNarrowMb, "isWideDt:"+isWideDt].join(" - "); 
+}
+
+// testing specific break points with non-exact breakpoint values
+if(isNonExact) {
 
 	describe("getResponsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.getResponsiveWidth
@@ -85,6 +97,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 		});
 	});
 }
+
 
 
 
@@ -455,29 +468,98 @@ describe("isInvalidResponsiveSrc", function() {
 	}
 })
 
-if(isDt) {
-	describe("setImages", function() {
-		var fun = window.nimblePic.setImages
-		  , srcSm = "/demos/img/example-1-35.jpg"
-		  , srcMd = "/demos/img/example-1-58.jpg"
 
-		it("should load desktop image by default CSS class name", function(done) {
-			
-			var id = getUID();
-			createImgEl(id);
+describe("setImages", function() {
+	var fun = window.nimblePic.setImages
+	  , srcSm = "/demos/img/example-1-35.jpg"
+	  , srcMd = "/demos/img/example-1-58.jpg"
 
-			var img1 = document.getElementById(id);
-			img1.setAttribute("data-img-sm", srcSm);
-			img1.setAttribute("data-img-md", srcMd);
+	function bgImgCheck(img, done) {
+		if(isDt || isWideDt || isTb)	expect(getCompProp(img, "background-image")).toContain(srcMd);
+		else 							expect(getCompProp(img, "background-image")).toContain(srcSm);
 
-			var styleId = getUID();
-			fun($, null, null, styleId);
+		cleanupElement(img);
+		if(done) done();
+	}
 
-			setTimeout(function() {
+	function setImgAttr(img) {
+		img.setAttribute("data-img-sm", srcSm);
+		img.setAttribute("data-img-md", srcMd);
+	}
 
-				expect(getCompProp(img1, "background-image")).toContain(srcMd)
-				done();
-			}, 1000);
-		})
+	it("should load image by default CSS class name - " + printBreakPoint(), function(done) {
+		
+		var img = createImgEl();
+		setImgAttr(img);
+
+		fun($, null, null, getUID(), null, function(isSuccess, url, height) {
+			// image loaded callback
+			bgImgCheck(img, done);
+		});
 	})
-}
+
+	it("should load image by custom CSS class name - " + printBreakPoint(), function(done) {
+
+		var cls = getUID()
+		  , img = createImgEl(null, cls); // creates image with custom class
+		setImgAttr(img);
+
+		// passes the custom class
+		fun($, null, cls, getUID(), null, function(isSuccess, url, height) {
+			// image loaded callback
+			bgImgCheck(img, done);
+		});
+	})
+
+	it("should load image by custom CSS class name on a custom container - " + printBreakPoint(), function(done) {
+
+		var cont = createEl() // creates an empty container element
+		  , cls = getUID()
+		  , img = createImgEl(null, cls, cont); // attaches the image to the container
+
+		setImgAttr(img);
+
+		// passes the container and custom class
+		fun($, $(cont), cls, getUID(), null, function(isSuccess, url, height) {
+			// image loaded callback
+			bgImgCheck(img, done);
+		});
+	})
+
+	it("should load image by custom CSS class name on a parent selector - " + printBreakPoint(), function(done) {
+
+		var parentCls = getUID()
+		  , cont = createEl(null, null, parentCls) // creates an empty container element
+		  , cls = getUID()
+		  , img = createImgEl(null, cls, cont); // attaches the image to the container
+
+		setImgAttr(img);
+
+		// passes the container and custom class
+		fun($, null, cls, getUID(), parentCls, function(isSuccess, url, height) {
+			// image loaded callback
+			bgImgCheck(img, done);
+		});
+	})
+
+
+	it("should load image by delayed event, including custom event callback - " + printBreakPoint(), function(done) {
+		
+		var img = createImgEl();
+		setImgAttr(img);
+
+		var uniqueEventName = getUID("unique-event-name");
+		img.setAttribute("data-delay-image-load-event", uniqueEventName);
+
+		fun($, null, null, getUID(), null);
+
+		var imgLoadedCB = function() {
+			bgImgCheck(img, done);
+		}
+
+		setTimeout(function() {
+			$doc.trigger(uniqueEventName, {cb:imgLoadedCB});
+		}, 500);
+	})
+
+})

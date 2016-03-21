@@ -8,13 +8,17 @@
     var getUID = window.nimblePic.testable.getUID;
 
     testUtils = {
-        createEl: function(id, type, cls, skipTest) {
+        createEl: function(id, type, cls, skipTest, container) {
 
             if(!id) id = getUID();
+            if(!type) type = "div";
 
-            var styleEl = document.createElement(type);
-            styleEl.setAttribute("id", id);
-            document.body.appendChild(styleEl);
+            var el = document.createElement(type);
+            el.setAttribute("id", id);
+
+            if(!container) container = document.body;
+
+            container.appendChild(el);
 
             var el = document.getElementById(id);
 
@@ -26,8 +30,8 @@
             return el;
         }
 
-        ,createImgEl: function(id, cls) {
-            var el = SELF.createEl(id, "span", cls);
+        ,createImgEl: function(id, cls, container) {
+            var el = SELF.createEl(id, "span", cls, null, container);
             el.classList.add("imgresp");
             return el;
         }

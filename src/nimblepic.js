@@ -350,7 +350,7 @@
     function isInvalidSrc(srcSm, srcMd) {
         // also accepts a proptery object as first arg
         if(typeof srcSm === "object") {
-            console.log("isInvalidSrc", srcSm)
+            //console.log("isInvalidSrc", srcSm)
             srcSm = srcSm.srcSm;
             srcMd = srcSm.srcMd;
         }
@@ -441,8 +441,10 @@
          *   previously attached to this ID. So if you're calling this function more than once on a page, you should pass this property with a new unique ID each time.
          *
          * parentCls (string) optional - Use this if you 'customCls' is not specific enough. Should be a class name of any parent element within the '$container'.
+         *
+         * loadedCB (function) optional - A callback when image has loaded. Useful when running tests.
          */
-        setImages: function ($, $container, customCls, customStyleID, parentCls) {
+        setImages: function ($, $container, customCls, customStyleID, parentCls, loadedCB) {
 
             setClearImgStyles($);
 
@@ -453,7 +455,7 @@
 
             var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, cb) {
 
-                console.log("startLoading 1");
+                //console.log("startLoading 1");
 
                 // stops late events from interfering
                 if (uid !== UID) return;
@@ -465,7 +467,7 @@
                 // marks the image as "loading in progress", so other attempts to load it are blocked
                 $img.data(D_CUR_IMG_SRC, thisSrc);
                 
-                console.log("startLoading 2");
+                //console.log("startLoading 2");
 
                 getDynamicHeight(thisSrc, false, function (url, isSuccess, height) {
 
@@ -482,7 +484,8 @@
                         $img.addClass(CLS_NO_IMG);
                     }
                     doClearImg = false; // just clears the first time
-                    if (cb) cb(isSuccess);
+                    if (cb) cb(isSuccess, url, height);
+                    if( loadedCB ) loadedCB(isSuccess, url, height);
                 });
             }
 
@@ -492,7 +495,7 @@
             $(function () { // Uses DOM Ready to ensure all html elements in $container exist
                 var prp, singleCls, $img;
 
-                console.log("image count", $container.find("." + customCls).length);
+                //console.log("image count", $container.find("." + customCls).length);
                 $container.find("." + customCls).each(function (i) {
                     
                     prp = getImgProps(this);
@@ -538,7 +541,7 @@
                    
 
                     if (prp.customEvent) {
-                        console.log(NS, "specificSel", specificSel)
+                        //console.log(NS, "specificSel", specificSel)
                         setCustomEventHandler(prp.customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId);
                     } else {
                         startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, null);
