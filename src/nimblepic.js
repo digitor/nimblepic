@@ -243,6 +243,7 @@
         var srcSm = img.getAttribute("data-img-sm") || null
           , srcMd = img.getAttribute("data-img-md") || null;
 
+        //console.log("getImgProps", img)
 
         // optional
         var hSm         = img.getAttribute("data-height-sm")
@@ -349,6 +350,7 @@
     function isInvalidSrc(srcSm, srcMd) {
         // also accepts a proptery object as first arg
         if(typeof srcSm === "object") {
+            console.log("isInvalidSrc", srcSm)
             srcSm = srcSm.srcSm;
             srcMd = srcSm.srcMd;
         }
@@ -490,6 +492,7 @@
             $(function () { // Uses DOM Ready to ensure all html elements in $container exist
                 var prp, singleCls, $img;
 
+                console.log("image count", $container.find("." + customCls).length);
                 $container.find("." + customCls).each(function (i) {
                     
                     prp = getImgProps(this);

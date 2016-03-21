@@ -17,6 +17,8 @@ var createEl = window.testUtils.createEl
   , createImgEl = window.testUtils.createImgEl
   , getNewDivHeight = window.testUtils.getNewDivHeight
   , getUID = window.nimblePic.testable.getUID
+  , getCompProp = window.testUtils.getCompProp
+  , cleanupElement = window.testUtils.cleanupElement
 
 //console.log("winW", winW);
 
@@ -24,7 +26,7 @@ var createEl = window.testUtils.createEl
 if(isDt || isTb || isMb || isNarrowMb) {
 
 
-	xdescribe("getResponsiveWidth with non-exact breakpoint values", function() {
+	describe("getResponsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.getResponsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points", function() {
@@ -36,7 +38,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 	});
 
 
-	xdescribe("responsiveWidth with non-exact breakpoint values", function() {
+	describe("responsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'less than' params", function() {
@@ -64,7 +66,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 	if(!isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
 		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
 
-	xdescribe("responsiveWidth with exact breakpoint values", function() {
+	describe("responsiveWidth with exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'more than or equal' params", function() {
@@ -86,7 +88,7 @@ if(isDt || isTb || isMb || isNarrowMb) {
 
 
 
-xdescribe("responsiveHeight", function() {
+describe("responsiveHeight", function() {
 	var fun = window.nimblePic.testable.responsiveHeight
 	  , heightSm = 400
 	  , heightMd = 768
@@ -102,17 +104,28 @@ xdescribe("responsiveHeight", function() {
 
 			createEl(customID, "style");
 
+			expect(document.getElementById(customID)).toBeTruthy();
 			fun(true, customID);
+			expect(document.getElementById(customID)).toBeFalsy();
 		});
 
 
-		it("should clear a style element by id, by just passing 'justClear' param and 'customID'.", function() {
+		it("should clear a style element by id, by just passing 'clearExisting' param and 'customID'.", function() {
 			var customID = getUID("some-unique-id-")
 			  , clearExisting = true;
 			  
-			createEl(customID, "style");
+			var styleEl = createEl(customID, "style");
+
+			styleEl.innerHTML = ".test { background:blue; }";
 
 			fun(null, customID, null, null, null, null, clearExisting);
+
+			// tests that element exists, but has been cleared (because no new values were passed with the function call)
+			styleEl = document.getElementById(customID);
+			expect(styleEl).toBeTruthy();
+			expect(styleEl.innerHTML).toBe("");
+
+			cleanupElement(customID);
 		});
 	}
 
@@ -130,6 +143,8 @@ xdescribe("responsiveHeight", function() {
 
 		if(isMb || isNarrowMb)	expect(divH).toEqual(heightSm);
 		else					expect(divH).toEqual(0);
+
+		cleanupElement(customID);
 	});
 
 
@@ -144,6 +159,8 @@ xdescribe("responsiveHeight", function() {
 		var divH = getNewDivHeight(customCls);
 
 		expect(divH).toEqual(heightMd);
+
+		cleanupElement(customID);
 	});
 
 
@@ -158,6 +175,8 @@ xdescribe("responsiveHeight", function() {
 
 		if(isMb || isNarrowMb)	expect(divH).toEqual(heightSm);
 		else					expect(divH).toEqual(heightMd);
+
+		cleanupElement(customID);
 	});
 
 
@@ -172,6 +191,8 @@ xdescribe("responsiveHeight", function() {
 
 		if(isDt || isWideDt)	expect(divH).toEqual(heightLg);
 		else					expect(divH).toEqual(0);
+
+		cleanupElement(customID);
 	});
 
 
@@ -192,10 +213,12 @@ xdescribe("responsiveHeight", function() {
 			expect(divH1).toEqual(0);
 			expect(divH2).toEqual(heightLg);
 		}
+
+		cleanupElement(customID);
 	});
 
 
-	xdescribe("3 media queries on same element by ID, but with different classes", function() {
+	describe("3 media queries on same element by ID, but with different classes", function() {
 
 		var customID = getUID("some-unique-id-")
 		  , cls1 = getUID("example1")
@@ -211,39 +234,51 @@ xdescribe("responsiveHeight", function() {
 		  , divH2 = getNewDivHeight(cls2, true)
 		  , divH3 = getNewDivHeight(cls3, true)
 
+		var count = 0;
+		function cleanUp() {
+			count++;
+			if(count >= 3) cleanupElement(customID);
+		}
+
 
 		it("should just succeed for mobile on div1", function() {
 			if(isMb || isNarrowMb)	expect(divH1).toEqual(heightSm);
 			else					expect(divH1).toEqual(0);
+			cleanUp();
 		});
 
 
 		it("should succeed for all on div2", function() {
 			expect(divH2).toEqual(heightMd);
+			cleanUp();
 		});
 
 
 		it("should just succeed for desktop on div3", function() {
 			if(isDt || isWideDt)	expect(divH3).toEqual(heightLg);
 			else					expect(divH3).toEqual(0);
+			cleanUp();
 		});
 	});
 });
 
-xdescribe("responsiveImage", function() {
+describe("responsiveImage", function() {
 	var fun = window.nimblePic.testable.responsiveImage
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"
 	  , defId = "imgresp-styles";
 
 	function bgImgExp(id, src, customID) {
-		expect($("#"+id).css("background-image")).toContain(src);
+		
+		expect(getCompProp(id, "background-image")).toContain(src);
 
 		if(!customID) customID = defId;
 
-		$("#"+customID).remove();
+		cleanupElement(customID);
 		
-		expect($("#"+id).css("background-image")).not.toContain(src);
+		expect(getCompProp(id, "background-image")).not.toContain(src);
+
+		cleanupElement(id);
 	}
 
 	if(isMb || isNarrowMb) {
@@ -264,8 +299,6 @@ xdescribe("responsiveImage", function() {
 			fun(null, srcSm, srcMd, "."+cls);
 			var el = createImgEl(id, cls);
 
-			//console.log(el.style.backgroundImage);
-
 			bgImgExp(id, srcMd);
 		});
 	}
@@ -282,13 +315,16 @@ xdescribe("responsiveImage", function() {
 			createImgEl(id, cls);
 
 			// tests that elements created contains the default bg image for the small size
-			expect($("#"+id).css("background-image")).toContain(srcSm);
+			expect(getCompProp(id, "background-image")).toContain(srcSm);
 
 			// now runs the main function again with the 'clearExisting' param as true, so we can verify the new (fake) src value gets applied
 			var clearExisting = true;
 			fun(null, "fake-src", srcMd, "."+cls, null, null, null, clearExisting, customStyleID);
 
-			expect($("#"+id).css("background-image")).toContain("fake-src");
+			expect(getCompProp(id, "background-image")).toContain("fake-src");
+
+			cleanupElement(id);
+			cleanupElement(customStyleID);
 		});
 	} 
 
@@ -301,7 +337,9 @@ xdescribe("responsiveImage", function() {
 			fun(null, srcSm, srcMd, "."+cls, heightSm);
 			createImgEl(id, cls);
 
-			expect($("#"+id).height()).toEqual(heightSm);
+			expect(document.getElementById(id).offsetHeight).toEqual(heightSm);
+
+			cleanupElement(id);
 		});
 	} else if(isTb) {
 		it("should show tablet image height applied", function() {
@@ -312,7 +350,9 @@ xdescribe("responsiveImage", function() {
 			fun(null, srcSm, srcMd, "."+cls, null, heightMd);
 			createImgEl(id, cls);
 
-			expect($("#"+id).height()).toEqual(heightMd);
+			expect(document.getElementById(id).offsetHeight).toEqual(heightMd);
+
+			cleanupElement(id);
 		});
 	} else if(isDt) {
 		it("should show desktop image height applied", function() {
@@ -323,7 +363,9 @@ xdescribe("responsiveImage", function() {
 			fun(null, srcSm, srcMd, "."+cls, null, heightLg);
 			createImgEl(id, cls);
 
-			expect($("#"+id).height()).toEqual(heightLg);
+			expect(document.getElementById(id).offsetHeight).toEqual(heightLg);
+
+			cleanupElement(id);
 		});
 	}
 
@@ -338,12 +380,14 @@ xdescribe("responsiveImage", function() {
 			el.classList.add("no-mb");
 
 			// tests that elements created DOES NOT contain a bg image for the small size
-			expect($("#"+id).css("background-image")).not.toContain(srcSm);
+			expect(getCompProp(id, "background-image")).not.toContain(srcSm);
+
+			cleanupElement(el);
 		});
 	}
 });
 
-xdescribe("isInvalidResponsiveSrc", function() {
+describe("isInvalidResponsiveSrc", function() {
 	var fun = window.nimblePic.testable.isInvalidResponsiveSrc
 
 	if(isMb || isNarrowMb) {
@@ -351,6 +395,8 @@ xdescribe("isInvalidResponsiveSrc", function() {
 			
 			var $el = $(createImgEl()); // must be a jQuery element
 			expect(fun($el, "/path-to/img/mobile.jpg")).toBe(false);
+
+			cleanupElement($el[0]);
 		})
 
 		it("should return TRUE when mobile source is INVALID", function() {
@@ -359,6 +405,8 @@ xdescribe("isInvalidResponsiveSrc", function() {
 			
 			// shouldn't be a boolean, should be a string
 			expect(fun($el, true, "/a-valid/desktop/img.jpg")).toBe(true);
+
+			cleanupElement($el[0]);
 		})
 		
 		it("should return TRUE when loaded/loading data is added to jQuery element and source MATCHES", function() {
@@ -369,6 +417,8 @@ xdescribe("isInvalidResponsiveSrc", function() {
 			$el.data("current-image-src", imgPath)
 			
 			expect(fun($el, imgPath)).toBe(true);
+
+			cleanupElement($el[0]);
 		})
 
 		it("should return FALSE when loaded/loading data is added to jQuery element and source DOESN'T MATCH", function() {
@@ -379,6 +429,8 @@ xdescribe("isInvalidResponsiveSrc", function() {
 			$el.data("current-image-src", "a-different/img.jpg")
 			
 			expect(fun($el, "/path-to/img/mobile.jpg")).toBe(false);
+
+			cleanupElement($el[0]);
 		})		
 	} else if(isDt) {
 		it("should return FALSE when desktop source is VALID", function() {
@@ -387,6 +439,8 @@ xdescribe("isInvalidResponsiveSrc", function() {
 			
 			// first param is invalid because it's not a string
 			expect(fun($el, 1, "/path-to/img/desktop.jpg")).toBe(false);
+
+			cleanupElement($el[0]);
 		})
 
 		it("should return TRUE when desktop source is INVALID", function() {
@@ -395,11 +449,13 @@ xdescribe("isInvalidResponsiveSrc", function() {
 			
 			// shouldn't be a boolean, should be a string
 			expect(fun($el, "/a-valid/mobile/img.jpg", true)).toBe(true);
+
+			cleanupElement($el[0]);
 		})
 	}
 })
 
-if(isDt) { // Still working on this
+if(isDt) {
 	describe("setImages", function() {
 		var fun = window.nimblePic.setImages
 		  , srcSm = "/demos/img/example-1-35.jpg"
@@ -418,12 +474,8 @@ if(isDt) { // Still working on this
 			fun($, null, null, styleId);
 
 			setTimeout(function() {
-				//console.log(img1)
-				//console.log($("#"+styleId))
 
-				console.log($("#"+id).css("background-image"), img1.style.backgroundImage)
-
-				expect($("#"+id).css("background-image")).toContain(srcMd)
+				expect(getCompProp(img1, "background-image")).toContain(srcMd)
 				done();
 			}, 1000);
 		})

@@ -39,8 +39,17 @@
             return divEl.offsetHeight;
         }
 
+        // el can be an ID as well as an actual DOM element
         , cleanupElement: function(el) {
+            if(typeof el === "string") el = document.getElementById(el);
             el.parentElement.removeChild(el);
+        }
+
+        // el can be an ID as well as an actual DOM element
+        , getCompProp: function(el, prop) {
+            if(typeof el === "string") el = document.getElementById(el);
+            var comp = window.getComputedStyle(el);
+            return comp.getPropertyValue(prop);
         }
     }
 	

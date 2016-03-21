@@ -6,7 +6,7 @@ var createEl = window.testUtils.createEl
   , getUID = window.nimblePic.testable.getUID
   , $doc = $(document)
 
-xdescribe("getDynamicHeight", function() {
+describe("getDynamicHeight", function() {
 
 	var fun = window.nimblePic.testable.getDynamicHeight;
 	var mbImgSrc = "/demos/img/example-1-35.jpg"
@@ -49,7 +49,7 @@ xdescribe("getDynamicHeight", function() {
 });
 
 
-xdescribe("getUID", function() {
+describe("getUID", function() {
 	var fun = window.nimblePic.testable.getUID
 	  , uid1 = fun()
 	  , uid2 = fun();
@@ -67,7 +67,7 @@ xdescribe("getUID", function() {
 	});
 });
 
-xdescribe("setClearImgStyles", function() {
+describe("setClearImgStyles", function() {
 	var fun = window.nimblePic.testable.setClearImgStyles;
 
 	it("should create an element, then remove it when event is triggered", function() {
@@ -82,7 +82,7 @@ xdescribe("setClearImgStyles", function() {
 });
 
 
-xdescribe("addStyle", function() {
+describe("addStyle", function() {
 	var fun = window.nimblePic.testable.addStyle
 
 	it("should add CSS to a style element with the given unique ID", function() {
@@ -128,7 +128,7 @@ xdescribe("addStyle", function() {
 });
 
 
-xdescribe("getImgProps", function() {
+describe("getImgProps", function() {
 	var fun = window.nimblePic.testable.getImgProps
 
 	it("should return an object with all valid values", function() {
@@ -154,7 +154,7 @@ xdescribe("getImgProps", function() {
 	});
 });
 
-xdescribe("addLoader", function() {
+describe("addLoader", function() {
 	var fun = window.nimblePic.testable.addLoader
 
 	it("should add a loader element the element passed only once", function() {
@@ -185,7 +185,7 @@ xdescribe("addLoader", function() {
 	});
 });
 
-xdescribe("getSpecificSelector", function() {
+describe("getSpecificSelector", function() {
 	var fun = window.nimblePic.testable.getSpecificSelector
 
 	it("should return a selector that includes the parent class name", function() {
@@ -197,7 +197,7 @@ xdescribe("getSpecificSelector", function() {
 	});
 });
 
-xdescribe("getCustomStyleId", function() {
+describe("getCustomStyleId", function() {
 	var fun = window.nimblePic.testable.getCustomStyleId
 
 	it("should return the 'customStyleID' passed in with 'invalidSrc', 'group' and 'customEvent' omitted", function() {
@@ -225,7 +225,7 @@ xdescribe("getCustomStyleId", function() {
 	})
 });
 
-xdescribe("isInvalidSrc", function() {
+describe("isInvalidSrc", function() {
 	var fun = window.nimblePic.testable.isInvalidSrc
 
 	it("should return FALSE when both mobile and tablet/desktop sources are VALID", function() {
@@ -242,7 +242,7 @@ xdescribe("isInvalidSrc", function() {
 	})
 })
 
-xdescribe("setCustomEventHandler", function() {
+describe("setCustomEventHandler", function() {
 	var fun = window.nimblePic.testable.setCustomEventHandler
 
 	it("should show the callback works and includes expected params", function(done) {
