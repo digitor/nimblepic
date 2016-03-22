@@ -637,6 +637,30 @@ describe("setImages", function() {
 			}
 		}
 
+		it("should check 'isSuccess' argument in 'loadedCB' are working for success on 4 different images - " + printBreakPoint(), function(done) {
+			var loadedCount = 0;
+
+			var images = {
+				  img1: createImgEl()
+				, img2: createImgEl()
+				, img3: createImgEl()
+				, img4: createImgEl()
+			}
+
+			setMultiImgAttr(images.img1, 1);
+			setMultiImgAttr(images.img2, 2);
+			setMultiImgAttr(images.img3, 3);
+			setMultiImgAttr(images.img4, 4);
+
+
+			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				expect(isSuccess).toBe(true);
+				loadedCount++;
+				if(loadedCount === 4) done();
+			})
+		})
+
+
 		it("should check 'isSuccess' and 'url' arguments in 'loadedCB' are working for success and fail - " + printBreakPoint(), function(done) {
 			var sucImg = createImgEl()
 			  , errImg = createImgEl()
@@ -665,6 +689,28 @@ describe("setImages", function() {
 				if(loadedCount === 2) done();
 			})
 		})
+
+		// TODO: add functionality for 'no-img' and throw a warning
+
+		it("should show how calling the method more than once clears previous images when no 'customCls' or 'customStyleID' is passed, attach 'no-img' class to previous images and throw a warning - " + printBreakPoint(), function(done) {
+			var img1 = createImgEl();
+			setMultiImgAttr(img1, 1);
+
+			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+
+				expect(getCompProp(img1, "background-image")).toContain(url);
+				
+				var img2 = createImgEl();
+				setMultiImgAttr(img2, 2);
+				fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+					
+					expect(getCompProp(img1, "background-image")).toBe('none');
+					expect(getCompProp(img2, "background-image")).toContain(url);
+					done();
+				})
+			})
+		})
+
 	})
 
 })
