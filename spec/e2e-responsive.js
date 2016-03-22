@@ -38,7 +38,7 @@ function printBreakPoint() {
 // testing specific break points with non-exact breakpoint values
 if(isNonExact) {
 
-	describe("getResponsiveWidth with non-exact breakpoint values", function() {
+	xdescribe("getResponsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.getResponsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points", function() {
@@ -50,7 +50,7 @@ if(isNonExact) {
 	});
 
 
-	describe("responsiveWidth with non-exact breakpoint values", function() {
+	xdescribe("responsiveWidth with non-exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'less than' params", function() {
@@ -78,7 +78,7 @@ if(isNonExact) {
 	if(!isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
 		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
 
-	describe("responsiveWidth with exact breakpoint values", function() {
+	xdescribe("responsiveWidth with exact breakpoint values", function() {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'more than or equal' params", function() {
@@ -101,7 +101,7 @@ if(isNonExact) {
 
 
 
-describe("responsiveHeight", function() {
+xdescribe("responsiveHeight", function() {
 	var fun = window.nimblePic.testable.responsiveHeight
 	  , heightSm = 400
 	  , heightMd = 768
@@ -231,7 +231,7 @@ describe("responsiveHeight", function() {
 	});
 
 
-	describe("3 media queries on same element by ID, but with different classes", function() {
+	xdescribe("3 media queries on same element by ID, but with different classes", function() {
 
 		var customID = getUID("some-unique-id-")
 		  , cls1 = getUID("example1")
@@ -275,7 +275,7 @@ describe("responsiveHeight", function() {
 	});
 });
 
-describe("responsiveImage", function() {
+xdescribe("responsiveImage", function() {
 	var fun = window.nimblePic.testable.responsiveImage
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"
@@ -400,7 +400,7 @@ describe("responsiveImage", function() {
 	}
 });
 
-describe("isInvalidResponsiveSrc", function() {
+xdescribe("isInvalidResponsiveSrc", function() {
 	var fun = window.nimblePic.testable.isInvalidResponsiveSrc
 
 	if(isMb || isNarrowMb) {
@@ -487,122 +487,184 @@ describe("setImages", function() {
 		img.setAttribute("data-img-md", srcMd);
 	}
 
-	it("should load image by default CSS class name and check heights are native due to lack of 'data-height-x' attributes - " + printBreakPoint(), function(done) {
-		
-		var img = createImgEl();
-		setImgAttr(img);
+	xdescribe("single image", function() {
 
-		fun($, null, null, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
-			// image loaded callback
-			expect(computedHeight).toEqual(nativeHeight);
-			bgImgCheck(img, done);
-		});
-	})
-
-	it("should load image by custom CSS class name - " + printBreakPoint(), function(done) {
-
-		var cls = getUID()
-		  , img = createImgEl(null, cls); // creates image with custom class
-		setImgAttr(img);
-
-		// passes the custom class
-		fun($, null, cls, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
-			// image loaded callback
-			bgImgCheck(img, done);
-		});
-	})
-
-	it("should load image by custom CSS class name on a custom container - " + printBreakPoint(), function(done) {
-
-		var cont = createEl() // creates an empty container element
-		  , cls = getUID()
-		  , img = createImgEl(null, cls, cont); // attaches the image to the container
-
-		setImgAttr(img);
-
-		// passes the container and custom class
-		fun($, $(cont), cls, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
-			// image loaded callback
+		it("should load image by default CSS class name and check heights are native due to lack of 'data-height-x' attributes - " + printBreakPoint(), function(done) {
 			
-			bgImgCheck(img, done);
-		});
-	})
+			var img = createImgEl();
+			setImgAttr(img);
 
-	it("should load image by custom CSS class name on a parent selector - " + printBreakPoint(), function(done) {
+			fun($, null, null, getUID(), null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				// image loaded callback
+				expect(computedHeight).toEqual(nativeHeight);
+				bgImgCheck(img, done);
+			});
+		})
 
-		var parentCls = getUID()
-		  , cont = createEl(null, null, parentCls) // creates an empty container element
-		  , cls = getUID()
-		  , img = createImgEl(null, cls, cont); // attaches the image to the container
+		it("should load image by custom CSS class name - " + printBreakPoint(), function(done) {
 
-		setImgAttr(img);
+			var cls = getUID()
+			  , img = createImgEl(null, cls); // creates image with custom class
+			setImgAttr(img);
 
-		// passes the container and custom class
-		fun($, null, cls, getUID(), parentCls, function(isSuccess, url, computedHeight, nativeHeight) {
-			// image loaded callback
-			bgImgCheck(img, done);
-		});
-	})
+			// passes the custom class
+			fun($, null, cls, getUID(), null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				// image loaded callback
+				bgImgCheck(img, done);
+			});
+		})
+
+		it("should load image by custom CSS class name on a custom container - " + printBreakPoint(), function(done) {
+
+			var cont = createEl() // creates an empty container element
+			  , cls = getUID()
+			  , img = createImgEl(null, cls, cont); // attaches the image to the container
+
+			setImgAttr(img);
+
+			// passes the container and custom class
+			fun($, $(cont), cls, getUID(), null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				// image loaded callback
+				
+				bgImgCheck(img, done);
+			});
+		})
+
+		it("should load image by custom CSS class name on a parent selector - " + printBreakPoint(), function(done) {
+
+			var parentCls = getUID()
+			  , cont = createEl(null, null, parentCls) // creates an empty container element
+			  , cls = getUID()
+			  , img = createImgEl(null, cls, cont); // attaches the image to the container
+
+			setImgAttr(img);
+
+			// passes the container and custom class
+			fun($, null, cls, getUID(), parentCls, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				// image loaded callback
+				bgImgCheck(img, done);
+			});
+		})
 
 
-	it("should load image by delayed event, including custom event callback - " + printBreakPoint(), function(done) {
+		it("should load image by delayed event, including custom event callback - " + printBreakPoint(), function(done) {
+			
+			var img = createImgEl();
+			setImgAttr(img);
+
+			var uniqueEventName = getUID("unique-event-name");
+			img.setAttribute("data-delay-image-load-event", uniqueEventName);
+
+			fun($, null, null, getUID(), null);
+
+			var imgLoadedCB = function() {
+				bgImgCheck(img, done);
+			}
+
+			setTimeout(function() {
+				$doc.trigger(uniqueEventName, {cb:imgLoadedCB});
+			}, 500);
+		})
+
+
+		it("should load image by default CSS class name with all 3 heights from data attributes - " + printBreakPoint(), function(done) {
+			
+			var img = createImgEl();
+			setImgAttr(img, true);
+
+			img.setAttribute("data-height-sm", 300);
+			img.setAttribute("data-height-md", 400);
+			img.setAttribute("data-height-lg", 500);
+
+			fun($, null, null, getUID(), null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				// image loaded callback
+
+				if(isNarrowMb || isMb)	expect(computedHeight).toEqual(300);
+				if(isTb) 				expect(computedHeight).toEqual(400);
+				if(isWideDt || isDt) 	expect(computedHeight).toEqual(500);
+
+				cleanupElement(img);
+				done();
+			});
+		})
 		
-		var img = createImgEl();
-		setImgAttr(img);
 
-		var uniqueEventName = getUID("unique-event-name");
-		img.setAttribute("data-delay-image-load-event", uniqueEventName);
+		it("should load image by default CSS class name with just small and medium heights from data attributes - " + printBreakPoint(), function(done) {
+			
+			var img = createImgEl();
+			setImgAttr(img, true);
 
-		fun($, null, null, getUID(), null);
+			img.setAttribute("data-height-sm", 350);
 
-		var imgLoadedCB = function() {
-			bgImgCheck(img, done);
+			fun($, null, null, getUID(), null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				// image loaded callback
+
+				if(isNarrowMb || isMb)	expect(computedHeight).toEqual(350);
+				else 					expect(computedHeight).toEqual(nativeHeight); // data-height attributes should only be affecting mobile break points
+
+				cleanupElement(img);
+				done();
+			});
+		})
+
+	})
+
+	describe("multiple images", function() {
+		var srcSm1 = "/demos/img/example-1-35.jpg"
+		  , srcMd1 = "/demos/img/example-1-58.jpg"
+		  , srcSm2 = "/demos/img/example-2-35.jpg"
+		  , srcMd2 = "/demos/img/example-2-58.jpg"
+		  , srcSm3 = "/demos/img/example-3-35.jpg"
+		  , srcMd3 = "/demos/img/example-3-58.jpg"
+		  , srcSm4 = "/demos/img/example-4-35.jpg"
+		  , srcMd4 = "/demos/img/example-4-58.jpg"
+
+
+		function setMultiImgAttr(img, srcNum) {
+
+			if(srcNum == 1) {
+				img.setAttribute("data-img-sm", srcSm1);
+				img.setAttribute("data-img-md", srcMd1);
+			} else if(srcNum == 2) {
+				img.setAttribute("data-img-sm", srcSm2);
+				img.setAttribute("data-img-md", srcMd2);
+			} else if(srcNum == 3) {
+				img.setAttribute("data-img-sm", srcSm3);
+				img.setAttribute("data-img-md", srcMd3);
+			} else if(srcNum == 4) {
+				img.setAttribute("data-img-sm", srcSm4);
+				img.setAttribute("data-img-md", srcMd4);
+			}
 		}
 
-		setTimeout(function() {
-			$doc.trigger(uniqueEventName, {cb:imgLoadedCB});
-		}, 500);
+		it("should check 'isSuccess' and 'url' arguments in 'loadedCB' are working for success and fail - " + printBreakPoint(), function(done) {
+			var sucImg = createImgEl()
+			  , errImg = createImgEl()
+			  , loadedCount = 0
+			  , nonEx1 = "non-existant-image-1.jpg"
+			  , nonEx2 = "non-existant-image-2.jpg";
+
+			setMultiImgAttr(sucImg, 1);
+
+			// set non-existant image paths for image that expects an error
+			errImg.setAttribute("data-img-sm", nonEx1);
+			errImg.setAttribute("data-img-md", nonEx2);
+
+			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				if(img === sucImg) {
+					expect(isSuccess).toBe(true);
+					if(isTb || isDt || isWideDt) 	expect(url).toBe(srcMd1);
+					else 							expect(url).toBe(srcSm1);
+				} else if(img === errImg) {
+					expect(isSuccess).toBe(false);
+					if(isTb || isDt || isWideDt) 	expect(url).toBe(nonEx2);
+					else 							expect(url).toBe(nonEx1);
+				}
+
+				loadedCount++;
+				if(loadedCount === 2) done();
+			})
+		})
 	})
-
-
-	it("should load image by default CSS class name with all 3 heights from data attributes - " + printBreakPoint(), function(done) {
-		
-		var img = createImgEl();
-		setImgAttr(img, true);
-
-		img.setAttribute("data-height-sm", 300);
-		img.setAttribute("data-height-md", 400);
-		img.setAttribute("data-height-lg", 500);
-
-		fun($, null, null, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
-			// image loaded callback
-
-			if(isNarrowMb || isMb)	expect(computedHeight).toEqual(300);
-			if(isTb) 				expect(computedHeight).toEqual(400);
-			if(isWideDt || isDt) 	expect(computedHeight).toEqual(500);
-
-			cleanupElement(img);
-			done();
-		});
-	})
-
-	it("should load image by default CSS class name with just small and medium heights from data attributes - " + printBreakPoint(), function(done) {
-		
-		var img = createImgEl();
-		setImgAttr(img, true);
-
-		img.setAttribute("data-height-sm", 350);
-
-		fun($, null, null, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
-			// image loaded callback
-
-			if(isNarrowMb || isMb)	expect(computedHeight).toEqual(350);
-			else 					expect(computedHeight).toEqual(nativeHeight); // data-height attributes should only be affecting mobile break points
-
-			cleanupElement(img);
-			done();
-		});
-	})
-
 
 })

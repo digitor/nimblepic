@@ -455,9 +455,10 @@
                 // stops late events from interfering
                 if (uid !== UID) return;
 
-                var breakPointSize = getResponsiveWidth();
+                var breakPointSize = getResponsiveWidth()
+                  , isMb = breakPointSize === 'sm' || breakPointSize === 'xs';
 
-                var thisSrc = breakPointSize === 'sm' ? srcSm : srcMd;
+                var thisSrc = isMb ? srcSm : srcMd;
 
                 // marks the image as "loading in progress", so other attempts to load it are blocked
                 $img.data(D_CUR_IMG_SRC, thisSrc);
@@ -481,11 +482,11 @@
                     doClearImg = false; // just clears the first time
 
                     // actual height with media queries applied
-                    var computedHeight = breakPointSize === 'sm' || breakPointSize === 'xs' ? hSmall : hMedium;
+                    var computedHeight = isMb ? hSmall : hMedium;
                     if(breakPointSize === 'lg' && hLarge) computedHeight = hLarge;
 
-                    if (cb) cb(isSuccess, url, computedHeight, nativeHeight);
-                    if( loadedCB ) loadedCB(isSuccess, url, computedHeight, nativeHeight);
+                    if (cb) cb(isSuccess, url, $img[0], computedHeight, nativeHeight);
+                    if( loadedCB ) loadedCB(isSuccess, url, $img[0], computedHeight, nativeHeight);
                 });
             }
 
