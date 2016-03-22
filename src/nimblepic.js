@@ -18,7 +18,7 @@
             if (srcIsSelector) src = $(src).css("background-image").replace("url(", "").replace(")", "").replace('"', '"').replace("'", "'");
             var img = new Image();
             img.onload = function () {
-                console.log( "image loaded", this.src);
+                //console.log( "image loaded", this.src);
                 cb(src, true, this.height);
             }
             img.onerror = function () {
@@ -52,46 +52,43 @@
 
 	        if (clearExisting) $("#" + id).remove();
 
-            // defaults to srcMd (medium)
+            // Style 1: No break point for tablet/desktop (default)
             css = sel + ' { background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
             if (heightMd) css += 'height: ' + heightMd + 'px;';
             css += '}';
 
-        
-            // smaller devices get srcSm (small)
+            
+            // Style 2: Mobile devices get a break-point (srcSm)
             css += '@media only screen and (max-width: 767px) {';
             css += sel + ' {background-image:' + (grad ? grad + "," : "") + 'url(' + srcSm + ')' + (grad ? "!important" : "") + ';';
             if (heightSm) css += 'height: ' + heightSm + 'px;';
             css += '}';
+
+            // this should be dynamic so gradient can be added with same logic as rest of images
             css += sel + '.no-mb { background-image: ' + (grad || "none") + (grad ? "!important" : "") + '; }';
+
             css += '}';
 
 
-            // If a large height is passed, still uses srcMd, but can specify another height
+            // Style 2: If a large height is passed, still uses srcMd, but can specify another height
             if (heightLg) {
                 css += '@media only screen and (min-width: 992px) {';
+                css += sel + ' {';
+
+                // if there's a gradient we need to redeclare background-image with the gradient, otherwise it will inherit it from Style 1.
+                if(grad) css += 'background-image:' + grad + ',url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
+                
                 css += 'height: ' + heightLg + 'px;';
                 css += '}}';
             }
         }
 
-        // Bases breakpoints on pixel density, rather than viewport width - same as `img srcset 2x`
-        /* TODO
-        if( type === "density" ) {
-
-            var css = sel + ' {' +
-                                'background-image:' + (grad ? grad + "," : "") + 'url(' + srcSm + ')' + (grad ? "!important" : "") + ';' +
-                            '}';
-        
-            css += '@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) {' +
-                        sel + ' {' +
-                            'background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';' +
-                        '}' +
-                    '}';
-        }
+        // TODO: Bases breakpoints on pixel density, rather than viewport width - same as `img srcset 2x`
+        /*
+        if( type === "density" ) {}
         */
 
-        /* Can't add media queries inline, so we attach style tag dynamically. */
+        // Can't add media queries inline, so we attach style tags with JS
         addStyle(id, css);
         return id;
     }
@@ -455,8 +452,6 @@
 
             var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, cb) {
 
-                //console.log("startLoading 1");
-
                 // stops late events from interfering
                 if (uid !== UID) return;
 
@@ -466,26 +461,31 @@
 
                 // marks the image as "loading in progress", so other attempts to load it are blocked
                 $img.data(D_CUR_IMG_SRC, thisSrc);
-                
-                //console.log("startLoading 2");
 
-                getDynamicHeight(thisSrc, false, function (url, isSuccess, height) {
+                getDynamicHeight(thisSrc, false, function (url, isSuccess, nativeHeight) {
+
+                    var hSmall = hSm || nativeHeight
+                      , hMedium = hMd || nativeHeight
+                      , hLarge = hLg; // large is optional, so should not fall back to native height
 
                     setLoadingStates($img[0], "loaded");
 
-                    //console.log("startLoading 3", url, isSuccess, height, $img.css("background-image"), styleId);
-
                     if (isSuccess) {
                         var grad = $img.attr("data-grad") || null;
-                        responsiveImage(null, srcSm, srcMd, specificSel, (hSm || height), (hMd || height), (hLg || height), doClearImg, styleId, grad);
+                        responsiveImage(null, srcSm, srcMd, specificSel, hSmall, hMedium, hLarge, doClearImg, styleId, grad);
                     } else {
                         // if image failed to load, still add it's heights to the styles id for this group
                         responsiveHeight(false, styleId || 'imgresp-styles', specificSel, hSm, hMd, hLg, doClearImg);
                         $img.addClass(CLS_NO_IMG);
                     }
                     doClearImg = false; // just clears the first time
-                    if (cb) cb(isSuccess, url, height);
-                    if( loadedCB ) loadedCB(isSuccess, url, height);
+
+                    // actual height with media queries applied
+                    var computedHeight = breakPointSize === 'sm' || breakPointSize === 'xs' ? hSmall : hMedium;
+                    if(breakPointSize === 'lg' && hLarge) computedHeight = hLarge;
+
+                    if (cb) cb(isSuccess, url, computedHeight, nativeHeight);
+                    if( loadedCB ) loadedCB(isSuccess, url, computedHeight, nativeHeight);
                 });
             }
 
@@ -500,11 +500,10 @@
                     
                     prp = getImgProps(this);
 
-
                     singleCls = customCls + "-" + i;
                     this.classList.add(singleCls);
                     
-                    $img = $("." + singleCls);
+                    $img = $container.find("." + singleCls)
 
                     // if in process of loading or pending an event to be triggered, do nothing
                     var isLoading = addLoader($img);
@@ -544,6 +543,7 @@
                         //console.log(NS, "specificSel", specificSel)
                         setCustomEventHandler(prp.customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId);
                     } else {
+                        //console.log("prp", prp)
                         startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, null);
                     }
                 

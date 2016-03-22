@@ -20,7 +20,7 @@
 
             container.appendChild(el);
 
-            var el = document.getElementById(id);
+            el = document.getElementById(id);
 
             if(cls) el.classList.add(cls);
 

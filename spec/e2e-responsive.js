@@ -487,13 +487,14 @@ describe("setImages", function() {
 		img.setAttribute("data-img-md", srcMd);
 	}
 
-	it("should load image by default CSS class name - " + printBreakPoint(), function(done) {
+	it("should load image by default CSS class name and check heights are native due to lack of 'data-height-x' attributes - " + printBreakPoint(), function(done) {
 		
 		var img = createImgEl();
 		setImgAttr(img);
 
-		fun($, null, null, getUID(), null, function(isSuccess, url, height) {
+		fun($, null, null, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
 			// image loaded callback
+			expect(computedHeight).toEqual(nativeHeight);
 			bgImgCheck(img, done);
 		});
 	})
@@ -505,7 +506,7 @@ describe("setImages", function() {
 		setImgAttr(img);
 
 		// passes the custom class
-		fun($, null, cls, getUID(), null, function(isSuccess, url, height) {
+		fun($, null, cls, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
 			// image loaded callback
 			bgImgCheck(img, done);
 		});
@@ -520,8 +521,9 @@ describe("setImages", function() {
 		setImgAttr(img);
 
 		// passes the container and custom class
-		fun($, $(cont), cls, getUID(), null, function(isSuccess, url, height) {
+		fun($, $(cont), cls, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
 			// image loaded callback
+			
 			bgImgCheck(img, done);
 		});
 	})
@@ -536,7 +538,7 @@ describe("setImages", function() {
 		setImgAttr(img);
 
 		// passes the container and custom class
-		fun($, null, cls, getUID(), parentCls, function(isSuccess, url, height) {
+		fun($, null, cls, getUID(), parentCls, function(isSuccess, url, computedHeight, nativeHeight) {
 			// image loaded callback
 			bgImgCheck(img, done);
 		});
@@ -561,5 +563,46 @@ describe("setImages", function() {
 			$doc.trigger(uniqueEventName, {cb:imgLoadedCB});
 		}, 500);
 	})
+
+
+	it("should load image by default CSS class name with all 3 heights from data attributes - " + printBreakPoint(), function(done) {
+		
+		var img = createImgEl();
+		setImgAttr(img, true);
+
+		img.setAttribute("data-height-sm", 300);
+		img.setAttribute("data-height-md", 400);
+		img.setAttribute("data-height-lg", 500);
+
+		fun($, null, null, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
+			// image loaded callback
+
+			if(isNarrowMb || isMb)	expect(computedHeight).toEqual(300);
+			if(isTb) 				expect(computedHeight).toEqual(400);
+			if(isWideDt || isDt) 	expect(computedHeight).toEqual(500);
+
+			cleanupElement(img);
+			done();
+		});
+	})
+
+	it("should load image by default CSS class name with just small and medium heights from data attributes - " + printBreakPoint(), function(done) {
+		
+		var img = createImgEl();
+		setImgAttr(img, true);
+
+		img.setAttribute("data-height-sm", 350);
+
+		fun($, null, null, getUID(), null, function(isSuccess, url, computedHeight, nativeHeight) {
+			// image loaded callback
+
+			if(isNarrowMb || isMb)	expect(computedHeight).toEqual(350);
+			else 					expect(computedHeight).toEqual(nativeHeight); // data-height attributes should only be affecting mobile break points
+
+			cleanupElement(img);
+			done();
+		});
+	})
+
 
 })
