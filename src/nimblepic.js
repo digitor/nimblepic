@@ -22,7 +22,7 @@
                 cb(src, true, this.height);
             }
             img.onerror = function () {
-                console.log("image error", this.src);
+                if(!SELF.suppressWarnings) console.warn("image error", this.src);
                 cb(src, false);
             }
             img.src = src;
@@ -34,23 +34,26 @@
      * @description Sets bg images on a `<span>` element, to replicate `<img>` element, but give control over image sizes at various media queries.
      * @param type (string) optional - either 'viewport' or 'density'. A null value will default 'viewport' (which is currently the only supported type anyway).
      */
-    function responsiveImage(type, srcSm, srcMd, sel, heightSm, heightMd, heightLg, clearExisting, customID, grad) {
+    function responsiveImage(type, srcSm, srcMd, sel, heightSm, heightMd, heightLg, clearExisting, customID, grad, throwWarning, addNoImgClass) {
         
-        if ( typeof Modernizr === "undefined" || Modernizr.cssgradients === undefined)
-            console.warn("Utils.js", "responsiveImage", "'Modernizr.cssgradients' was not availale, which older browsers, such as ie9 need in order for this function to work properly.");
+        if ( typeof Modernizr === "undefined" || Modernizr.cssgradients === undefined) {
+            if(!SELF.suppressWarnings)
+                console.warn("Utils.js", "responsiveImage", "'Modernizr.cssgradients' was not availale, which older browsers, such as ie9 need in order for this function to work properly.");
+        }
 
         if (!Modernizr.cssgradients) grad = null;
 
-        var css, id = customID || "imgresp-styles";
+        var css, id = customID || "nimblepic-styles";
 
         if( !type || type === "viewport" ) {
 
             if(!srcSm || !srcMd || !sel) {
-                console.warn(NS, "responsiveImage", "You must define srcSm, srcMd & sel");
+                if(!SELF.suppressWarnings)
+                    console.warn(NS, "responsiveImage", "You must define srcSm, srcMd & sel");
                 return;
             }
 
-	        if (clearExisting) $("#" + id).remove();
+	        if (clearExisting) clearExistingStyles(sel, id, throwWarning, addNoImgClass);
 
             // Style 1: No break point for tablet/desktop (default)
             css = sel + ' { background-image:' + (grad ? grad + "," : "") + 'url(' + srcMd + ')' + (grad ? "!important" : "") + ';';
@@ -97,14 +100,14 @@
     /*
      * For setting element heights at various media queries.
      */
-    function responsiveHeight(justClear, customID, sel, heightSm, heightMd, heightLg, clearExisting) {
+    function responsiveHeight(justClear, customID, sel, heightSm, heightMd, heightLg, clearExisting, throwWarning, addNoImgClass) {
 
-        var id = customID || "elresp-styles";
+        var id = customID || "nimblepic-styles";
 
         if (justClear || clearExisting) {
             //console.log("removed", id, justClear, clearExisting);
             //debugger
-            $("#" + id).remove();
+            clearExistingStyles(sel, id, throwWarning, addNoImgClass);
             if(justClear) return;
         }
 
@@ -141,9 +144,52 @@
 
 
     /**
+     * @description Adds "no-img" class to existing images queried using the suppied selector and removes the style element with the supplied ID.
+     * @param sel (string) - Selector of the image elements that will be affected (checks their existence).
+     * @param id (string) - ID of the style element to remove.
+     * @param throwWarning (boolean) - Whether to throw a warning if images are found that would be affected.
+     * @param addNoImgClass (boolean) - Whether to check for existing images with same selector and apply a "no-img" class to them.
+     * @return (boolean) - If the warning was thrown (useful for tests).
+     */
+    function clearExistingStyles(sel, id, throwWarning, addNoImgClass) {
+        var styleEl = document.getElementById(id)
+          , elList = document.querySelectorAll(sel);
+        
+        var foundExisting = true;
+        if(addNoImgClass) {
+            foundExisting = false;
+            var img, cls;
+            for(var i = 0; i<elList.length; i++) {
+                img = elList[0];
+
+                for(var j=0; j<img.classList.length; j++) {
+                    cls = img.classList[j];
+                    if(cls.indexOf("-sibling") === cls.length - 8) {
+                        //img.classList.remove(cls);
+                        img.classList.add(CLS_NO_IMG);
+                        //console.log("img.classList", img.classList);
+                        foundExisting = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        throwWarning = !!(throwWarning && styleEl && foundExisting);
+
+        if(throwWarning && !SELF.suppressWarnings)
+            console.warn(NS, "clearExistingStyles()", "WARNING: You have cleared existing images with selector '"+sel+"' and style element of ID '" + id + "'.");
+
+        if(styleEl) document.body.removeChild(styleEl);
+
+        return throwWarning;
+    }
+
+
+    /**
      * @description Adds CSS to a style element with the given unique ID. If element already exists it will append it, otherwise it will create a new one after the opening body tag.
      * @param id (string) - ID to use on the style element
-     * @param id (string) - Styles to add
+     * @param css (string) - Styles to add
      */
     function addStyle(id, css) {
 
@@ -225,8 +271,8 @@
 
             for(var i = 0; i < data.styleIds.length; i++) {
                 var styleEl = document.getElementById(data.styleIds[i]);
-                if(styleEl)	document.body.removeChild( styleEl );
-                else 		console.warn(NS, "setClearImgStyles", "Couldn't find style element with ID " + data.styleIds[i] );
+                if(styleEl)	                    document.body.removeChild( styleEl );
+                else if(!SELF.suppressWarnings) console.warn(NS, "setClearImgStyles", "Couldn't find style element with ID " + data.styleIds[i] );
             }
         });
     }
@@ -276,11 +322,26 @@
      * @return (boolean) - Returns loading state, so 'true' if load is in progress.
      */
     function addLoader($img) {
-        // if in process of loading or pending an event to be triggered, do nothing
-        if ($img.hasClass(CLS_IS_IMG_LOADING)) return true;
 
-        if ($img.find(".imgresp-ldr").length === 0)
-            $img.prepend('<span class="imgresp-ldr"></span>');
+        var img = $img[0];
+
+        // if in process of loading or pending an event to be triggered, do nothing
+        if (img.classList.contains(CLS_IS_IMG_LOADING)) return true;
+
+        var ldrEl;
+        if (!img.querySelector(".imgresp-ldr")) {
+            ldrEl = document.createElement("span");
+            ldrEl.classList.add("imgresp-ldr");
+            img.appendChild(ldrEl);
+            //$img.prepend('<span class="imgresp-ldr"></span>');
+        }
+
+        ldrEl = img.querySelector(".imgresp-ldr")
+        
+        var computedStyle = window.getComputedStyle(ldrEl);
+        
+        if(computedStyle.getPropertyValue("background-image").indexOf(".gif") !== -1)
+            img.classList.add("is-gifldr");
 
         return false;
     }
@@ -310,7 +371,7 @@
         if (customEvent) return customEvent;
         if (group)       return group;
 
-        return invalidSrc ? (customStyleID ? customStyleID + "-" + uid : 'imgresp-styles-' + uid) : (customStyleID || null);
+        return invalidSrc ? (customStyleID ? customStyleID + "-" + uid : 'nimblepic-styles-' + uid) : (customStyleID || null);
     }
 
     /**
@@ -326,10 +387,11 @@
 
         if (customEvent || group) {
             if(typeof index !== "number") {
-                console.warn(NS, "setUniqueImgClass", "Argument 'index' was not a valid number. Defaulting to '0'.");
+                if(!SELF.suppressWarnings)
+                    console.warn(NS, "setUniqueImgClass", "Argument 'index' was not a valid number. Defaulting to '0'.");
                 index = 0;
             }
-            var uniqueCls = getUID("imgresp-" + index + "-");
+            var uniqueCls = getUID("nimblepic-custom-" + index + "-");
             img.classList.add(uniqueCls);
             return "." + uniqueCls;
         }
@@ -392,14 +454,14 @@
         return false;
     }
 
-    function setCustomEventHandler(customEvent, cb, $img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId) {
+    function setCustomEventHandler(customEvent, cb, $img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, group) {
         $(document).one(customEvent, function (evt, data) {
 
             if (data && data.refresh) {
                 srcSm = $img.attr("data-img-sm");
                 srcMd = $img.attr("data-img-md");
             }
-            cb($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, data ? data.cb : null);
+            cb($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, group, data ? data.cb : null);
         });
     }
 
@@ -422,6 +484,7 @@
 
     nimblePic = {
 
+        suppressWarnings: false
 
         /**
          * @description Searches DOM to find the '$container' and child elements of 'customCls' (these can be omitted to use defaults), 
@@ -441,7 +504,7 @@
          *
          * loadedCB (function) optional - A callback when image has loaded. Useful when running tests.
          */
-        setImages: function ($, $container, customCls, customStyleID, parentCls, loadedCB) {
+        , setImages: function ($, $container, customCls, customStyleID, parentCls, loadedCB) {
 
             setClearImgStyles($);
 
@@ -450,7 +513,7 @@
               , UID = getUID()
               , delayedImageEls = []
 
-            var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, cb) {
+            var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, group, cb) {
 
                 // stops late events from interfering
                 if (uid !== UID) return;
@@ -467,19 +530,22 @@
 
                     var hSmall = hSm || nativeHeight
                       , hMedium = hMd || nativeHeight
-                      , hLarge = hLg; // large is optional, so should not fall back to native height
+                      , hLarge = hLg // large is optional, so should not fall back to native height
+                      , throwWarning = false // don't throw warning because 'responsiveHeight' has already set the style id
+                      , clearStyles = group ? false : true // we must clear out the styles set earlier by 'responsiveHeight'.
+                      , addNoImgClass = false; // this already happens in 'responsiveHeight' so don't want to do it again
 
                     setLoadingStates($img[0], "loaded");
 
                     if (isSuccess) {
                         var grad = $img.attr("data-grad") || null;
-                        responsiveImage(null, srcSm, srcMd, specificSel, hSmall, hMedium, hLarge, doClearImg, styleId, grad);
+                        responsiveImage(null, srcSm, srcMd, specificSel, hSmall, hMedium, hLarge, clearStyles, styleId, grad, throwWarning, addNoImgClass);
+                        $img.removeClass(CLS_NO_IMG);
                     } else {
                         // if image failed to load, still add it's heights to the styles id for this group
-                        responsiveHeight(false, styleId || 'imgresp-styles', specificSel, hSm, hMd, hLg, doClearImg);
+                        responsiveHeight(false, styleId, specificSel, hSm, hMd, hLg, clearStyles, throwWarning, addNoImgClass);
                         $img.addClass(CLS_NO_IMG);
                     }
-                    doClearImg = false; // just clears the first time
 
                     // actual height with media queries applied
                     var computedHeight = isMb ? hSmall : hMedium;
@@ -501,7 +567,15 @@
                     
                     prp = getImgProps(this);
 
-                    singleCls = customCls + "-" + i;
+                    if(!prp.srcSm || !prp.srcMd) {
+                        if(!SELF.suppressWarnings)
+                            console.warn(NS, "setImages()", "Data attributes 'data-img-sm' and 'data-img-md' were not set. These are mandatory. Adding 'no-img' class to element ", this)
+                        this.classList.add(CLS_NO_IMG);
+                        addLoader($(this));
+                        return
+                    }
+
+                    singleCls = customCls + "-" + i + "-sibling";
                     this.classList.add(singleCls);
                     
                     $img = $container.find("." + singleCls)
@@ -511,28 +585,24 @@
                     if(isLoading) return;
 
 
-                    if (prp.srcSm && prp.srcSm !== "" && prp.srcSm === prp.srcMd)
-                        console.warn("Utils.js -> setImages()", "'srcSm' and 'srcMd' must not be the same url! Placeholder image will be used.", prp.srcSm);
+                    if (prp.srcSm && prp.srcSm !== "" && prp.srcSm === prp.srcMd) {
+                        if(!SELF.suppressWarnings)
+                            console.warn(NS, "setImages()", "'srcSm' and 'srcMd' must not be the same url! Placeholder image will be used.", prp.srcSm);
+                    }
 
 
                     var invalidSrc = isInvalidSrc(prp)
                       , specificSel = getSpecificSelector(parentCls, singleCls)
                       , styleId = getCustomStyleId(customStyleID, invalidSrc, prp.group, prp.customEvent);
 
-
                     // TODO: need to verify this what this is useful for, with regards to group and customEvent
                     specificSel = setUniqueImgClass(specificSel, $img[0], i, prp.group, prp.customEvent);
                     
                     // TODO: need to verify if this should come after 'setUniqueImgClass' or before, with regards to group and customEvent
-                    responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, doClearEl);
+                    responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, doClearEl, true, true);
 
-                    /**
-                     * If you're using a group, or there no custom event being used, this sets the 'doClearEl' flag to false. 
-                     * This means that the first item in the loop will clear existing styles associated with this group 
-                     * (or the generic ID within 'responsiveHeight()' method) and the rest will get appended to the same style element.
-                     */
-                    if (prp.group)                       doClearEl = false;
-                    if (!invalidSrc && !prp.customEvent) doClearEl = false;
+                    // This means that the first item in the loop will clear existing styles associated with this styleId
+                    doClearImg = false;
 
                     invalidSrc = isInvalidResponsiveSrc($img, prp.srcSm, prp.srcMd);
                     if (invalidSrc) return;
@@ -542,10 +612,10 @@
 
                     if (prp.customEvent) {
                         //console.log(NS, "specificSel", specificSel)
-                        setCustomEventHandler(prp.customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId);
+                        setCustomEventHandler(prp.customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, prp.group);
                     } else {
                         //console.log("prp", prp)
-                        startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, null);
+                        startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, prp.group, null);
                     }
                 
                 });
@@ -570,6 +640,7 @@
             , isInvalidResponsiveSrc: isInvalidResponsiveSrc
             , setCustomEventHandler: setCustomEventHandler
             , setUniqueImgClass: setUniqueImgClass
+            , clearExistingStyles: clearExistingStyles
         }
     }
 

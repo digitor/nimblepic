@@ -124,4 +124,6 @@ gulp.task('e2e-tests-responsive', function (done) {
 	}).start();
 });
 
-gulp.task('default', ['lint'])
+gulp.task('default', function(done) {
+	runSequence('vendor-prefix', 'test', done)
+})

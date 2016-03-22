@@ -4,7 +4,13 @@
  * as we make assumptions based on them.
  */
 
+// give it a minute
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+
 var winW = window.nimblePic.testable.winWidth();
+
+// some warnings can be quite irritating during tests, so we can suppress them here
+window.nimblePic.suppressWarnings = true;
 
 // non-exact breakpoint values
 var isWideDt = false
@@ -35,10 +41,16 @@ function printBreakPoint() {
 	//return ["isDt:"+isDt, "isTb:"+isTb, "isMb:"+isMb, "isNarrowMb:"+isNarrowMb, "isWideDt:"+isWideDt].join(" - "); 
 }
 
+function clearAll() {
+	$("[data-resp-styles]").remove();
+	$(".imgresp").remove();
+}
+
 // testing specific break points with non-exact breakpoint values
 if(isNonExact) {
 
-	xdescribe("getResponsiveWidth with non-exact breakpoint values", function() {
+	describe("getResponsiveWidth with non-exact breakpoint values", function() {
+		beforeEach(clearAll);
 		var fun = window.nimblePic.testable.getResponsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points", function() {
@@ -50,7 +62,8 @@ if(isNonExact) {
 	});
 
 
-	xdescribe("responsiveWidth with non-exact breakpoint values", function() {
+	describe("responsiveWidth with non-exact breakpoint values", function() {
+		beforeEach(clearAll);
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'less than' params", function() {
@@ -78,7 +91,8 @@ if(isNonExact) {
 	if(!isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
 		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
 
-	xdescribe("responsiveWidth with exact breakpoint values", function() {
+	describe("responsiveWidth with exact breakpoint values", function() {
+		beforeEach(clearAll);
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'more than or equal' params", function() {
@@ -101,12 +115,12 @@ if(isNonExact) {
 
 
 
-xdescribe("responsiveHeight", function() {
+describe("responsiveHeight", function() {
+	beforeEach(clearAll);
 	var fun = window.nimblePic.testable.responsiveHeight
 	  , heightSm = 400
 	  , heightMd = 768
 	  , heightLg = 992;
-
 
 	// no need to run these tests on every breakpoint
 	if(isDt) {
@@ -229,57 +243,57 @@ xdescribe("responsiveHeight", function() {
 
 		cleanupElement(customID);
 	});
+});
+
+describe("responsiveHeight - 3 media queries on same element by ID, but with different classes", function() {
+	
+	beforeEach(function() {
+		// clearing all will break test
+		// beforeEach(clearAll);
+	});
+
+	var fun = window.nimblePic.testable.responsiveHeight
+	  , heightSm = 400
+	  , heightMd = 768
+	  , heightLg = 992;
+
+	var customID = getUID("some-unique-id-")
+	  , cls1 = getUID("example1")
+	  , cls2 = getUID("example2")
+	  , cls3 = getUID("example3")
+
+	// uses different classes for each call, but ame ID
+	fun(null, customID, "."+cls1, heightSm);
+	fun(null, customID, "."+cls2, null, heightMd);
+	fun(null, customID, "."+cls3, null, null, heightLg);
+
+	var divH1 = getNewDivHeight(cls1, true)
+	  , divH2 = getNewDivHeight(cls2, true)
+	  , divH3 = getNewDivHeight(cls3, true)
+
+	it("should just succeed for mobile on div1", function() {
+		if(isMb || isNarrowMb)	expect(divH1).toEqual(heightSm);
+		else					expect(divH1).toEqual(0);
+	});
 
 
-	xdescribe("3 media queries on same element by ID, but with different classes", function() {
-
-		var customID = getUID("some-unique-id-")
-		  , cls1 = getUID("example1")
-		  , cls2 = getUID("example2")
-		  , cls3 = getUID("example3")
-
-		// uses different classes for each call, but ame ID
-		fun(null, customID, "."+cls1, heightSm);
-		fun(null, customID, "."+cls2, null, heightMd);
-		fun(null, customID, "."+cls3, null, null, heightLg);
-
-		var divH1 = getNewDivHeight(cls1, true)
-		  , divH2 = getNewDivHeight(cls2, true)
-		  , divH3 = getNewDivHeight(cls3, true)
-
-		var count = 0;
-		function cleanUp() {
-			count++;
-			if(count >= 3) cleanupElement(customID);
-		}
+	it("should succeed for all on div2", function() {
+		expect(divH2).toEqual(heightMd);
+	});
 
 
-		it("should just succeed for mobile on div1", function() {
-			if(isMb || isNarrowMb)	expect(divH1).toEqual(heightSm);
-			else					expect(divH1).toEqual(0);
-			cleanUp();
-		});
-
-
-		it("should succeed for all on div2", function() {
-			expect(divH2).toEqual(heightMd);
-			cleanUp();
-		});
-
-
-		it("should just succeed for desktop on div3", function() {
-			if(isDt || isWideDt)	expect(divH3).toEqual(heightLg);
-			else					expect(divH3).toEqual(0);
-			cleanUp();
-		});
+	it("should just succeed for desktop on div3", function() {
+		if(isDt || isWideDt)	expect(divH3).toEqual(heightLg);
+		else					expect(divH3).toEqual(0);
 	});
 });
 
-xdescribe("responsiveImage", function() {
+describe("responsiveImage", function() {
+	beforeEach(clearAll);
 	var fun = window.nimblePic.testable.responsiveImage
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"
-	  , defId = "imgresp-styles";
+	  , defId = "nimblepic-styles";
 
 	function bgImgExp(id, src, customID) {
 		
@@ -353,6 +367,7 @@ xdescribe("responsiveImage", function() {
 			expect(document.getElementById(id).offsetHeight).toEqual(heightSm);
 
 			cleanupElement(id);
+			cleanupElement(defId);
 		});
 	} else if(isTb) {
 		it("should show tablet image height applied", function() {
@@ -366,6 +381,7 @@ xdescribe("responsiveImage", function() {
 			expect(document.getElementById(id).offsetHeight).toEqual(heightMd);
 
 			cleanupElement(id);
+			cleanupElement(defId);
 		});
 	} else if(isDt) {
 		it("should show desktop image height applied", function() {
@@ -379,6 +395,7 @@ xdescribe("responsiveImage", function() {
 			expect(document.getElementById(id).offsetHeight).toEqual(heightLg);
 
 			cleanupElement(id);
+			cleanupElement(defId);
 		});
 	}
 
@@ -400,7 +417,8 @@ xdescribe("responsiveImage", function() {
 	}
 });
 
-xdescribe("isInvalidResponsiveSrc", function() {
+describe("isInvalidResponsiveSrc", function() {
+	beforeEach(clearAll);
 	var fun = window.nimblePic.testable.isInvalidResponsiveSrc
 
 	if(isMb || isNarrowMb) {
@@ -470,6 +488,7 @@ xdescribe("isInvalidResponsiveSrc", function() {
 
 
 describe("setImages", function() {
+	beforeEach(clearAll);
 	var fun = window.nimblePic.setImages
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"
@@ -487,7 +506,7 @@ describe("setImages", function() {
 		img.setAttribute("data-img-md", srcMd);
 	}
 
-	xdescribe("single image", function() {
+	describe("single image", function() {
 
 		it("should load image by default CSS class name and check heights are native due to lack of 'data-height-x' attributes - " + printBreakPoint(), function(done) {
 			
@@ -622,16 +641,16 @@ describe("setImages", function() {
 
 		function setMultiImgAttr(img, srcNum) {
 
-			if(srcNum == 1) {
+			if(srcNum === 1) {
 				img.setAttribute("data-img-sm", srcSm1);
 				img.setAttribute("data-img-md", srcMd1);
-			} else if(srcNum == 2) {
+			} else if(srcNum === 2) {
 				img.setAttribute("data-img-sm", srcSm2);
 				img.setAttribute("data-img-md", srcMd2);
-			} else if(srcNum == 3) {
+			} else if(srcNum === 3) {
 				img.setAttribute("data-img-sm", srcSm3);
 				img.setAttribute("data-img-md", srcMd3);
-			} else if(srcNum == 4) {
+			} else if(srcNum === 4) {
 				img.setAttribute("data-img-sm", srcSm4);
 				img.setAttribute("data-img-md", srcMd4);
 			}
@@ -655,6 +674,8 @@ describe("setImages", function() {
 
 			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
 				expect(isSuccess).toBe(true);
+
+				cleanupElement(img);
 				loadedCount++;
 				if(loadedCount === 4) done();
 			})
@@ -685,14 +706,14 @@ describe("setImages", function() {
 					else 							expect(url).toBe(nonEx1);
 				}
 
+				cleanupElement(img);
 				loadedCount++;
 				if(loadedCount === 2) done();
 			})
 		})
 
-		// TODO: add functionality for 'no-img' and throw a warning
 
-		it("should show how calling the method more than once clears previous images when no 'customCls' or 'customStyleID' is passed, attach 'no-img' class to previous images and throw a warning - " + printBreakPoint(), function(done) {
+		it("should show how calling the method more than once clears previous images when 'customCls' or 'customStyleID' is NOT passed, plus how it attaches 'no-img' class to previous images - " + printBreakPoint(), function(done) {
 			var img1 = createImgEl();
 			setMultiImgAttr(img1, 1);
 
@@ -704,13 +725,66 @@ describe("setImages", function() {
 				setMultiImgAttr(img2, 2);
 				fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
 					
+					expect(img1.classList).toContain("no-img");
 					expect(getCompProp(img1, "background-image")).toBe('none');
 					expect(getCompProp(img2, "background-image")).toContain(url);
+					
+					cleanupElement(img1);
+					cleanupElement(img2);
 					done();
 				})
 			})
 		})
 
+
+		it("should show that images within the same group (using 'data-img-group') get there own style element and ID based on the group name", function(done) {
+			var loadedCount = 0
+			  , groupName = "example-group";
+
+			var images = {
+				  img1: createImgEl()
+				, img2: createImgEl()
+				, img3: createImgEl()
+				, img4: createImgEl()
+			}
+
+			setMultiImgAttr(images.img1, 1);
+			setMultiImgAttr(images.img2, 2);
+			setMultiImgAttr(images.img3, 3);
+			setMultiImgAttr(images.img4, 4);
+
+			images.img1.setAttribute('data-img-group', groupName);
+			images.img2.setAttribute('data-img-group', groupName);
+			images.img3.setAttribute('data-img-group', groupName);
+			images.img4.setAttribute('data-img-group', groupName);
+
+			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+
+				cleanupElement(img);
+
+				loadedCount++;
+				if(loadedCount === 4)  {
+
+					// must wait until all images are loaded before checking contents
+					var groupEl = document.getElementById(groupName).innerHTML;
+					//console.log("groupEl", groupEl);
+
+					// checks that all mobile styles exist in group
+					expect(groupEl).toContain(srcSm1);
+					expect(groupEl).toContain(srcSm2);
+					expect(groupEl).toContain(srcSm3);
+					expect(groupEl).toContain(srcSm4);
+
+					// checks that all desktop styles exist in group
+					expect(groupEl).toContain(srcMd1);
+					expect(groupEl).toContain(srcMd2);
+					expect(groupEl).toContain(srcMd3);
+					expect(groupEl).toContain(srcMd4);
+					
+					done();
+				}
+			})
+		})
 	})
 
 })

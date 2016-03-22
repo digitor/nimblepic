@@ -1,4 +1,6 @@
 
+// some warnings can be quite irritating during tests, so we can suppress them here
+window.nimblePic.suppressWarnings = true;
 
 var createEl = window.testUtils.createEl
   , createImgEl = window.testUtils.createImgEl
@@ -209,7 +211,7 @@ describe("getCustomStyleId", function() {
 	})
 
 	it("should should contain default id prefix if 'invalidSrc' is truthy, but 'customStyleID' is falsy", function() {
-		expect(fun(null, true)).toContain("imgresp-styles-");
+		expect(fun(null, true)).toContain("nimblepic-styles-");
 	})
 
 	it("should should contain custom id prefix (from 'customStyleID') if 'invalidSrc' is truthy", function() {
@@ -257,10 +259,10 @@ describe("setCustomEventHandler", function() {
 		  }
 
 		// We're just checking that the 8 params get passed using a sequence - their type doesn't really matter for this test
-		fun(customEvent, cb, 0, 1,2,3,4,5,6,7,8);
+		fun(customEvent, cb, 0, 1,2,3,4,5,6,7,8,9);
 
 		// Last argument will be the callback passed to the event, so we make that sequential too
-		$doc.trigger(customEvent, {cb:9});
+		$doc.trigger(customEvent, {cb:10});
 	})
 
 
@@ -286,7 +288,7 @@ describe("setCustomEventHandler", function() {
 		img.setAttribute("data-img-md", PATH_2);
 
 		// passing null for srcSm and srcMd, so they can be overridden in event dispatch
-		paramsToTest = [$(img),null,null,3,4,5,6,7,8];
+		paramsToTest = [$(img),null,null,3,4,5,6,7,8,9];
 
 		fun.apply(this, [customEvent, cb].concat(paramsToTest) );
 
@@ -314,10 +316,10 @@ describe("setUniqueImgClass", function() {
 		  , cls = getUID()
 
 		// checks return value
-		expect(fun(cls, el, 2, "some-group-name")).toContain("imgresp-2-");
+		expect(fun(cls, el, 2, "some-group-name")).toContain("nimblepic-custom-2-");
 		
 		// checks DOM element has class added
-		expect(el.classList[0]).toContain("imgresp-2-");
+		expect(el.classList[0]).toContain("nimblepic-custom-2-");
 	})
 
 	it("should check the 'index' defaults to '0' in the class name when a 'customEvent' is supplied and an invalid 'index' is supplied", function() {
@@ -325,8 +327,58 @@ describe("setUniqueImgClass", function() {
 		  , cls = getUID()
 
 		// checks return value
-		expect(fun(cls, el, 'an-invalid-number', null, "some-custom-event")).toContain("imgresp-0-");
+		expect(fun(cls, el, 'an-invalid-number', null, "some-custom-event")).toContain("nimblepic-custom-0-");
+	})
+})
+
+describe("clearExistingStyles", function() {
+	var fun = window.nimblePic.testable.clearExistingStyles
+
+	it("should remove an existing style element", function() {
+		var id = getUID()
+		  , cls = "test-img"
+
+		createEl(id, "style");
+		var img = createImgEl(null, cls);
+
+		expect(document.getElementById(id)).toBeTruthy();
+		fun("."+cls, id);
+		expect(document.getElementById(id)).toBeFalsy();
+
+		cleanupElement(img);
 	})
 
-	
+	it("should throw a warning", function() {
+		var id = getUID()
+		  , cls = "test-img"
+
+		createEl(id, "style");
+		var img = createImgEl(null, cls);
+
+		// calling this will add the 'nimblepic-custom-xxxx' class needed to force clearing styles
+		window.nimblePic.testable.setUniqueImgClass("", img, 1, "some-group-name");
+
+		var threwWarning = fun("."+cls, id, true);
+		expect(threwWarning).toBe(true);
+
+		cleanupElement(img);
+	})
+
+	/*
+	it("should add 'no-img' class to existing images", function() {
+		var id = getUID()
+		  , cls = "test-img"
+
+		createEl(id, "style");
+		var img = createImgEl(null, cls);
+
+		// calling this will add the 'nimblepic-custom-xxxx' class needed to force clearing styles
+		window.nimblePic.testable.setUniqueImgClass("", img, 1, "some-group-name");
+
+		fun("."+cls, id);
+		expect(img.classList).toContain("no-img");
+
+		cleanupElement(img);
+	})
+	*/
 })

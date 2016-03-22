@@ -7,12 +7,12 @@
     background-position: center;
     overflow: hidden;
     text-indent: -1000px;
-    min-height: 200px;
     background-color: #ccc;
+    transition: height 0.5s ease-in-out;
+    min-height: 100px; /* Careful not to use height, as that will override values set with JS */
 
-    /*placeholder is 53px wide, so must be largeer than that*/
-    min-width: 60px;
-    min-height: 60px;
+    /*placeholder is 100px wide, so must be largeer than that*/
+    min-width: 120px;
 }
 
 
@@ -65,7 +65,7 @@
 
 
 /* loader vis state */
-.imgresp-ldr {
+.is-imgloaded .imgresp-ldr {
     opacity: 0;
     /*display: none;*/
 }	
@@ -77,12 +77,12 @@
 
 /* background-image state for loader (if using a gif) */
 .imgresp-ldr {
-	background-image: url(/demos/img/placeholder-loader-1x.png) !important;
+	background-image: url(/demos/img/placeholder-loader-1x.gif) !important;
 }
 
 @media (-webkit-min-device-pixel-ratio: 2), (-webkit-min-device-pixel-ratio: 192), (min-resolution: 192dppx) {
 	.imgresp-ldr {
-		background-image: url(/demo/img/placeholder-loader-2x.png);
+		background-image: url(/demo/img/placeholder-loader-2x.gif);
 	}
 }
 
@@ -137,5 +137,4 @@
 }
 
 /* end CSS loader animation */
-
 
