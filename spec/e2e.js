@@ -8,7 +8,15 @@ var createEl = window.testUtils.createEl
   , getUID = window.nimblePic.testable.getUID
   , $doc = $(document)
 
+
+
+function clearAll() {
+	$("[data-resp-styles]").remove();
+	$(".imgresp").remove();
+}
+
 describe("getDynamicHeight", function() {
+	beforeEach(clearAll);
 
 	var fun = window.nimblePic.testable.getDynamicHeight;
 	var mbImgSrc = "/demos/img/example-1-35.jpg"
@@ -52,6 +60,8 @@ describe("getDynamicHeight", function() {
 
 
 describe("getUID", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.getUID
 	  , uid1 = fun()
 	  , uid2 = fun();
@@ -70,6 +80,8 @@ describe("getUID", function() {
 });
 
 describe("setClearImgStyles", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.setClearImgStyles;
 
 	it("should create an element, then remove it when event is triggered", function() {
@@ -85,6 +97,8 @@ describe("setClearImgStyles", function() {
 
 
 describe("addStyle", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.addStyle
 
 	it("should add CSS to a style element with the given unique ID", function() {
@@ -131,6 +145,8 @@ describe("addStyle", function() {
 
 
 describe("getImgProps", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.getImgProps
 
 	it("should return an object with all valid values", function() {
@@ -157,6 +173,8 @@ describe("getImgProps", function() {
 });
 
 describe("addLoader", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.addLoader
 
 	it("should add a loader element the element passed only once", function() {
@@ -188,6 +206,8 @@ describe("addLoader", function() {
 });
 
 describe("getSpecificSelector", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.getSpecificSelector
 
 	it("should return a selector that includes the parent class name", function() {
@@ -200,6 +220,8 @@ describe("getSpecificSelector", function() {
 });
 
 describe("getCustomStyleId", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.getCustomStyleId
 
 	it("should return the 'customStyleID' passed in with 'invalidSrc', 'group' and 'customEvent' omitted", function() {
@@ -228,6 +250,8 @@ describe("getCustomStyleId", function() {
 });
 
 describe("isInvalidSrc", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.isInvalidSrc
 
 	it("should return FALSE when both mobile and tablet/desktop sources are VALID", function() {
@@ -245,6 +269,8 @@ describe("isInvalidSrc", function() {
 })
 
 describe("setCustomEventHandler", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.setCustomEventHandler
 
 	it("should show the callback works and includes expected params", function(done) {
@@ -303,6 +329,8 @@ describe("setCustomEventHandler", function() {
 })
 
 describe("setUniqueImgClass", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.setUniqueImgClass
 
 	it("should return existing class", function() {
@@ -332,6 +360,8 @@ describe("setUniqueImgClass", function() {
 })
 
 describe("clearExistingStyles", function() {
+	beforeEach(clearAll);
+
 	var fun = window.nimblePic.testable.clearExistingStyles
 
 	it("should remove an existing style element", function() {
@@ -381,4 +411,32 @@ describe("clearExistingStyles", function() {
 		cleanupElement(img);
 	})
 	*/
+})
+
+describe("setDefaultImageClass", function() {
+	var fun = window.nimblePic.setDefaultImageClass
+
+	beforeEach(function() {
+		clearAll();
+		fun(null, true); // resets to default value so multiple tests can run reliably
+	});
+
+	it("should return truthy for a valid class name", function() {
+		expect(fun("valid-class-name")).toBeTruthy();
+		expect(fun(".class-with-dot")).toBeTruthy(); // the dot will get stripped out
+	});
+
+	it("should return false for a class name starting with a number", function() {
+		expect(fun("1-class-name-with-number")).toBe(false);
+		expect(fun(".1-class-with-dot")).toBe(false); // the dot will get stripped out
+	});
+
+	it("should return false for a class name of type not 'number'", function() {
+		expect(fun(true)).toBe(false);
+		expect(fun(0)).toBe(false); // the dot will get stripped out
+	});
+
+	it("should return a valid class name with invalid characters removed", function() {
+		expect(fun("class-&with-name-dodgy-()-characters-9")).toBe("class-with-name-dodgy--characters-9");
+	});
 })

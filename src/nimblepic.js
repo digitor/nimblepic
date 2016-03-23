@@ -7,6 +7,8 @@
 	var SELF
       , nimblePic
       , NS = "nimblePic"
+      , clsPrf = "imgresp"
+      , defClsPrf = clsPrf
       , CLS_NO_IMG = "no-img"
       , D_CUR_IMG_SRC = "current-image-src"
       , CLS_IS_IMG_LOADING = "is-imgloading"
@@ -323,20 +325,20 @@
      */
     function addLoader($img) {
 
-        var img = $img[0];
+        var img = $img[0]
+          , ldrCls = clsPrf + "-ldr";
 
         // if in process of loading or pending an event to be triggered, do nothing
         if (img.classList.contains(CLS_IS_IMG_LOADING)) return true;
 
         var ldrEl;
-        if (!img.querySelector(".imgresp-ldr")) {
+        if (!img.querySelector("."+ldrCls)) {
             ldrEl = document.createElement("span");
-            ldrEl.classList.add("imgresp-ldr");
+            ldrEl.classList.add(ldrCls);
             img.appendChild(ldrEl);
-            //$img.prepend('<span class="imgresp-ldr"></span>');
         }
 
-        ldrEl = img.querySelector(".imgresp-ldr")
+        ldrEl = img.querySelector("."+ldrCls)
         
         var computedStyle = window.getComputedStyle(ldrEl);
         
@@ -482,9 +484,54 @@
     }
 
 
+    function verifyClassName(cls) {
+        // TODO: Use same logic in setDefaultImageClass for verifying class names in 'setImages'
+    }
+
+
     nimblePic = {
 
+        // set to true if you want warnings to not show up in console (useful for tests, as they can be a bit annoying)
         suppressWarnings: false
+
+        /**
+         * @description Call this to change the default class on targeted images.
+         * @param _clsPrf (string) - Class name to use.
+         * @param reset (boolean) - If you need to reset to default.
+         * @param (boolean) - True for success, false for fail.
+         */
+        , setDefaultImageClass: function(_clsPrf, reset) {
+
+            if(reset) {
+                clsPrf = defClsPrf;
+                return true;
+            }
+
+            if(typeof _clsPrf !== "string") {
+                if(!SELF.suppressWarnings) 
+                    console.warn(NS, "setDefaultImageClass", "The class name supplied was not a valid string.");
+                return false;
+            }
+
+            // strips out invalid characters
+            _clsPrf = _clsPrf.match(/[A-Za-z0-9-_]+/g).join("");
+
+            if(!_clsPrf.length) {
+                if(!SELF.suppressWarnings) 
+                    console.warn(NS, "setDefaultImageClass", "The class name was a empty string. Maybe some invalid characters were used and removed. Returning early.");
+                return false;
+            }
+
+            if( parseInt(_clsPrf.substr(0,1), 10).toString() !== "NaN" ) {
+                if(!SELF.suppressWarnings) 
+                    console.warn(NS, "setDefaultImageClass", "A CSS class name cannot start with a number. Returning early.");
+                return false;
+            }
+
+            clsPrf = _clsPrf;
+
+            return clsPrf;
+        }
 
         /**
          * @description Searches DOM to find the '$container' and child elements of 'customCls' (these can be omitted to use defaults), 
@@ -494,7 +541,7 @@
          *
          * $container (jQuery element/null) optional - If supplied, only children images (spans) of this element will be affected. Omit this to default to $(document).
          *
-         * customCls (string/null) optional - If supplied, only image (span) elements will be affected. Omit this to use the default 'imgresp' class. Only use the default
+         * customCls (string/null) optional - If supplied, only image (span) elements will be affected. Omit this to use the default 'clsPrf' class. Only use the default
          *   if you're calling this function once. Future calls should use custom classes, to avoid classes referencing the wrong images.
          *
          * customStyleID (string) optional - If suppied, will use this id on the dynamic <style> elements created. Keep in mind that calls to the function will remove styles
@@ -556,14 +603,20 @@
                 });
             }
 
-            if (!customCls) customCls = "imgresp";
+            if (!customCls) customCls = clsPrf;
             if (!$container) $container = $(document);
 
             $(function () { // Uses DOM Ready to ensure all html elements in $container exist
-                var prp, singleCls, $img;
+                var prp, singleCls, $img, $list = $container.find("." + customCls);
+
+                if( !$list.length) console.log("$list.length", $list.length, loadedCB)
+                if(loadedCB && !$list.length) {
+                    loadedCB(false, "no images found");
+                    return;
+                }
 
                 //console.log("image count", $container.find("." + customCls).length);
-                $container.find("." + customCls).each(function (i) {
+                $list.each(function (i) {
                     
                     prp = getImgProps(this);
 

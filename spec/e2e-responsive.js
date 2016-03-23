@@ -520,6 +520,27 @@ describe("setImages", function() {
 			});
 		})
 
+
+		it("should load image by default CSS class name, but change the default to a custom class name and check the loader class name is also using the custon class as s prefix - " + printBreakPoint(), function(done) {
+			var cls = "custom-img-class"
+			  , img = createEl(null, "span", cls);
+			setImgAttr(img);
+
+			// changes the default class name to look for, including on loader
+			window.nimblePic.setDefaultImageClass(cls);
+
+			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+				
+				expect(img.querySelector("."+cls+"-ldr")).toBeTruthy();
+
+				// resets the default so other tests don't fail
+				window.nimblePic.setDefaultImageClass(null, true);
+
+				// image loaded callback
+				bgImgCheck(img, done);
+			});
+		})
+
 		it("should load image by custom CSS class name - " + printBreakPoint(), function(done) {
 
 			var cls = getUID()
