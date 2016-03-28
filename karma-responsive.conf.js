@@ -1,22 +1,27 @@
 module.exports = function(config) {
 
-  // needs this to compensate for scroll bars
-  var chScrollBarW = 34
-    , isWin = /^win/.test(process.platform);
-  config.set({
-  	browsers: ['CHNarrowMobileNonEx', 'CHMobileNonEx', 'CHTabletNonEx', 'CHDesktopNonEx'
-               ,
-               'CHNarrowMobileEx',    'CHMobileEx',    'CHTabletEx',    'CHDesktopEx', 'CHDesktopWideEx'
-               
-               ,
-               'Firefox' // Firefox - can't resize browser
+  var isWin = /^win/.test(process.platform) // checks if you're on Windows (tested on Windows 10)
+    , chScrollBarW = isWin ? 34 : 0 // Chrome on windows needs this to compensate for scroll bars, but Mac doesn't, as sroll bars overlay content and have no width
+    , browsers = [
+         // Only Chrome can resize browser
+        'Firefox'
+        ,(isWin ? 'IE' : "Safari")
 
-               ,
-               isWin ? 'IE' : "Safari" // IE - can't resize browser
-               ],
+        // Chrome non-exact values
+        ,'CHNarrowMobileNonEx', 'CHMobileNonEx', 'CHTabletNonEx', 'CHDesktopNonEx'
+      ]
+
+  // Mac Chrome window can only scale down to 400px width, so can't add this test for mac
+  if(isWin) browsers.push('CHNarrowMobileEx')
+
+  // Other exact value chrome tests
+  browsers.push('CHMobileEx', 'CHTabletEx', 'CHDesktopEx', 'CHDesktopWideEx')
+
+  config.set({
+  	browsers: browsers,
     customLaunchers: {
       
-      // Chrome
+      // Chrome non-exact values
       CHNarrowMobileNonEx: {
         base: "Chrome",
         flags: ["--window-size="+(479 + chScrollBarW)+",600"],
@@ -34,7 +39,7 @@ module.exports = function(config) {
         flags: ["--window-size="+(1199 + chScrollBarW)+",1400"]
       },
 
-      // for exact matches
+      // Chrome exact values
       CHNarrowMobileEx: {
         base: "Chrome",
         flags: ["--window-size="+(320 + chScrollBarW)+",600"],
@@ -55,7 +60,7 @@ module.exports = function(config) {
         base: "Chrome",
         flags: ["--window-size="+(1200 + chScrollBarW)+",1400"]
       }
-      
+
     },
     frameworks: ['jasmine'],
     files: [

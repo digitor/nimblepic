@@ -1,7 +1,9 @@
 module.exports = function(config) {
 
+  var isWin = /^win/.test(process.platform);
+
   config.set({
-  	browsers: ['Chrome', 'Firefox', 'IE'],
+  	browsers: ['Chrome', 'Firefox', (isWin ? 'IE' : "Safari")],
     frameworks: ['jasmine'],
     files: [
       'node_modules/jquery/dist/jquery.min.js',

@@ -90,7 +90,7 @@ if(isNonExact) {
 	  , isMb = winW === 480
 	  , isNarrowMb = winW === 320;
 
-	// gets used on IE & FF because window size flags don't work, so assumes a height above 992 will be present, but can't use an exact value
+	// 'isRangeDt' used on Safari, IE & FF because window size flags don't work, so assumes a height above 992 will be present, but can't use an exact value
 	var isRangeDt = winW >= 992 && !isDt && !isWideDt;
 
 	if(!isRangeDt && !isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
