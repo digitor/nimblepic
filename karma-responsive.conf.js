@@ -1,7 +1,10 @@
+var os = require("os")
+
 module.exports = function(config) {
 
-  var isWin = /^win/.test(process.platform) // checks if you're on Windows (tested on Windows 10)
-    , chScrollBarW = isWin ? 34 : 0 // Chrome on windows needs this to compensate for scroll bars, but Mac doesn't, as sroll bars overlay content and have no width
+  var isWin = os.platform() === "win32" // checks if you're on Windows (tested on Windows 10 & 7)
+    , isWin7 = isWin && os.release().indexOf("6.1.") === 0
+    , chScrollBarW = isWin ? (isWin7 ? 27 : 34) : 0 // Chrome on windows needs this to compensate for scroll bars, but Mac doesn't, as sroll bars overlay content and have no width
     , browsers = [
          // Only Chrome can resize browser
         'Firefox'
@@ -12,7 +15,8 @@ module.exports = function(config) {
       ]
 
   // Mac Chrome window can only scale down to 400px width, so can't add this test for mac
-  if(isWin) browsers.push('CHNarrowMobileEx')
+  // Windows 7 window can only scale down to 338px width, so can't add this test for windows 7
+  if(isWin && !isWin7) browsers.push('CHNarrowMobileEx')
 
   // Other exact value chrome tests
   browsers.push('CHMobileEx', 'CHTabletEx', 'CHDesktopEx', 'CHDesktopWideEx')

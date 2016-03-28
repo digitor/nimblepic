@@ -8,8 +8,10 @@ var gulp = require('gulp')
   , webserver = require('gulp-webserver')
   , Server = require('karma').Server
   , runSequence = require('run-sequence')
+  , os = require("os")
 
-var webserverStream, forceKill = false;
+var webserverStream
+  , forceKill = false
 
 gulp.task("vendor-prefix", function() {
 

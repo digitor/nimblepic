@@ -31,6 +31,7 @@ var createEl = window.testUtils.createEl
   , $doc = $(document)
 
 
+var isRangeDt;
 
 function printBreakPoint() {
 	if(isWideDt) return "isWideDt";
@@ -91,7 +92,7 @@ if(isNonExact) {
 	  , isNarrowMb = winW === 320;
 
 	// 'isRangeDt' used on Safari, IE & FF because window size flags don't work, so assumes a height above 992 will be present, but can't use an exact value
-	var isRangeDt = winW >= 992 && !isDt && !isWideDt;
+	isRangeDt = winW >= 992 && !isDt && !isWideDt;
 
 	if(!isRangeDt && !isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
 		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
