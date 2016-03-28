@@ -1,50 +1,61 @@
 module.exports = function(config) {
 
-	var chromeScrollBarW = 34; // needs this to compensate for scroll bars
+  // needs this to compensate for scroll bars
+  var chScrollBarW = 34
+    , isWin = /^win/.test(process.platform);
   config.set({
-  	browsers: ['narrowMobileNonEx', 'mobileNonEx', 'tabletNonEx', 'desktopNonEx'
+  	browsers: ['CHNarrowMobileNonEx', 'CHMobileNonEx', 'CHTabletNonEx', 'CHDesktopNonEx'
                ,
-               'narrowMobileEx',    'mobileEx',    'tabletEx',    'desktopEx', 'desktopWideEx'
+               'CHNarrowMobileEx',    'CHMobileEx',    'CHTabletEx',    'CHDesktopEx', 'CHDesktopWideEx'
+               
+               ,
+               'Firefox' // Firefox - can't resize browser
+
+               ,
+               isWin ? 'IE' : "Safari" // IE - can't resize browser
                ],
     customLaunchers: {
-      narrowMobileNonEx: {
+      
+      // Chrome
+      CHNarrowMobileNonEx: {
         base: "Chrome",
-        flags: ["--window-size="+(479 + chromeScrollBarW)+",600"],
+        flags: ["--window-size="+(479 + chScrollBarW)+",600"],
       },
-      mobileNonEx: {
+      CHMobileNonEx: {
         base: "Chrome",
-        flags: ["--window-size="+(767 + chromeScrollBarW)+",800"],
+        flags: ["--window-size="+(767 + chScrollBarW)+",800"],
       },
-      tabletNonEx: {
+      CHTabletNonEx: {
         base: "Chrome",
-        flags: ["--window-size="+(991 + chromeScrollBarW)+",1000"]
+        flags: ["--window-size="+(991 + chScrollBarW)+",1000"]
       },
-      desktopNonEx: {
+      CHDesktopNonEx: {
         base: "Chrome",
-        flags: ["--window-size="+(1199 + chromeScrollBarW)+",1400"]
+        flags: ["--window-size="+(1199 + chScrollBarW)+",1400"]
       },
 
       // for exact matches
-      narrowMobileEx: {
+      CHNarrowMobileEx: {
         base: "Chrome",
-        flags: ["--window-size="+(320 + chromeScrollBarW)+",600"],
+        flags: ["--window-size="+(320 + chScrollBarW)+",600"],
       },
-      mobileEx: {
+      CHMobileEx: {
         base: "Chrome",
-        flags: ["--window-size="+(480 + chromeScrollBarW)+",800"],
+        flags: ["--window-size="+(480 + chScrollBarW)+",800"],
       },
-      tabletEx: {
+      CHTabletEx: {
         base: "Chrome",
-        flags: ["--window-size="+(768 + chromeScrollBarW)+",1000"]
+        flags: ["--window-size="+(768 + chScrollBarW)+",1000"]
       },
-      desktopEx: {
+      CHDesktopEx: {
         base: "Chrome",
-        flags: ["--window-size="+(992 + chromeScrollBarW)+",1400"]
+        flags: ["--window-size="+(992 + chScrollBarW)+",1400"]
       },
-      desktopWideEx: {
+      CHDesktopWideEx: {
         base: "Chrome",
-        flags: ["--window-size="+(1200 + chromeScrollBarW)+",1400"]
+        flags: ["--window-size="+(1200 + chScrollBarW)+",1400"]
       }
+      
     },
     frameworks: ['jasmine'],
     files: [

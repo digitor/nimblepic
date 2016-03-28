@@ -1,7 +1,7 @@
 module.exports = function(config) {
 
   config.set({
-  	browsers: ['Chrome'],
+  	browsers: ['Chrome', 'Firefox', 'IE'],
     frameworks: ['jasmine'],
     files: [
       'node_modules/jquery/dist/jquery.min.js',

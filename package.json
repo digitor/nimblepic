@@ -24,6 +24,7 @@
   "homepage": "https://github.com/digitor/nimblepic#readme",
   "devDependencies": {
     "gulp": "3.9.1",
+    "gulp-autoprefixer": "3.0.2",
     "gulp-jshint": "~1.8.4",
     "gulp-util": "~3.0.1",
     "gulp-webserver": "0.9.1",
@@ -33,9 +34,11 @@
     "jshint-stylish": "~1.0.0",
     "karma": "0.13.21",
     "karma-chrome-launcher": "0.2.0",
+    "karma-firefox-launcher": "^0.1.7",
+    "karma-ie-launcher": "^0.2.0",
     "karma-jasmine": "0.3.6",
+    "karma-safari-launcher": "^0.1.1",
     "lodash": "*",
-    "run-sequence": "^1.1.5",
-    "gulp-autoprefixer": "3.0.2"
+    "run-sequence": "^1.1.5"
   }
 }

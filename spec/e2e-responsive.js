@@ -19,6 +19,7 @@ var isWideDt = false
   , isMb = winW === 767
   , isNarrowMb = winW === 479
 
+
 var isNonExact = isDt || isTb || isMb || isNarrowMb;
 
 var createEl = window.testUtils.createEl
@@ -29,22 +30,23 @@ var createEl = window.testUtils.createEl
   , cleanupElement = window.testUtils.cleanupElement
   , $doc = $(document)
 
-//console.log("winW", winW);
 
 
 function printBreakPoint() {
 	if(isWideDt) return "isWideDt";
 	if(isDt) return "isDt";
+	if(isRangeDt) return "isRangeDt";
 	if(isTb) return "Tb";
 	if(isMb) return "isMb";
 	if(isNarrowMb) return "isNarrowMb";
-	//return ["isDt:"+isDt, "isTb:"+isTb, "isMb:"+isMb, "isNarrowMb:"+isNarrowMb, "isWideDt:"+isWideDt].join(" - "); 
 }
 
 function clearAll() {
 	$("[data-resp-styles]").remove();
 	$(".imgresp").remove();
 }
+
+//console.log("winW", winW, isNonExact);
 
 // testing specific break points with non-exact breakpoint values
 if(isNonExact) {
@@ -67,16 +69,16 @@ if(isNonExact) {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'less than' params", function() {
-				 if(isNarrowMb) expect(fun('xs')).toBeTruthy();
-			else if(isMb) 		expect(fun('sm')).toBeTruthy();
-			else if(isTb) 		expect(fun('md')).toBeTruthy();
-			else if(isDt) 		expect(fun('lg')).toBeTruthy();
+				 if(isNarrowMb) 	expect(fun('xs')).toBe(true);
+			else if(isMb) 			expect(fun('sm')).toBe(true);
+			else if(isTb) 			expect(fun('md')).toBe(true);
+			else if(isDt) 			expect(fun('lg')).toBe(true);
 		});
 
 		it("should match break-point names to Bootstrap grid break points with 'more than' params", function() {
-				 if(!isNarrowMb && isMb) 			expect(fun('xs', true)).toBeTruthy();
-			else if(!isNarrowMb && !isMb && isTb)	expect(fun('sm', true)).toBeTruthy();
-			else if(!isNarrowMb && !isMb && !isTb)	expect(fun('md', true)).toBeTruthy();
+				 if(!isNarrowMb && isMb) 			expect(fun('xs', true)).toBe(true);
+			else if(!isNarrowMb && !isMb && isTb)	expect(fun('sm', true)).toBe(true);
+			else if(!isNarrowMb && !isMb && !isTb)	expect(fun('md', true)).toBe(true);
 		});
 	});
 
@@ -88,7 +90,10 @@ if(isNonExact) {
 	  , isMb = winW === 480
 	  , isNarrowMb = winW === 320;
 
-	if(!isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
+	// gets used on IE & FF because window size flags don't work, so assumes a height above 992 will be present, but can't use an exact value
+	var isRangeDt = winW >= 992 && !isDt && !isWideDt;
+
+	if(!isRangeDt && !isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
 		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
 
 	describe("responsiveWidth with exact breakpoint values", function() {
@@ -96,18 +101,24 @@ if(isNonExact) {
 		var fun = window.nimblePic.testable.responsiveWidth
 
 		it("should match break-point names to Bootstrap grid break points with 'more than or equal' params", function() {
-				 if(isNarrowMb) expect(fun('xs', true, true)).toBeFalsy(); // value is 320, but would need to be more than 480 to be successful
-			else if(isMb) 		expect(fun('xs', true, true)).toBeTruthy();
-			else if(isTb) 		expect(fun('sm', true, true)).toBeTruthy();
-			else if(isDt) 		expect(fun('md', true, true)).toBeTruthy();
-			else if(isWideDt) 	expect(fun('lg', true, true)).toBeTruthy();
+				 if(isNarrowMb) 	expect(fun('xs', true, true)).toBe(false); // value is 320, but would need to be more than 480 to be successful
+			else if(isMb) 			expect(fun('xs', true, true)).toBe(true);
+			else if(isTb) 			expect(fun('sm', true, true)).toBe(true);
+			else if(isDt) 			expect(fun('md', true, true)).toBe(true);
+			else if(isWideDt) 		expect(fun('lg', true, true)).toBe(true);
+			else if(isRangeDt)	{
+				// so we can test FF & IE
+					 if(winW < 1200)	expect(fun('md', true, true)).toBe(true);
+				else if(winW >= 1200)	expect(fun('lg', true, true)).toBe(true);
+			}
 		});
 
 		it("should NOT match break-point names to Bootstrap grid break points with 'more than' params", function() {
-				 if(isMb) 		expect(fun('xs', true)).toBeFalsy();
-			else if(isTb) 		expect(fun('sm', true)).toBeFalsy();
-			else if(isDt) 		expect(fun('md', true)).toBeFalsy();
-			else if(isWideDt) 	expect(fun('lg', true)).toBeFalsy();
+				 if(isMb) 			expect(fun('xs', true)).toBe(false);
+			else if(isTb) 			expect(fun('sm', true)).toBe(false);
+			else if(isDt) 			expect(fun('md', true)).toBe(false);
+			else if(isWideDt) 		expect(fun('lg', true)).toBe(false);
+			// can't test 'isRangeDt' because exact window width isn't set
 		});
 	});
 }
@@ -216,8 +227,8 @@ describe("responsiveHeight", function() {
 
 		var divH = getNewDivHeight(customCls);
 
-		if(isDt || isWideDt)	expect(divH).toEqual(heightLg);
-		else					expect(divH).toEqual(0);
+		if(isDt || isWideDt || isRangeDt)	expect(divH).toEqual(heightLg);
+		else								expect(divH).toEqual(0);
 
 		cleanupElement(customID);
 	});
@@ -236,7 +247,7 @@ describe("responsiveHeight", function() {
 		var divH1 = getNewDivHeight(cls1)
 		  , divH2 = getNewDivHeight(cls2);
 
-		if(isDt || isWideDt) {
+		if(isDt || isWideDt || isRangeDt) {
 			expect(divH1).toEqual(0);
 			expect(divH2).toEqual(heightLg);
 		}
@@ -283,8 +294,8 @@ describe("responsiveHeight - 3 media queries on same element by ID, but with dif
 
 
 	it("should just succeed for desktop on div3", function() {
-		if(isDt || isWideDt)	expect(divH3).toEqual(heightLg);
-		else					expect(divH3).toEqual(0);
+		if(isDt || isWideDt || isRangeDt)	expect(divH3).toEqual(heightLg);
+		else								expect(divH3).toEqual(0);
 	});
 });
 
@@ -494,8 +505,8 @@ describe("setImages", function() {
 	  , srcMd = "/demos/img/example-1-58.jpg"
 
 	function bgImgCheck(img, done) {
-		if(isDt || isWideDt || isTb)	expect(getCompProp(img, "background-image")).toContain(srcMd);
-		else 							expect(getCompProp(img, "background-image")).toContain(srcSm);
+		if(isDt || isWideDt || isRangeDt || isTb)	expect(getCompProp(img, "background-image")).toContain(srcMd);
+		else 										expect(getCompProp(img, "background-image")).toContain(srcSm);
 
 		cleanupElement(img);
 		if(done) done();
@@ -619,9 +630,9 @@ describe("setImages", function() {
 			fun($, null, null, getUID(), null, function(isSuccess, url, img, computedHeight, nativeHeight) {
 				// image loaded callback
 
-				if(isNarrowMb || isMb)	expect(computedHeight).toEqual(300);
-				if(isTb) 				expect(computedHeight).toEqual(400);
-				if(isWideDt || isDt) 	expect(computedHeight).toEqual(500);
+				if(isNarrowMb || isMb)				expect(computedHeight).toEqual(300);
+				if(isTb) 							expect(computedHeight).toEqual(400);
+				if(isWideDt || isDt || isRangeDt) 	expect(computedHeight).toEqual(500);
 
 				cleanupElement(img);
 				done();
@@ -719,12 +730,12 @@ describe("setImages", function() {
 			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
 				if(img === sucImg) {
 					expect(isSuccess).toBe(true);
-					if(isTb || isDt || isWideDt) 	expect(url).toBe(srcMd1);
-					else 							expect(url).toBe(srcSm1);
+					if(isTb || isDt || isWideDt || isRangeDt) 	expect(url).toBe(srcMd1);
+					else 										expect(url).toBe(srcSm1);
 				} else if(img === errImg) {
 					expect(isSuccess).toBe(false);
-					if(isTb || isDt || isWideDt) 	expect(url).toBe(nonEx2);
-					else 							expect(url).toBe(nonEx1);
+					if(isTb || isDt || isWideDt || isRangeDt) 	expect(url).toBe(nonEx2);
+					else 										expect(url).toBe(nonEx1);
 				}
 
 				cleanupElement(img);
