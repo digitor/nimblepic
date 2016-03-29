@@ -1,8 +1,5 @@
 "use strict";
 
-// for unit tests
-//var isJasmine = typeof jasmine !== "undefined";
-
 (function () {
 	var SELF
       , nimblePic
@@ -14,6 +11,12 @@
       , CLS_IS_IMG_LOADING = "is-imgloading"
       , CLS_IS_IMG_LOADED = "is-imgloaded";
 
+    /**
+     * @description Attempts to load an image and trigger a callback with the images's height.
+     * @param src (string) - Image path to load or a CSS selector to extract the background image path from.
+     * @param srcIsSelector (boolean) - If true, will attemp to use the 'src' as a CSS selector (to extract the bg image from), otherwise will treat it as an image path.
+     * @param cb (function) - Callback to trigger with src, success/fail and height info.
+     */
 	function getDynamicHeight(src, srcIsSelector, cb) {
         setTimeout(function () {
 
@@ -33,17 +36,32 @@
 
 
     /**
-     * @description Sets bg images on a `<span>` element, to replicate `<img>` element, but give control over image sizes at various media queries.
-     * @param type (string) optional - either 'viewport' or 'density'. A null value will default 'viewport' (which is currently the only supported type anyway).
+     * @description Sets bg images on a `<span>` element, to replicate `<img>` element, but give control over image sizes at various media queries. Optionally, you can add a 
+     * gradient overlay, using multiple background image CSS property.
+     * @param type (string) - either 'viewport' or 'density'. A null value will default 'viewport' (which is the only supported type at the moment).
+     * @param srcSm (string) - Image source for mobile breakpoint (below 768px).
+     * @param srcMd (string) - Image source for tablet/desktop breakpoint (768px and above).
+     * @param sel (string) - CSS selector for targeted image/span elements.
+     * @param heightSm (number) - Image height for mobile.
+     * @param heightMd (number) - Image height for tablet (if 'heightLg' is not supplied, this will also be used for desktop).
+     * @param heightLg (number) - Image height for desktop.
+     * @param clearExisting (boolean) optional - If true, will remove existing media queries with the same id.
+     * @param customID (string) optional - If supplied, will use this id for the style element attached. Otherwise the default will be used. If you're calling this function more 
+     * than once on the same page, you should use a different id each time.
+     * @param grad (string) optional - A CSS background image gradient to overlay the image with, using multiple background image CSS property.
+     * @param throwWarning (boolean) optional - If true, will throw console warnings when clearing existing styles. Recommended for debugging if multiple calls on this function are made.
+     * @param addNoImgClass (boolean) optional - Whether to check for existing images with same selector and apply a "no-img" class to them. Recommended if multiple calls on this function are made.
      */
     function responsiveImage(type, srcSm, srcMd, sel, heightSm, heightMd, heightLg, clearExisting, customID, grad, throwWarning, addNoImgClass) {
         
+        var supportsGrad = Modernizr.cssgradients;
         if ( typeof Modernizr === "undefined" || Modernizr.cssgradients === undefined) {
             if(!SELF.suppressWarnings)
                 console.warn("Utils.js", "responsiveImage", "'Modernizr.cssgradients' was not availale, which older browsers, such as ie9 need in order for this function to work properly.");
+            supportsGrad = false;
         }
 
-        if (!Modernizr.cssgradients) grad = null;
+        if (!supportsGrad) grad = null;
 
         var css, id = customID || "nimblepic-styles";
 
@@ -99,16 +117,23 @@
     }
 
 
-    /*
-     * For setting element heights at various media queries.
+    /**
+     * @description Sets image heights on image/span elements, giving control at various media queries. 
+     * @param justClear (boolean) - If true, will clear the existsing styles by the id supplied (or defult id, if none supplied).
+     * @param customID (string) optional - If supplied, will use this id for the style element attached. Otherwise the default will be used.  
+     * @param sel (string) - CSS selector for targeted image/span elements.
+     * @param heightSm (number) - Image height for mobile.
+     * @param heightMd (number) - Image height for tablet (if 'heightLg' is not supplied, this will also be used for desktop).
+     * @param heightLg (number) - Image height for desktop.
+     * @param clearExisting (boolean) optional - If true, will remove existing media queries with the same id.
+     * @param throwWarning (boolean) optional - If true, will throw console warnings when clearing existing styles. Recommended for debugging if multiple calls on this function are made.
+     * @param addNoImgClass (boolean) optional - Whether to check for existing images with same selector and apply a "no-img" class to them. Recommended if multiple calls on this function are made.
      */
     function responsiveHeight(justClear, customID, sel, heightSm, heightMd, heightLg, clearExisting, throwWarning, addNoImgClass) {
 
         var id = customID || "nimblepic-styles";
 
         if (justClear || clearExisting) {
-            //console.log("removed", id, justClear, clearExisting);
-            //debugger
             clearExistingStyles(sel, id, throwWarning, addNoImgClass);
             if(justClear) return;
         }
@@ -167,9 +192,7 @@
                 for(var j=0; j<img.classList.length; j++) {
                     cls = img.classList[j];
                     if(cls.indexOf("-sibling") === cls.length - 8) {
-                        //img.classList.remove(cls);
                         img.classList.add(CLS_NO_IMG);
-                        //console.log("img.classList", img.classList);
                         foundExisting = true;
                         break;
                     }
@@ -287,8 +310,6 @@
     function getImgProps(img) {
         var srcSm = img.getAttribute("data-img-sm") || null
           , srcMd = img.getAttribute("data-img-md") || null;
-
-        //console.log("getImgProps", img)
 
         // optional
         var hSm         = img.getAttribute("data-height-sm")
@@ -411,7 +432,6 @@
     function isInvalidSrc(srcSm, srcMd) {
         // also accepts a proptery object as first arg
         if(typeof srcSm === "object") {
-            //console.log("isInvalidSrc", srcSm)
             srcSm = srcSm.srcSm;
             srcMd = srcSm.srcMd;
         }
@@ -437,8 +457,6 @@
         if (invalidSrc) return true;
 
         var approvedSrc = (breakPointSize === 'sm' || breakPointSize === 'xs') ? srcSm : srcMd;
-
-        //console.log("approvedSrc", approvedSrc)
 
         if (!approvedSrc || typeof approvedSrc !== "string") {
             $img[0].classList.add(CLS_NO_IMG);
@@ -609,13 +627,11 @@
             $(function () { // Uses DOM Ready to ensure all html elements in $container exist
                 var prp, singleCls, $img, $list = $container.find("." + customCls);
 
-                if( !$list.length) console.log("$list.length", $list.length, loadedCB)
                 if(loadedCB && !$list.length) {
                     loadedCB(false, "no images found");
                     return;
                 }
 
-                //console.log("image count", $container.find("." + customCls).length);
                 $list.each(function (i) {
                     
                     prp = getImgProps(this);
@@ -664,10 +680,8 @@
                    
 
                     if (prp.customEvent) {
-                        //console.log(NS, "specificSel", specificSel)
                         setCustomEventHandler(prp.customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, prp.group);
                     } else {
-                        //console.log("prp", prp)
                         startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, prp.group, null);
                     }
                 
@@ -697,9 +711,6 @@
         }
     }
 
-	// for unit tests
-	//if (isJasmine)	module.exports = nimblePic;
-	//else			
-		SELF = window.nimblePic = nimblePic;
+	SELF = window.nimblePic = nimblePic;
 })();
 
