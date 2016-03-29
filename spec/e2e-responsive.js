@@ -4,8 +4,8 @@
  * as we make assumptions based on them.
  */
 
-// give it a minute
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+// give it 2 minutes
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
 var winW = window.nimblePic.testable.winWidth();
 

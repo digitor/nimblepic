@@ -1,6 +1,8 @@
+var os = require("os")
+
 module.exports = function(config) {
 
-  var isWin = /^win/.test(process.platform);
+  var isWin = os.platform() === "win32" // checks if you're on Windows (tested on Windows 10, 8.1 & 7)
 
   config.set({
   	browsers: ['Chrome', 'Firefox', (isWin ? 'IE' : "Safari")],

@@ -2,16 +2,18 @@ var os = require("os")
 
 module.exports = function(config) {
 
-  var isWin = os.platform() === "win32" // checks if you're on Windows (tested on Windows 10 & 7)
+  var isWin = os.platform() === "win32" // checks if you're on Windows (tested on Windows 10, 8.1 & 7)
     , isWin7 = isWin && os.release().indexOf("6.1.") === 0
-    , chScrollBarW = isWin ? (isWin7 ? 27 : 34) : 0 // Chrome on windows needs this to compensate for scroll bars, but Mac doesn't, as sroll bars overlay content and have no width
+    , isWin81 = isWin && os.release().indexOf("6.3.") === 0
     , browsers = [
          // Only Chrome can resize browser
         'Firefox'
-        ,(isWin ? 'IE' : "Safari")
+        ,
+        (isWin ? 'IE' : "Safari")
 
         // Chrome non-exact values
-        ,'CHNarrowMobileNonEx', 'CHMobileNonEx', 'CHTabletNonEx', 'CHDesktopNonEx'
+        ,
+        'CHNarrowMobileNonEx', 'CHMobileNonEx', 'CHTabletNonEx', 'CHDesktopNonEx'
       ]
 
   // Mac Chrome window can only scale down to 400px width, so can't add this test for mac
@@ -21,8 +23,15 @@ module.exports = function(config) {
   // Other exact value chrome tests
   browsers.push('CHMobileEx', 'CHTabletEx', 'CHDesktopEx', 'CHDesktopWideEx')
 
+  // Chrome on windows needs this to compensate for scroll bars, but Mac doesn't, as sroll bars overlay content and have no width
+  var chScrollBarW = 0;
+  if(isWin)   chScrollBarW = 34; // tested on windows 10
+  if(isWin7)  chScrollBarW = 28;
+  if(isWin81)  chScrollBarW = 33;
+
   config.set({
   	browsers: browsers,
+    browserNoActivityTimeout: 40000, // Slower machines (or VMs) may need extra time with all these chrome windows open at once. Default is 10 seconds.
     customLaunchers: {
       
       // Chrome non-exact values
