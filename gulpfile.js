@@ -67,6 +67,7 @@ gulp.task('unit-tests', function() {
 	return gulp.src('spec/unit.js')
 		.pipe(jasmine({
 			reporter: new reporters.JUnitXmlReporter()
+			
 		}))
 })
 

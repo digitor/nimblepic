@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+ <testsuite name="getUID" timestamp="2016-03-30T18:51:20" hostname="localhost" time="0.016" errors="0" tests="3" skipped="0" disabled="0" failures="0">
+  <testcase classname="getUID" name="should get a string" time="0" />
+  <testcase classname="getUID" name="should not contain spaces" time="0" />
+  <testcase classname="getUID" name="should get a unique value each time" time="0.016" />
+ </testsuite>
+ <testsuite name="getSpecificSelector" timestamp="2016-03-30T18:51:20" hostname="localhost" time="0" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="getSpecificSelector" name="should return a selector that includes the parent class name" time="0" />
+  <testcase classname="getSpecificSelector" name="should return a selector that only has the child in it" time="0" />
+ </testsuite>
+ <testsuite name="getCustomStyleId" timestamp="2016-03-30T18:51:20" hostname="localhost" time="0" errors="0" tests="6" skipped="0" disabled="0" failures="0">
+  <testcase classname="getCustomStyleId" name="should return the &apos;customStyleID&apos; passed in with &apos;invalidSrc&apos;, &apos;group&apos; and &apos;customEvent&apos; omitted" time="0" />
+  <testcase classname="getCustomStyleId" name="should return null if all properties are omitted" time="0" />
+  <testcase classname="getCustomStyleId" name="should should contain default id prefix if &apos;invalidSrc&apos; is truthy, but &apos;customStyleID&apos; is falsy" time="0" />
+  <testcase classname="getCustomStyleId" name="should should contain custom id prefix (from &apos;customStyleID&apos;) if &apos;invalidSrc&apos; is truthy" time="0" />
+  <testcase classname="getCustomStyleId" name="should should return supplied &apos;group&apos;, despite &apos;customStyleID&apos; and &apos;invalidSrc&apos; being truthy." time="0" />
+  <testcase classname="getCustomStyleId" name="should should return supplied &apos;customEvent&apos;, despite &apos;customStyleID&apos;, &apos;invalidSrc&apos; and &apos;group&apos; being truthy." time="0" />
+ </testsuite>
+ <testsuite name="isInvalidSrc" timestamp="2016-03-30T18:51:20" hostname="localhost" time="0" errors="0" tests="3" skipped="0" disabled="0" failures="0">
+  <testcase classname="isInvalidSrc" name="should return FALSE when both mobile and tablet/desktop sources are VALID" time="0" />
+  <testcase classname="isInvalidSrc" name="should return FALSE when mobile source is INVALID and tablet/desktop sources are VALID" time="0" />
+  <testcase classname="isInvalidSrc" name="should return TRUE when both mobile and tablet/desktop sources are INVALID" time="0" />
+ </testsuite>
+ <testsuite name="setDefaultImageClass" timestamp="2016-03-30T18:51:20" hostname="localhost" time="0.016" errors="0" tests="4" skipped="0" disabled="0" failures="0">
+  <testcase classname="setDefaultImageClass" name="should return truthy for a valid class name" time="0" />
+  <testcase classname="setDefaultImageClass" name="should return false for a class name starting with a number" time="0.016" />
+  <testcase classname="setDefaultImageClass" name="should return false for a class name of type not &apos;number&apos;" time="0" />
+  <testcase classname="setDefaultImageClass" name="should return a valid class name with invalid characters removed" time="0" />
+ </testsuite>
+</testsuites>

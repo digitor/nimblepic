@@ -664,10 +664,8 @@
                       , specificSel = getSpecificSelector(parentCls, singleCls)
                       , styleId = getCustomStyleId(customStyleID, invalidSrc, prp.group, prp.customEvent);
 
-                    // TODO: need to verify this what this is useful for, with regards to group and customEvent
                     specificSel = setUniqueImgClass(specificSel, $img[0], i, prp.group, prp.customEvent);
                     
-                    // TODO: need to verify if this should come after 'setUniqueImgClass' or before, with regards to group and customEvent
                     responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, doClearEl, true, true);
 
                     // This means that the first item in the loop will clear existing styles associated with this styleId
@@ -711,6 +709,10 @@
         }
     }
 
-	SELF = window.nimblePic = nimblePic;
+    // exposes library for browser and Node-based code (such as unit tests)
+    if(typeof window === "undefined")   module.exports = nimblePic;
+    else                                window.nimblePic = nimblePic;
+    
+    SELF = nimblePic;
 })();
 
