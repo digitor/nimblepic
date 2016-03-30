@@ -95,7 +95,7 @@ if(isNonExact) {
 	isRangeDt = winW >= 992 && !isDt && !isWideDt;
 
 	if(!isRangeDt && !isWideDt && !isDt && !isTb && !isMb && !isNarrowMb)
-		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched. " + winW);
+		throw new Error("There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched." + winW);
 
 	describe("responsiveWidth with exact breakpoint values", function() {
 		beforeEach(clearAll);

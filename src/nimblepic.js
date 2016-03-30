@@ -54,8 +54,8 @@
      */
     function responsiveImage(type, srcSm, srcMd, sel, heightSm, heightMd, heightLg, clearExisting, customID, grad, throwWarning, addNoImgClass) {
         
-        var supportsGrad = Modernizr.cssgradients;
-        if ( typeof Modernizr === "undefined" || Modernizr.cssgradients === undefined) {
+        var supportsGrad = window.Modernizr && window.Modernizr.cssgradients;
+        if ( typeof window.Modernizr === "undefined" || !window.Modernizr || window.Modernizr.cssgradients === undefined) {
             if(!SELF.suppressWarnings)
                 console.warn("Utils.js", "responsiveImage", "'Modernizr.cssgradients' was not availale, which older browsers, such as ie9 need in order for this function to work properly.");
             supportsGrad = false;
