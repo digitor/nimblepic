@@ -16,6 +16,7 @@ You will need to have done an `npm install first` and have NodeJS installed.
 Place nimblepic.js (from "src" directory) at the bottom of the body element.
 Place nimblepic.css (get 'auto-prefixed' version from the "demos" directory) inside the head.
 
+
 ### Simplest usage
 Place span elements throughout your webpage using the class name "nimpic" and data attributes for mobile and tablet/desktop sizes, with optional heights, like so:
 ```html
@@ -46,13 +47,20 @@ If you wish load your images on a JS condition, you can add the attribute "data-
 #### Optional gradient attribute
 If you wish to use CSS gradients to overlay your images, you can use the attribute `data-grad` with a value that would normally be in your CSS. You cannot use inline CSS for this because the 'background-image' CSS property would override the nimblepic styles needed to show the image. Using the attribute, these styles will be added using CSS multiple background image properties. If you wish to use this feature you should use Modernizr with 'cssgradients', so that older browsers that don't support multiple background CSS don't break.
 
+
 ### Complex usage
+
+#### Change the default class name
 If you wish to use a different class name than the default "nimpic" on your image elements, call this function first `nimblePic.setDefaultImageClass("my-custom-class-name")`.
 It will return false if the class name was invalid and true if it was successfully applied.
-If you widh to reset to the default again, call `nimblePic.setDefaultImageClass(null, true)`.
+If you wish to reset to the default again, call `nimblePic.setDefaultImageClass(null, true)`.
+
+#### Params for "setImage"
+The default container element is the `document` element. You can change this, using a custom jQuery element as the 2nd param, like so `nimblePic.setImages($, $("#my-container"))`
 
 #### Custom jQuery instance
 If you need to pass in a specific instance of jQuery, that should be the first parameter `nimblePic.setImages($)`.
+
 
 ## Browser support
 - All modern browsers (desktop tested against Safari 9.1, Chrome 49, Firefox 44, IE Edge 25)
