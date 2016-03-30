@@ -2,7 +2,7 @@
 
 ## Description
 NimblePic is a JS library for loading different images for mobile and desktop. 
-Useful if you want different sized images or more compressed images for mobile, so save bandwidth.
+Useful if you want different sized images (or more compressed images) for mobile, to save bandwidth.
 Images are defined with data attributes directly on the markup.
 Also allows you to delay image load until a custom event is triggered.
 
@@ -76,13 +76,13 @@ If you need to pass in a specific instance of jQuery, that should be the first p
 ## Tests
 Tests are separated into unit tests and end to end tests. Unit tests do not require the browser (namely the window object). E2E tests have again been split; the standard e2e tests will only execute on a single desktop sized window; the "responsive" e2e tests will open up in many specifically sized browser windows (only opens in Chrome, as other browsers don't support the flag '--window-size'). The smallest (mobile) size in the responsive e2e tests will only open in Chrome in Windows 8 and higher, as Chrome on Mac OS and Windows 7 don't allow the window to go down to 320px width.
 
-### Hacks
+#### Hacks
 When using the flag '--window-size' in Chrome, the width also includes the outer pixels of the window, which includes scroll bars. Because the window size is a hardcoded value, the extra pixels needed to be hardcoded and this value differs on Windows 7, 8 and 10, so OS detection has been used. This will likely break tests in future versions of Windows, but I'll try and keep the library maintained to compensate for this. Please raise an issue on Github if you find the tests breaking due to warnings along the lines of "There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched".
 
-### Gotchas
+#### Gotchas
 - If you don't have all browsers installed the tests will hang. You need IE (if Windows), Safari (if Mac), Chrome and Firefox.
 
-### Tested environments
+#### Tested environments
 - Windows 7 VM running IE9, Chrome 49, Firefox 44
 - Windows 8.1 VM running IE11, Chrome 49, Firefox 44
 - Windows 10 running IE Edge, Chrome 49, Firefox 44
