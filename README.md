@@ -10,6 +10,50 @@ Also allows you to delay image load until a custom event is triggered.
 To view working demos, run `gulp webserver-for-dev` and in the browser navigate to "http://localhost:8080/demos/" and open the html files.
 You will need to have done an `npm install first` and have NodeJS installed.
 
+## Usage
+
+### Setup
+Place nimblepic.js (from "src" directory) at the bottom of the body element.
+Place nimblepic.css (get 'auto-prefixed' version from the "demos" directory) inside the head.
+
+### Simplest usage
+Place span elements throughout your webpage using the class name "nimpic" and data attributes for mobile and tablet/desktop sizes, with optional heights, like so:
+```html
+<span class="nimpic"
+        data-img-sm="img/example-1-35.jpg"
+        data-img-md="img/example-1-58.jpg"
+        data-height-sm="350"
+        data-height-md="400"
+        >
+      Alternative text
+  </span>
+```
+"Alternative text" should be replaced with text you would normally use on the 'alt' attribute of an <img> element.
+Then, with JS, call `nimblePic.setImages()` at the bottom of the page or when DOM has fully loaded (if using jQuery you can use `$(document).ready`). This ensures that all the images instances are picked up.
+
+#### Mandatory attributes
+The "data-img-sm" attribute should be an image path to your mobile optimised image.
+The "data-img-md" attribute should be an image path to your tablet/desktop optimised image.
+
+#### Optional height attributes
+The "data-height-sm" attribute should be the height that you want your image to be on mobile (window width below 768px).
+The "data-height-md" attribute should be the height that you want your image to be on tablet/desktop (window width 768px and above).
+You may also use the "data-img-lg" attribute if you require a different height for desktop (window width 992px and above).
+
+#### Optional delayed load attribute
+If you wish load your images on a JS condition, you can add the attribute "data-delay-image-load-event". The value of this attribute should be the name of an event, which you should trigger (using jQuery `$(document).trigger`) when you're ready for your images to load. You can use different events for every image, or the same event for all. The event will only be listened to once.
+
+#### Optional gradient attribute
+If you wish to use CSS gradients to overlay your images, you can use the attribute `data-grad` with a value that would normally be in your CSS. You cannot use inline CSS for this because the 'background-image' CSS property would override the nimblepic styles needed to show the image. Using the attribute, these styles will be added using CSS multiple background image properties. If you wish to use this feature you should use Modernizr with 'cssgradients', so that older browsers that don't support multiple background CSS don't break.
+
+### Complex usage
+If you wish to use a different class name than the default "nimpic" on your image elements, call this function first `nimblePic.setDefaultImageClass("my-custom-class-name")`.
+It will return false if the class name was invalid and true if it was successfully applied.
+If you widh to reset to the default again, call `nimblePic.setDefaultImageClass(null, true)`.
+
+#### Custom jQuery instance
+If you need to pass in a specific instance of jQuery, that should be the first parameter `nimblePic.setImages($)`.
+
 ## Browser support
 - All modern browsers (desktop tested against Safari 9.1, Chrome 49, Firefox 44, IE Edge 25)
 - IE9 and higher - older versions of IE don't support media query breakpoints and haven't been tested against

@@ -32,7 +32,7 @@
 
         ,createImgEl: function(id, cls, container) {
             var el = SELF.createEl(id, "span", cls, null, container);
-            el.classList.add("imgresp");
+            el.classList.add("nimpic");
             return el;
         }
 

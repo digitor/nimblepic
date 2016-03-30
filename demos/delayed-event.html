@@ -8,7 +8,7 @@
 
     <p class="p-sm">This example uses a delayed event. Also uses dynamic height, based on the image source file.</p>
     <span id="delayed-image-load"
-          class="imgresp"
+          class="nimpic"
           data-img-sm="img/example-1-35.jpg"
           data-img-md="img/example-1-58.jpg"
           data-delay-image-load-event="unique-event-name">
@@ -22,7 +22,7 @@
 
 
   <script>
-      nimblePic.setImages($);
+      nimblePic.setImages();
       setTimeout(function() {
           // trigger the delayed event (must be after DOM fully loaded)
           $(document).trigger($("#delayed-image-load").attr("data-delay-image-load-event"));

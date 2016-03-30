@@ -12,7 +12,7 @@ var createEl = window.testUtils.createEl
 
 function clearAll() {
 	$("[data-resp-styles]").remove();
-	$(".imgresp").remove();
+	$(".nimpic").remove();
 }
 
 describe("getDynamicHeight", function() {
@@ -164,11 +164,11 @@ describe("addLoader", function() {
 
 		// call and expect the loader element to have been added
 		fun($(el));
-		expect(el.querySelectorAll(".imgresp-ldr").length).toEqual(1);
+		expect(el.querySelectorAll(".nimpic-ldr").length).toEqual(1);
 
 		// now call it again, still only expect 1 loader element
 		fun($(el));
-		expect(el.querySelectorAll(".imgresp-ldr").length).toEqual(1);
+		expect(el.querySelectorAll(".nimpic-ldr").length).toEqual(1);
 		
 		cleanupElement(el);
 	});

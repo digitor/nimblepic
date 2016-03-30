@@ -44,7 +44,7 @@ function printBreakPoint() {
 
 function clearAll() {
 	$("[data-resp-styles]").remove();
-	$(".imgresp").remove();
+	$(".nimpic").remove();
 }
 
 //console.log("winW", winW, isNonExact);

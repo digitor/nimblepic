@@ -1,5 +1,5 @@
 
-.imgresp {
+.nimpic {
     position: relative;
     display: block;
     background-repeat: no-repeat;
@@ -17,7 +17,7 @@
 
 
 /* If JS is not active, shows the alt text */
-.no-js .imgresp {
+.no-js .nimpic {
     text-indent:0;
     text-align: center;
     padding-top: 90px;
@@ -25,23 +25,23 @@
 
 /* Start Loader */
 
-.imgresp.no-img .imgresp-ldr {
+.nimpic.no-img .nimpic-ldr {
 	opacity: 1 !important;
 }
 
 @media (max-width:767px) {
-	.imgresp.no-imgsm .imgresp-ldr {
+	.nimpic.no-imgsm .nimpic-ldr {
 		opacity: 1 !important;
 	}
 }
 
 @media (max-width:991px) {
-	.imgresp.no-imgmd .imgresp-ldr {
+	.nimpic.no-imgmd .nimpic-ldr {
 		opacity: 1 !important;
 	}
 }
 
-.imgresp-ldr {
+.nimpic-ldr {
 	transition: opacity 0.4s linear;
 
     position: absolute;
@@ -52,7 +52,7 @@
 }
 
 /* Need to add the CSS class 'is-gifldr' to root element if using a gif loader animation. */
-.imgresp.is-gifldr .imgresp-ldr {
+.nimpic.is-gifldr .nimpic-ldr {
 	background: no-repeat center;
 	background-color: #ccc;
 	background-size: 53px;
@@ -65,23 +65,23 @@
 
 
 /* loader vis state */
-.is-imgloaded .imgresp-ldr {
+.is-imgloaded .nimpic-ldr {
     opacity: 0;
     /*display: none;*/
 }	
-.is-imgloading .imgresp-ldr {
+.is-imgloading .nimpic-ldr {
     /*display: block;*/
 	opacity: 1;
 }
 
 
 /* background-image state for loader (if using a gif) */
-.imgresp-ldr {
+.nimpic-ldr {
 	background-image: url(/demos/img/placeholder-loader-1x.gif) !important;
 }
 
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) {
-	.imgresp-ldr {
+	.nimpic-ldr {
 		background-image: url(/demo/img/placeholder-loader-2x.gif);
 	}
 }

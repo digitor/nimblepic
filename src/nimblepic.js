@@ -4,7 +4,7 @@
 	var SELF
       , nimblePic
       , NS = "nimblePic"
-      , clsPrf = "imgresp"
+      , clsPrf = "nimpic"
       , defClsPrf = clsPrf
       , CLS_NO_IMG = "no-img"
       , D_CUR_IMG_SRC = "current-image-src"
