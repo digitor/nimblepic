@@ -555,21 +555,23 @@
          * @description Searches DOM to find the '$container' and child elements of 'customCls' (these can be omitted to use defaults), 
          *   then starts loading images and setting heights based on data attributes for different responsive breakpoints.
          *
-         * @param $ (jQuery global object) - Just a reference to the jQuery global object.
+         * @param $ (jQuery global object) optional - Just a reference to the jQuery global object.
          *
          * $container (jQuery element/null) optional - If supplied, only children images (spans) of this element will be affected. Omit this to default to $(document).
          *
-         * customCls (string/null) optional - If supplied, only image (span) elements will be affected. Omit this to use the default 'clsPrf' class. Only use the default
-         *   if you're calling this function once. Future calls should use custom classes, to avoid classes referencing the wrong images.
+         * customCls (string/null) optional - If supplied, only image (span) elements with this class name will be affected. Omit this to use the default 'clsPrf' class. Only use the default
+         *   if you're calling this function once. Future calls should use custom classes, to avoid styles referencing the wrong images.
          *
          * customStyleID (string) optional - If suppied, will use this id on the dynamic <style> elements created. Keep in mind that calls to the function will remove styles
          *   previously attached to this ID. So if you're calling this function more than once on a page, you should pass this property with a new unique ID each time.
          *
-         * parentCls (string) optional - Use this if you 'customCls' is not specific enough. Should be a class name of any parent element within the '$container'.
+         * parentCls (string) optional - Use this if your 'customCls' is not specific enough. Should be a class name of any parent element within the '$container'.
          *
          * loadedCB (function) optional - A callback when image has loaded. Useful when running tests.
          */
         , setImages: function ($, $container, customCls, customStyleID, parentCls, loadedCB) {
+
+            if(!$) $ = window.$;
 
             setClearImgStyles($);
 

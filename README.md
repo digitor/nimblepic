@@ -55,12 +55,13 @@ If you wish to use a different class name than the default "nimpic" on your imag
 It will return false if the class name was invalid and true if it was successfully applied.
 If you wish to reset to the default again, call `nimblePic.setDefaultImageClass(null, true)`.
 
-#### Params for "setImage"
-The default container element is the `document` element. You can change this, using a custom jQuery element as the 2nd param, like so `nimblePic.setImages($, $("#my-container"))`
-
-#### Custom jQuery instance
-If you need to pass in a specific instance of jQuery, that should be the first parameter `nimblePic.setImages($)`.
-
+#### Params for "setImages"
+- 1st "$": If you need to pass in a specific instance of jQuery, that should be the first parameter `nimblePic.setImages($)`. Leave off or pass null to just use global jQuery instance.
+- 2nd "$container": The default container element is the `document` element. You can change this, using a custom jQuery element as the 2nd param, like so `nimblePic.setImages($, $("#my-container"))`
+- 3rd "customCls": The default class name for images is "nimpic". You change this for each call to `setImages`, which is recommended if multiple calls are made. Only use the default if you're calling this function once. This will avoid overriding previously loaded images. This differs slightly from the method "setDefaultImageClass" in that the default class name will not change for future calls to "setImages", if just using this parameter.
+- 4th "customStyleID": If suppied, will use this id on the dynamic <style> elements created. Keep in mind that calls to the function will remove styles previously attached to this ID. So if you're calling this function more than once on a page, you should pass this property with a new unique ID each time.
+- 5th "parentCls": Use this if your "customCls" is not specific enough. Should be a class name of any parent element within the '$container'.
+- 6th "loadedCB": A callback when image has loaded. Useful when running tests.
 
 ## Browser support
 - All modern browsers (desktop tested against Safari 9.1, Chrome 49, Firefox 44, IE Edge 25)
@@ -75,6 +76,9 @@ If you need to pass in a specific instance of jQuery, that should be the first p
 
 ## Tests
 Tests are separated into unit tests and end to end tests. Unit tests do not require the browser (namely the window object). E2E tests have again been split; the standard e2e tests will only execute on a single desktop sized window; the "responsive" e2e tests will open up in many specifically sized browser windows (only opens in Chrome, as other browsers don't support the flag '--window-size'). The smallest (mobile) size in the responsive e2e tests will only open in Chrome in Windows 8 and higher, as Chrome on Mac OS and Windows 7 don't allow the window to go down to 320px width.
+
+#### Continuous Integration
+Travis CI will run the command `gulp` on each commit made to "master". Currently the responsive tests just run on Firefox on a single desktop window size, which is not optimal. In future Sauce Labs may be integrated to cover more browsers. Travis is detected by assuming that if you're running the Linux OS, you're running Travis.
 
 #### Hacks
 When using the flag '--window-size' in Chrome, the width also includes the outer pixels of the window, which includes scroll bars. Because the window size is a hardcoded value, the extra pixels needed to be hardcoded and this value differs on Windows 7, 8 and 10, so OS detection has been used. This will likely break tests in future versions of Windows, but I'll try and keep the library maintained to compensate for this. Please raise an issue on Github if you find the tests breaking due to warnings along the lines of "There must be a problem with the window sizes set in karma-responsive.conf.js for exact breakpoint values, as none of the expected values matched".
