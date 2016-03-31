@@ -8,13 +8,13 @@ Also allows you to delay image load until a custom event is triggered.
 
 ## Demos
 To view working demos, run `gulp webserver-for-dev` and in the browser navigate to "http://localhost:8080/demos/" and open the html files.
-You will need to have done an `npm install first` and have NodeJS installed.
+You will need to have done an `npm install` first and have NodeJS installed.
 
 ## Usage
 
 ### Setup
-Place nimblepic.js (from "src" directory) at the bottom of the body element.
-Place nimblepic.css (get 'auto-prefixed' version from the "demos" directory) inside the head.
+- Place nimblepic.js (from "src" directory) at the bottom of the body element.
+- Place nimblepic.css (get 'auto-prefixed' version from the "demos" directory) inside the head.
 
 
 ### Simplest usage
@@ -33,13 +33,13 @@ Place span elements throughout your webpage using the class name "nimpic" and da
 Then, with JS, call `nimblePic.setImages()` at the bottom of the page or when DOM has fully loaded (if using jQuery you can use `$(document).ready`). This ensures that all the images instances are picked up.
 
 #### Mandatory attributes
-The "data-img-sm" attribute should be an image path to your mobile optimised image.
-The "data-img-md" attribute should be an image path to your tablet/desktop optimised image.
+- The "data-img-sm" attribute should be an image path to your mobile optimised image.
+- The "data-img-md" attribute should be an image path to your tablet/desktop optimised image.
 
 #### Optional height attributes
-The "data-height-sm" attribute should be the height that you want your image to be on mobile (window width below 768px).
-The "data-height-md" attribute should be the height that you want your image to be on tablet/desktop (window width 768px and above).
-You may also use the "data-img-lg" attribute if you require a different height for desktop (window width 992px and above).
+- The "data-height-sm" attribute should be the height that you want your image to be on mobile (window width below 768px).
+- The "data-height-md" attribute should be the height that you want your image to be on tablet/desktop (window width 768px and above).
+- You may also use the "data-img-lg" attribute if you require a different height for desktop (window width 992px and above).
 
 #### Optional delayed load attribute
 If you wish load your images on a JS condition, you can add the attribute "data-delay-image-load-event". The value of this attribute should be the name of an event, which you should trigger (using jQuery `$(document).trigger`) when you're ready for your images to load. You can use different events for every image, or the same event for all. The event will only be listened to once.
