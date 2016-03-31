@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "5"
 script: gulp
-before_script: # loads gulp-cli and starts Firefox at desktop size
+before_script: 
   - npm install -g gulp-cli
   - export DISPLAY=:99.0
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1600x1024x16"
