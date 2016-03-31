@@ -2,10 +2,16 @@ var os = require("os")
 
 module.exports = function(config) {
 
-  var isWin = os.platform() === "win32" // checks if you're on Windows (tested on Windows 10, 8.1 & 7)
+  var platform = os.platform()
+    , isWin = platform === "win32" // checks if you're on Windows (tested on Windows 10, 8.1 & 7)
+    , isTravis = platform === "linux" // Tests assume that, if linux is the platform, you are running travis-ci, so only opens in Firefox.
+
+  var browsers = ["Firefox"];
+
+  if(!isTravis) browsers.push('Chrome', (isWin ? 'IE' : "Safari"));
 
   config.set({
-  	browsers: ['Chrome', 'Firefox', (isWin ? 'IE' : "Safari")],
+  	browsers: browsers,
     frameworks: ['jasmine'],
     files: [
       'node_modules/jquery/dist/jquery.min.js',

@@ -82,6 +82,9 @@ When using the flag '--window-size' in Chrome, the width also includes the outer
 #### Gotchas
 - If you don't have all browsers installed the tests will hang. You need IE (if Windows), Safari (if Mac), Chrome and Firefox.
 
+#### Linux assumption
+Tests assume that, if linux is the platform, you are running travis-ci, so only opens in Firefox.
+
 #### Tested environments
 - Windows 7 VM running IE9, Chrome 49, Firefox 44
 - Windows 8.1 VM running IE11, Chrome 49, Firefox 44

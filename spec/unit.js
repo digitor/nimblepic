@@ -1,9 +1,5 @@
 var nimblePic = require("./../src/nimblepic")
 
-var os = require("os")
-
-console.log("os", os.platform());
-
 describe("getUID", function() {
 	
 	var fun = nimblePic.testable.getUID

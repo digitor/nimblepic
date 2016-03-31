@@ -1,7 +1,7 @@
 language: node_js
 node_js:
   - "5"
-script: gulp unit-tests
+script: gulp tests-just-e2e
 before_script:
   - npm install -g gulp-cli
   - export DISPLAY=:99.0
