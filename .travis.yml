@@ -2,7 +2,6 @@ language: node_js
 node_js:
   - "5"
 script: gulp unit-tests
-# Loads gulp and starts Firefox
 before_script:
   - npm install -g gulp-cli
   - export DISPLAY=:99.0
