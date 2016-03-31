@@ -1,4 +1,4 @@
-var nimblePic = require("./../src/nimblePic")
+var nimblePic = require("./../src/nimblepic")
 
 describe("getUID", function() {
 	
