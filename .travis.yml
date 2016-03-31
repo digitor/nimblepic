@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "5.4.1"
+  - "5.4"
 script: node_modules/karma/bin/karma start karma-experiment.conf.js --single-run
 before_install:
     - export DISPLAY=:99.0
