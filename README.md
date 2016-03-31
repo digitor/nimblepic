@@ -59,7 +59,7 @@ If you wish to reset to the default again, call `nimblePic.setDefaultImageClass(
 - 1st "$": If you need to pass in a specific instance of jQuery, that should be the first parameter `nimblePic.setImages($)`. Leave off or pass null to just use global jQuery instance.
 - 2nd "$container": The default container element is the `document` element. You can change this, using a custom jQuery element as the 2nd param, like so `nimblePic.setImages($, $("#my-container"))`
 - 3rd "customCls": The default class name for images is "nimpic". You change this for each call to `setImages`, which is recommended if multiple calls are made. Only use the default if you're calling this function once. This will avoid overriding previously loaded images. This differs slightly from the method "setDefaultImageClass" in that the default class name will not change for future calls to "setImages", if just using this parameter.
-- 4th "customStyleID": If suppied, will use this id on the dynamic <style> elements created. Keep in mind that calls to the function will remove styles previously attached to this ID. So if you're calling this function more than once on a page, you should pass this property with a new unique ID each time.
+- 4th "customStyleID": If suppied, will use this id on the dynamic &lt;style&gt; elements created. Keep in mind that calls to the function will remove styles previously attached to this ID. So if you're calling this function more than once on a page, you should pass this property with a new unique ID each time.
 - 5th "parentCls": Use this if your "customCls" is not specific enough. Should be a class name of any parent element within the '$container'.
 - 6th "loadedCB": A callback when image has loaded. Useful when running tests.
 
