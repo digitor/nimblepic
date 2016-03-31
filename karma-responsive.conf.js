@@ -2,26 +2,27 @@ var os = require("os")
 
 module.exports = function(config) {
 
-  var isWin = os.platform() === "win32" // checks if you're on Windows (tested on Windows 10, 8.1 & 7)
+  var platform = os.platform()
+    , isWin = platform === "win32" // checks if you're on Windows (tested on Windows 10, 8.1 & 7)
+    , isTravis = platform === "linux" // Tests assume that, if linux is the platform, you are running travis-ci, so only opens in Firefox.
     , isWin7 = isWin && os.release().indexOf("6.1.") === 0
     , isWin81 = isWin && os.release().indexOf("6.3.") === 0
-    , browsers = [
-         // Only Chrome can resize browser
-        'Firefox'
-        ,
-        (isWin ? 'IE' : "Safari")
+    , browsers = ["Firefox"] // FF runs on Travis without any additional tools needed
 
-        // Chrome non-exact values
-        ,
-        'CHNarrowMobileNonEx', 'CHMobileNonEx', 'CHTabletNonEx', 'CHDesktopNonEx'
-      ]
+  if(!isTravis) {
+    // if not running on Travis, add other browsers
+    browsers.push(isWin ? 'IE' : "Safari");
 
-  // Mac Chrome window can only scale down to 400px width, so can't add this test for mac
-  // Windows 7 window can only scale down to 338px width, so can't add this test for windows 7
-  if(isWin && !isWin7) browsers.push('CHNarrowMobileEx')
-
-  // Other exact value chrome tests
-  browsers.push('CHMobileEx', 'CHTabletEx', 'CHDesktopEx', 'CHDesktopWideEx')
+    // Chrome non-exact values
+    browsers.push('CHNarrowMobileNonEx', 'CHMobileNonEx', 'CHTabletNonEx', 'CHDesktopNonEx');
+    
+    // Mac Chrome window can only scale down to 400px width, so can't add this test for mac
+    // Windows 7 window can only scale down to 338px width, so can't add this test for windows 7
+    if(isWin && !isWin7) browsers.push('CHNarrowMobileEx')
+    
+    // Other exact value chrome tests
+    browsers.push('CHMobileEx', 'CHTabletEx', 'CHDesktopEx', 'CHDesktopWideEx')
+  }
 
   // Chrome on windows needs this to compensate for scroll bars, but Mac doesn't, as sroll bars overlay content and have no width
   var chScrollBarW = 0;
