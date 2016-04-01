@@ -1,5 +1,8 @@
 # NimblePic
 
+## IMPORTANT
+Library still in development - please do not use it yet
+
 ## Description
 NimblePic is a JS library for loading different images for mobile and desktop. 
 Useful if you want different sized images (or more compressed images) for mobile, to save bandwidth.
