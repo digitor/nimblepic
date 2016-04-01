@@ -658,7 +658,7 @@
 
                     if (prp.srcSm && prp.srcSm !== "" && prp.srcSm === prp.srcMd) {
                         if(!SELF.suppressWarnings)
-                            console.warn(NS, "setImages()", "'srcSm' and 'srcMd' must not be the same url! Placeholder image will be used.", prp.srcSm);
+                            console.warn(NS, "setImages()", "'srcSm' and 'srcMd' should not be the same url! Kind of defeats the purpose of using NimblePic.", prp.srcSm);
                     }
 
 
