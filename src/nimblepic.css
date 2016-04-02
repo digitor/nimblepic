@@ -16,6 +16,7 @@
 }
 
 
+
 /* If JS is not active, shows the alt text */
 .no-js .nimpic {
     text-indent:0;
@@ -82,14 +83,16 @@
 
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) {
 	.nimpic-ldr {
-		background-image: url(/demo/img/placeholder-loader-2x.gif);
+		background-image: url(/demo/img/placeholder-loader-2x.gif) !important;
 	}
 }
 
 /* End Loader */
 
 
-/* Start CSS loader animation */
+/* Start CSS loader animation. You can use this by using data-loader="ldrsimple" attribute. */
+
+
 @keyframes loader-simple{
   0% {
     transform: rotate(0deg);
@@ -99,7 +102,7 @@
   }
 }
 
-.rasldrsimple {
+.ldrsimple {
     display: block;
     font-size: 10px;
     position: relative;
@@ -107,16 +110,22 @@
     overflow: hidden;
     transform: translateZ(0);
 
-    border-top: 4px solid rgba(#ccc, 0.2);
-    border-right: 4px solid rgba(#ccc, 0.2);
-    border-bottom: 4px solid rgba(#ccc, 0.2);
-    border-left: 4px solid #ccc;
+    border-top: 4px solid rgba(#666, 0.2);
+    border-right: 4px solid rgba(#666, 0.2);
+    border-bottom: 4px solid rgba(#666, 0.2);
+    border-left: 4px solid #666;
+
+    background-image: none !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -15px 0 0 -15px;
 }
-.rasldrsimple.is-loading {
+.is-imgloading > .ldrsimple, .no-img > .ldrsimple {
 	animation: loader-simple 1.1s infinite linear;
 }
-.rasldrsimple,
-.rasldrsimple:after {
+.ldrsimple,
+.ldrsimple:after {
   border-radius: 50%;
   width: 31px;
   height: 31px;

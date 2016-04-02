@@ -1,8 +1,5 @@
 # NimblePic
 
-## IMPORTANT
-Library still in development - please do not use it yet
-
 ## Description
 NimblePic is a JS library for loading different images for mobile and desktop. 
 Useful if you want different sized images (or more compressed images) for mobile, to save bandwidth.
@@ -16,8 +13,8 @@ You will need to have done an `npm install` first and have NodeJS installed.
 ## Usage
 
 ### Setup
-- Place nimblepic.js (from "src" directory) at the bottom of the body element.
-- Place nimblepic.css (get 'auto-prefixed' version from the "demos" directory) inside the head.
+- Place "src/nimblepic.js" or "dist/nimblepic.min.js" at the bottom of the body element.
+- Place nimblepic.css (get 'auto-prefixed' version from the "dist" directory) inside the head.
 
 
 ### Simplest usage
@@ -50,6 +47,8 @@ If you wish load your images on a JS condition, you can add the attribute "data-
 #### Optional gradient attribute
 If you wish to use CSS gradients to overlay your images, you can use the attribute `data-grad` with a value that would normally be in your CSS. You cannot use inline CSS for this because the 'background-image' CSS property would override the nimblepic styles needed to show the image. Using the attribute, these styles will be added using CSS multiple background image properties. If you wish to use this feature you should use Modernizr with 'cssgradients', so that older browsers that don't support multiple background CSS don't break.
 
+#### Optional loader attribute
+If you wish to add an additional class to add to the loader, for customisation purposes, use 'data-loader' with the value as the CSS class name.
 
 ### Complex usage
 
@@ -65,6 +64,12 @@ If you wish to reset to the default again, call `nimblePic.setDefaultImageClass(
 - 4th "customStyleID": If suppied, will use this id on the dynamic &lt;style&gt; elements created. Keep in mind that calls to the function will remove styles previously attached to this ID. So if you're calling this function more than once on a page, you should pass this property with a new unique ID each time.
 - 5th "parentCls": Use this if your "customCls" is not specific enough. Should be a class name of any parent element within the '$container'.
 - 6th "loadedCB": A callback when image has loaded. Useful when running tests.
+
+
+## Notes on CSS
+- CSS doesn't include vendor prefixes because Auto-prefixer gulp task takes care of them.
+- Sass/Less not included, as you are encouraged to modify these styles to your needs. Please copy them into your project somewhere and remove the things you don't need, such as the gif loader, if you're just using the CSS one, or an entirely different one altogether.
+
 
 ## Browser support
 - All modern browsers (desktop tested against Safari 9.1, Chrome 49, Firefox 44, IE Edge 25)

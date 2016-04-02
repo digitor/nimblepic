@@ -16,7 +16,7 @@ module.exports = function(config) {
     files: [
       'node_modules/jquery/dist/jquery.min.js',
       'src/lib/*.js',
-      'demos/css/*.css',
+      'dist/*.css',
       'src/*.js',
       'spec/test-utils.js',
       'spec/e2e.js'

@@ -9,6 +9,8 @@ var gulp = require('gulp')
   , Server = require('karma').Server
   , runSequence = require('run-sequence')
   , os = require("os")
+  , uglify = require('gulp-uglify')
+  , rename = require('gulp-rename')
 
 var webserverStream
   , forceKill = false
@@ -33,9 +35,18 @@ gulp.task("vendor-prefix", function() {
 	    , '> 2% in AU'
 	]
 
-	return gulp.src("./src/nimblepic.css")
+	return gulp.src("src/nimblepic.css")
 		.pipe(autoprefixer({browsers: autoPrefixerBrowsers}))
-		.pipe(gulp.dest("./demos/css"));
+		.pipe(gulp.dest("dist"));
+});
+
+gulp.task('minjs', function() {
+  return gulp.src('src/nimblepic.js')
+    .pipe(uglify({
+    	mangle: false
+    }))
+    .pipe(rename('nimblepic.min.js'))
+    .pipe(gulp.dest('dist/'));
 });
 
 gulp.task('lint', function () {
@@ -128,5 +139,5 @@ gulp.task('e2e-tests-responsive', function (done) {
 });
 
 gulp.task('default', function(done) {
-	runSequence('vendor-prefix', 'test', done)
+	runSequence('vendor-prefix', 'minjs', 'test', done)
 })

@@ -2,13 +2,14 @@
 <html class="no-js">
 <head>
 	<title>Example w</title>
-  <link rel="stylesheet" href="/demos/css/nimblepic.css">
+  <link rel="stylesheet" href="/dist/nimblepic.css">
 </head>
 <body>
 
-	<p class="p-sm">This is an example of a missing image,. Should just show loader graphic.</p>
+	<p class="p-sm">This is an example of a missing image with a custom loader class defined on the data attribute 'data-loader'. Should just show loader graphic.</p>
   
-  <span class="nimpic">
+  <span class="nimpic"
+      data-loader="ldrsimple">
       Alternative text
   </span>
 

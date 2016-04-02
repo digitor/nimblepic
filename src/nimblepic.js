@@ -354,10 +354,16 @@
         // if in process of loading or pending an event to be triggered, do nothing
         if (img.classList.contains(CLS_IS_IMG_LOADING)) return true;
 
+        var customCls = img.getAttribute("data-loader");
+
         var ldrEl;
         if (!img.querySelector("."+ldrCls)) {
             ldrEl = document.createElement("span");
             ldrEl.classList.add(ldrCls);
+
+            // Adds an additional class to add to the loader, for customisation purposes.
+            if(customCls) ldrEl.classList.add(customCls);
+            
             img.appendChild(ldrEl);
         }
 

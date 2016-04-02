@@ -404,6 +404,8 @@ describe("responsiveImage", function() {
 			fun(null, srcSm, srcMd, "."+cls, null, heightLg);
 			createImgEl(id, cls);
 
+			console.log( $("#nimpic-src-styles")[0] );
+
 			expect(document.getElementById(id).offsetHeight).toEqual(heightLg);
 
 			cleanupElement(id);
