@@ -6,11 +6,22 @@
 </head>
 <body>
 
-    <p class="p-sm">This example uses a delayed event. Also uses dynamic height, based on the image source file.</p>
-    <span id="delayed-image-load"
-          class="nimpic"
+    <p class="p-sm">This example uses a delayed event for the second image. Also uses fixed height for the 1st image and dynamic height (based on the image source file) for the 2nd image.</p>
+
+
+    <span class="nimpic"
           data-img-sm="img/example-1-35.jpg"
           data-img-md="img/example-1-58.jpg"
+          data-height-sm="350"
+          data-height-md="400"
+          ><!-- normal image -->
+        Alternative text
+    </span>
+
+    <span id="delayed-image-load"
+          class="nimpic"
+          data-img-sm="img/example-2-35.jpg"
+          data-img-md="img/example-2-58.jpg"
           data-delay-image-load-event="unique-event-name">
         Alternative text
     </span>

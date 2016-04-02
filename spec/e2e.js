@@ -197,15 +197,15 @@ describe("setCustomEventHandler", function() {
 		
 		var customEvent = getUID("custom-event-1")
 		  , cb = function() {
-		  		// testing arguments match the sequence passed as 'setCustomEventHandler' params
+		  		// testing arguments match the sequence passed as 'setCustomEventHandler' params (except for 9, which will always be true)
 		  		for(var i=0; i<arguments.length; i++) {
-		  			expect(arguments[i]).toEqual(i);
+		  			expect(arguments[i]).toEqual(i === 9 ? true : i);
 		  		}
 		  	done();
 		  }
 
-		// We're just checking that the 8 params get passed using a sequence - their type doesn't really matter for this test
-		fun(customEvent, cb, 0, 1,2,3,4,5,6,7,8,9);
+		// We're just checking that params get passed using a sequence - their type doesn't really matter for this test
+		fun(customEvent, cb, 0, 1,2,3,4,5,6,7,8);
 
 		// Last argument will be the callback passed to the event, so we make that sequential too
 		$doc.trigger(customEvent, {cb:10});
@@ -218,6 +218,7 @@ describe("setCustomEventHandler", function() {
 		  , cb = function() {
 		  		// testing arguments match expected params
 		  		for(var i=0; i<arguments.length; i++) {
+		  			//console.log(arguments[i], " -- ", paramsToTest[i])
 		  			expect(arguments[i]).toEqual(paramsToTest[i]);
 		  		}
 		  	done();
@@ -233,8 +234,8 @@ describe("setCustomEventHandler", function() {
 		img.setAttribute("data-img-sm", PATH_1);
 		img.setAttribute("data-img-md", PATH_2);
 
-		// passing null for srcSm and srcMd, so they can be overridden in event dispatch
-		paramsToTest = [$(img),null,null,3,4,5,6,7,8,9];
+		// passing null for srcSm and srcMd, so they can be overridden in event dispatch. 9 will always be true.
+		paramsToTest = [$(img),null,null,3,4,5,6,7,8,true];
 
 		fun.apply(this, [customEvent, cb].concat(paramsToTest) );
 

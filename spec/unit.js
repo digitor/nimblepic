@@ -47,7 +47,7 @@ describe("getCustomStyleId", function() {
 	})
 
 	it("should should contain default id prefix if 'invalidSrc' is truthy, but 'customStyleID' is falsy", function() {
-		expect(fun(null, true)).toContain("nimblepic-styles-");
+		expect(fun(null, true)).toContain(nimblePic.vars.DEF_SRC_STYLE_ID+"-");
 	})
 
 	it("should should contain custom id prefix (from 'customStyleID') if 'invalidSrc' is truthy", function() {

@@ -305,7 +305,7 @@ describe("responsiveImage", function() {
 	var fun = window.nimblePic.testable.responsiveImage
 	  , srcSm = "/demos/img/example-1-35.jpg"
 	  , srcMd = "/demos/img/example-1-58.jpg"
-	  , defId = "nimblepic-styles";
+	  , defId = window.nimblePic.vars.DEF_SRC_STYLE_ID
 
 	function bgImgExp(id, src, customID) {
 		
@@ -662,32 +662,54 @@ describe("setImages", function() {
 	})
 
 	describe("multiple images", function() {
-		var srcSm1 = "/demos/img/example-1-35.jpg"
-		  , srcMd1 = "/demos/img/example-1-58.jpg"
-		  , srcSm2 = "/demos/img/example-2-35.jpg"
-		  , srcMd2 = "/demos/img/example-2-58.jpg"
-		  , srcSm3 = "/demos/img/example-3-35.jpg"
-		  , srcMd3 = "/demos/img/example-3-58.jpg"
-		  , srcSm4 = "/demos/img/example-4-35.jpg"
-		  , srcMd4 = "/demos/img/example-4-58.jpg"
+		var src = {
+			sm1: "/demos/img/example-1-35.jpg"
+		  , md1: "/demos/img/example-1-58.jpg"
+		  , sm2: "/demos/img/example-2-35.jpg"
+		  , md2: "/demos/img/example-2-58.jpg"
+		  , sm3: "/demos/img/example-3-35.jpg"
+		  , md3: "/demos/img/example-3-58.jpg"
+		  , sm4: "/demos/img/example-4-35.jpg"
+		  , md4: "/demos/img/example-4-58.jpg"
+		}
 
 
 		function setMultiImgAttr(img, srcNum) {
 
 			if(srcNum === 1) {
-				img.setAttribute("data-img-sm", srcSm1);
-				img.setAttribute("data-img-md", srcMd1);
+				img.setAttribute("data-img-sm", src.sm1);
+				img.setAttribute("data-img-md", src.md1);
 			} else if(srcNum === 2) {
-				img.setAttribute("data-img-sm", srcSm2);
-				img.setAttribute("data-img-md", srcMd2);
+				img.setAttribute("data-img-sm", src.sm2);
+				img.setAttribute("data-img-md", src.md2);
 			} else if(srcNum === 3) {
-				img.setAttribute("data-img-sm", srcSm3);
-				img.setAttribute("data-img-md", srcMd3);
+				img.setAttribute("data-img-sm", src.sm3);
+				img.setAttribute("data-img-md", src.md3);
 			} else if(srcNum === 4) {
-				img.setAttribute("data-img-sm", srcSm4);
-				img.setAttribute("data-img-md", srcMd4);
+				img.setAttribute("data-img-sm", src.sm4);
+				img.setAttribute("data-img-md", src.md4);
 			}
 		}
+
+		function checkMultiImgStylesExist(styleId, images, count) {
+			
+			// must wait until all images are loaded before checking contents
+			var styleEl = document.getElementById(styleId).innerHTML;
+			//console.log("styleEl", styleEl);
+
+			for(var i = 1; i <= count; i++) {
+
+				// checks that all mobile styles exist in group
+				expect(styleEl).toContain(src["sm"+i]);
+
+				// checks that all desktop styles exist in group
+				expect(styleEl).toContain(src["md"+i]);
+
+				cleanupElement(images["img"+i]);
+			}
+		}
+
+
 
 		it("should check 'isSuccess' argument in 'loadedCB' are working for success on 4 different images - " + printBreakPoint(), function(done) {
 			var loadedCount = 0;
@@ -731,8 +753,8 @@ describe("setImages", function() {
 			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
 				if(img === sucImg) {
 					expect(isSuccess).toBe(true);
-					if(isTb || isDt || isWideDt || isRangeDt) 	expect(url).toBe(srcMd1);
-					else 										expect(url).toBe(srcSm1);
+					if(isTb || isDt || isWideDt || isRangeDt) 	expect(url).toBe(src.md1);
+					else 										expect(url).toBe(src.sm1);
 				} else if(img === errImg) {
 					expect(isSuccess).toBe(false);
 					if(isTb || isDt || isWideDt || isRangeDt) 	expect(url).toBe(nonEx2);
@@ -770,9 +792,8 @@ describe("setImages", function() {
 		})
 
 
-		it("should show that images within the same group (using 'data-img-group') get there own style element and ID based on the group name", function(done) {
+		it("should show that multiple image styles get included in same style, using the default style id", function(done) {
 			var loadedCount = 0
-			  , groupName = "example-group";
 
 			var images = {
 				  img1: createImgEl()
@@ -786,34 +807,84 @@ describe("setImages", function() {
 			setMultiImgAttr(images.img3, 3);
 			setMultiImgAttr(images.img4, 4);
 
-			images.img1.setAttribute('data-img-group', groupName);
-			images.img2.setAttribute('data-img-group', groupName);
-			images.img3.setAttribute('data-img-group', groupName);
-			images.img4.setAttribute('data-img-group', groupName);
-
 			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
-
-				cleanupElement(img);
 
 				loadedCount++;
 				if(loadedCount === 4)  {
+					checkMultiImgStylesExist(window.nimblePic.vars.DEF_SRC_STYLE_ID, images, 4);
+					done();
+				}
+			})
+		})
 
-					// must wait until all images are loaded before checking contents
-					var groupEl = document.getElementById(groupName).innerHTML;
-					//console.log("groupEl", groupEl);
 
-					// checks that all mobile styles exist in group
-					expect(groupEl).toContain(srcSm1);
-					expect(groupEl).toContain(srcSm2);
-					expect(groupEl).toContain(srcSm3);
-					expect(groupEl).toContain(srcSm4);
+		it("should show that images within the same group (using 'data-img-group') get there own style element and ID based on the group name and that default image styles are not affected.", function(done) {
+			var loadedCount = 0
+			  , groupName = "example-group";
 
-					// checks that all desktop styles exist in group
-					expect(groupEl).toContain(srcMd1);
-					expect(groupEl).toContain(srcMd2);
-					expect(groupEl).toContain(srcMd3);
-					expect(groupEl).toContain(srcMd4);
+			var groupImg = {
+				  img1: createImgEl()
+				, img2: createImgEl()
+			}
+
+			var normalImg = {
+				  img1: createImgEl()
+				, img2: createImgEl()
+			}
+
+			// sets group image attributes
+			setMultiImgAttr(groupImg.img1, 1);
+			setMultiImgAttr(groupImg.img2, 2);
+
+			// sets normal image attributes
+			setMultiImgAttr(normalImg.img1, 1);
+			setMultiImgAttr(normalImg.img2, 2);
+
+			// adds group attribute to group images only
+			groupImg.img1.setAttribute('data-img-group', groupName);
+			groupImg.img2.setAttribute('data-img-group', groupName);
+
+			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+
+				loadedCount++;
+				if(loadedCount === 4)  {
+					// checks group image styles exist
+					checkMultiImgStylesExist(groupName, groupImg, 2);
+
+					// checks normal image styles exist
+					checkMultiImgStylesExist(window.nimblePic.vars.DEF_SRC_STYLE_ID, normalImg, 2);
+					done();
+				}
+			})
+		})
+
+		it("should show that images within delayed events (using 'data-delay-image-load-event') get there own style element and ID based on the event name and that default image styles are not affected.", function(done) {
+			
+			var uniqueEventName = "example-event";
+
+			var dynEvtImg = createImgEl();
+			setImgAttr(dynEvtImg);
+			
+			// adds delayed event attribute
+			dynEvtImg.setAttribute('data-delay-image-load-event', uniqueEventName);
+
+			var normalImg = createImgEl();
+			setImgAttr(normalImg);
+
+
+			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
+
+				// once normal image loaded, triggers event to load other image
+				if(normalImg === img) {
+
+					setTimeout(function() {
+						$doc.trigger(uniqueEventName);
+					}, 500);
 					
+				} else { // once dynamic event image has loaded uses 'checkMultiImgStylesExist' to check a single image, rather than a list, but logic is the same
+
+					checkMultiImgStylesExist(uniqueEventName, {img1:dynEvtImg}, 1);
+					checkMultiImgStylesExist(window.nimblePic.vars.DEF_SRC_STYLE_ID, {img1:normalImg}, 1);
 					done();
 				}
 			})

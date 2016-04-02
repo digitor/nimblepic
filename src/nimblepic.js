@@ -4,6 +4,8 @@
 	var SELF
       , nimblePic
       , NS = "nimblePic"
+      , DEF_SRC_STYLE_ID = "nimpic-src-styles"
+      , DEF_H_STYLE_ID = "nimpic-h-styles"
       , clsPrf = "nimpic"
       , defClsPrf = clsPrf
       , CLS_NO_IMG = "no-img"
@@ -63,7 +65,7 @@
 
         if (!supportsGrad) grad = null;
 
-        var css, id = customID || "nimblepic-styles";
+        var css, id = customID || DEF_SRC_STYLE_ID;
 
         if( !type || type === "viewport" ) {
 
@@ -131,7 +133,7 @@
      */
     function responsiveHeight(justClear, customID, sel, heightSm, heightMd, heightLg, clearExisting, throwWarning, addNoImgClass) {
 
-        var id = customID || "nimblepic-styles";
+        var id = customID || DEF_H_STYLE_ID;
 
         if (justClear || clearExisting) {
             clearExistingStyles(sel, id, throwWarning, addNoImgClass);
@@ -394,7 +396,7 @@
         if (customEvent) return customEvent;
         if (group)       return group;
 
-        return invalidSrc ? (customStyleID ? customStyleID + "-" + uid : 'nimblepic-styles-' + uid) : (customStyleID || null);
+        return invalidSrc ? (customStyleID ? customStyleID + "-" + uid : DEF_SRC_STYLE_ID+'-' + uid) : (customStyleID || null);
     }
 
     /**
@@ -474,14 +476,14 @@
         return false;
     }
 
-    function setCustomEventHandler(customEvent, cb, $img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, group) {
+    function setCustomEventHandler(customEvent, cb, $img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId) {
         $(document).one(customEvent, function (evt, data) {
 
             if (data && data.refresh) {
                 srcSm = $img.attr("data-img-sm");
                 srcMd = $img.attr("data-img-md");
             }
-            cb($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, group, data ? data.cb : null);
+            cb($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, true, data ? data.cb : null);
         });
     }
 
@@ -575,12 +577,12 @@
 
             setClearImgStyles($);
 
-            var doClearImg = true
-              , doClearEl = true
+            var clearExistingSrc = true // tells library to clear existing style element by id for images
+              , clearExistingHeights = true // tells library to clear existing style element by id for heights
               , UID = getUID()
               , delayedImageEls = []
 
-            var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, group, cb) {
+            var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, isGroupOrEvent, cb) {
 
                 // stops late events from interfering
                 if (uid !== UID) return;
@@ -599,18 +601,21 @@
                       , hMedium = hMd || nativeHeight
                       , hLarge = hLg // large is optional, so should not fall back to native height
                       , throwWarning = false // don't throw warning because 'responsiveHeight' has already set the style id
-                      , clearStyles = group ? false : true // we must clear out the styles set earlier by 'responsiveHeight'.
+                      , clearStyles = isGroupOrEvent ? false : clearExistingSrc // If not a group or event, should clear out previous images of same ID
                       , addNoImgClass = false; // this already happens in 'responsiveHeight' so don't want to do it again
 
                     setLoadingStates($img[0], "loaded");
+
+                    if(!isGroupOrEvent) {
+                        // This tells library that the first image loaded will clear existing styles associated with this styleId, which are specifically for image sources
+                        clearExistingSrc = false;
+                    }
 
                     if (isSuccess) {
                         var grad = $img.attr("data-grad") || null;
                         responsiveImage(null, srcSm, srcMd, specificSel, hSmall, hMedium, hLarge, clearStyles, styleId, grad, throwWarning, addNoImgClass);
                         $img.removeClass(CLS_NO_IMG);
                     } else {
-                        // if image failed to load, still add it's heights to the styles id for this group
-                        responsiveHeight(false, styleId, specificSel, hSm, hMd, hLg, clearStyles, throwWarning, addNoImgClass);
                         $img.addClass(CLS_NO_IMG);
                     }
 
@@ -668,10 +673,15 @@
 
                     specificSel = setUniqueImgClass(specificSel, $img[0], i, prp.group, prp.customEvent);
                     
-                    responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, doClearEl, true, true);
+                    // adds styles for heights before images load so that they appear the intended height while loading
+                    responsiveHeight(false, styleId, specificSel, prp.hSm, prp.hMd, prp.hLg, clearExistingHeights, true, true);
 
-                    // This means that the first item in the loop will clear existing styles associated with this styleId
-                    doClearImg = false;
+                        
+                    /**
+                     * This tells library that the first item in the loop will clear existing styles associated with this styleId, which are specifically for heights, but only if not part of a group or event, 
+                     * as they a treated as as unique entities.
+                     */
+                    if(!prp.group && !prp.customEvent) clearExistingHeights = false;
 
                     invalidSrc = isInvalidResponsiveSrc($img, prp.srcSm, prp.srcMd);
                     if (invalidSrc) return;
@@ -680,9 +690,9 @@
                    
 
                     if (prp.customEvent) {
-                        setCustomEventHandler(prp.customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, prp.group);
+                        setCustomEventHandler(prp.customEvent, startLoading, $img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId);
                     } else {
-                        startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, prp.group, null);
+                        startLoading($img, prp.srcSm, prp.srcMd, specificSel, prp.hSm, prp.hMd, prp.hLg, UID, styleId, !!prp.group, null);
                     }
                 
                 });
@@ -709,11 +719,23 @@
             , setUniqueImgClass: setUniqueImgClass
             , clearExistingStyles: clearExistingStyles
         }
+
+        // maybe useful variables
+        , vars: {
+            NS: NS
+          , DEF_SRC_STYLE_ID: DEF_SRC_STYLE_ID
+          , clsPrf: clsPrf
+          , defClsPrf: defClsPrf
+          , CLS_NO_IMG: CLS_NO_IMG
+          , D_CUR_IMG_SRC: D_CUR_IMG_SRC
+          , CLS_IS_IMG_LOADING: CLS_IS_IMG_LOADING
+          , CLS_IS_IMG_LOADED: CLS_IS_IMG_LOADED
+        }
     }
 
     // exposes library for browser and Node-based code (such as unit tests)
     if(typeof window === "undefined")   module.exports = nimblePic;
-    else                                window.nimblePic = nimblePic;
+    else                                window.nimblePic = window.nimblepic = window.nimpic = window.nipplepic = window.nipplePic = nimblePic;
     
     SELF = nimblePic;
 })();

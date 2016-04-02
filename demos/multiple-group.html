@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+  <title>Example 1</title>
+  <link rel="stylesheet" href="/demos/css/nimblepic.css">
+</head>
+<body>
+
+  <p class="p-sm">This example shows a case of multiple images being loaded as part of a group, which should not affect other images outside of that group. Also contains a missing image within the group.</p>
+    
+  <span class="nimpic"
+        data-img-sm="img/example-1-35.jpg"
+        data-img-md="img/example-1-58.jpg"
+        data-height-sm="350"
+        data-height-md="400"
+        ><!-- has no group, but should still load -->
+      Alternative text
+  </span>
+
+  <span class="nimpic"
+        data-img-sm="img/example-2-35.jpg"
+        data-img-md="img/example-2-58.jpg"
+        data-height-sm="350"
+        data-height-md="400"
+        data-img-group="test-group"
+        >
+      Alternative text
+  </span>
+
+  <span class="nimpic"
+        data-img-sm="img/example-3-35.jpg"
+        data-img-md="img/example-3-58.jpg"
+        data-height-sm="350"
+        data-height-md="400"
+        data-img-group="test-group"
+        >
+      Alternative text
+  </span>
+
+  <span class="nimpic"
+        data-img-sm="img/example-4-35.jpg"
+        data-img-md="img/example-4-58.jpg"
+        data-height-sm="350"
+        data-height-md="400"
+        data-img-group="test-group"
+        >
+      Alternative text
+  </span>
+
+  <span class="nimpic"
+        data-img-sm="img/example-doesnt-exist-35.jpg"
+        data-img-md="img/example-doesnt-exist-58.jpg"
+        data-height-sm="350"
+        data-height-md="400"
+        data-img-group="test-group"
+        ><!-- part of group, but image doesn't exist, so should just show loader -->
+      Alternative text
+  </span>
+
+  <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="/src/lib/classList.js"></script>
+  <script src="/src/lib/modernizr-custom.js"></script>
+  <script src="/src/nimblepic.js"></script>
+  <script>
+    nimblePic.setImages();
+  </script>
+</body>
+</html>
