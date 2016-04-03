@@ -4,6 +4,7 @@ window.nimblePic.suppressWarnings = true;
 
 var createEl = window.testUtils.createEl
   , createImgEl = window.testUtils.createImgEl
+  , createStyleEl = window.testUtils.createStyleEl
   , cleanupElement = window.testUtils.cleanupElement
   , getUID = window.nimblePic.testable.getUID
   , $doc = $(document)
@@ -61,18 +62,26 @@ describe("getDynamicHeight", function() {
 
 
 
-describe("setClearImgStyles", function() {
+describe("clearStyles", function() {
 	beforeEach(clearAll);
 
 	var fun = window.nimblePic.clearStyles;
 
-	it("should create an element, then remove it when function is called", function() {
+	it("should create an element, then remove it when function is called, by pass ID in an array", function() {
 		var customID = getUID("some-unique-id-")
 
-		fun($);
-		createEl(customID, "style");
+		createStyleEl(customID, "style");
 		expect(document.getElementById(customID)).toBeTruthy();
 		fun([customID]);
+		expect(document.getElementById(customID)).toBeFalsy();
+	});
+
+	it("should create an element, then remove it when function is called, with no params", function() {
+		var customID = getUID("some-unique-id-")
+
+		createStyleEl(customID, "style");
+		expect(document.getElementById(customID)).toBeTruthy();
+		fun();
 		expect(document.getElementById(customID)).toBeFalsy();
 	});
 });

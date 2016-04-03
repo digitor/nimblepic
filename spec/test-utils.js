@@ -36,6 +36,12 @@
             return el;
         }
 
+        ,createStyleEl: function(id) {
+            var el = createEl(id, "style");
+            el.setAttribute("data-resp-styles", "");
+            return el;
+        }
+
         ,getNewDivHeight: function(customCls, skipTest) {
             var tempDivId = getUID(".temp-div-")
               , divEl = SELF.createEl(tempDivId, "div", customCls, skipTest);

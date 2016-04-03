@@ -546,21 +546,32 @@
         }
 
         /**
-         * @description Clears style elements by ID.
-         * @param styleIds (array of strings) IDs of the style elements to remove.
+         * @description Clears style elements on the page.
+         * @param styleIds (array of strings) optional - IDs of the style elements to remove. Omit this if you want to clear all styles on the page.
          */
         , clearStyles: function(styleIds) {
 
-            if(!styleIds || !styleIds.length) {
+            if(styleIds && !styleIds.length) {
                 if(!SELF.suppressWarnings) 
-                    console.warn(NS, "clearStyles", "Argument 'styleIds' must be an array of IDs to clear. Returning early.", styleIds);
+                    console.warn(NS, "clearStyles", "If supplied, argument 'styleIds' must be an array of IDs to clear. Returning early.", styleIds);
                 return;
             }
 
-            for(var i = 0; i < styleIds.length; i++) {
-                var styleEl = document.getElementById(styleIds[i]);
-                     if(styleEl)                document.body.removeChild( styleEl );
-                else if(!SELF.suppressWarnings) console.warn(NS, "clearStyles", "Couldn't find style element with ID " + styleIds[i] );
+            var elList;
+
+            if(styleIds) {
+                elList = [];
+                for(var i = 0; i < styleIds.length; i++) {
+                    var styleEl = document.getElementById(styleIds[i]);
+                         if(styleEl)                elList.push(styleEl);
+                    else if(!SELF.suppressWarnings) console.warn(NS, "clearStyles", "Couldn't find style element with ID " + styleIds[i] );
+                }
+            } else {
+                elList = document.querySelectorAll("style[data-resp-styles]");
+            }
+
+            for(var i = 0; i < elList.length; i++) {
+                document.body.removeChild( elList[i] );
             }
         }
 
@@ -610,7 +621,7 @@
                       , hMedium = hMd || nativeHeight
                       , hLarge = hLg // large is optional, so should not fall back to native height
                       , throwWarning = false // don't throw warning because 'responsiveHeight' has already set the style id
-                      , clearStyles = isGroupOrEvent ? false : clearExistingSrc // If not a group or event, should clear out previous images of same ID
+                      , clearExisting = isGroupOrEvent ? false : clearExistingSrc // If not a group or event, should clear out previous images of same ID
                       , addNoImgClass = false; // this already happens in 'responsiveHeight' so don't want to do it again
 
                     setLoadingStates($img[0], "loaded");
@@ -622,7 +633,7 @@
 
                     if (isSuccess) {
                         var grad = $img.attr("data-grad") || null;
-                        responsiveImage(null, srcSm, srcMd, specificSel, hSmall, hMedium, hLarge, clearStyles, styleId, grad, throwWarning, addNoImgClass);
+                        responsiveImage(null, srcSm, srcMd, specificSel, hSmall, hMedium, hLarge, clearExisting, styleId, grad, throwWarning, addNoImgClass);
                         $img.removeClass(CLS_NO_IMG);
                     } else {
                         $img.addClass(CLS_NO_IMG);
