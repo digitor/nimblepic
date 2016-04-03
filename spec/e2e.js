@@ -64,15 +64,15 @@ describe("getDynamicHeight", function() {
 describe("setClearImgStyles", function() {
 	beforeEach(clearAll);
 
-	var fun = window.nimblePic.testable.setClearImgStyles;
+	var fun = window.nimblePic.clearStyles;
 
-	it("should create an element, then remove it when event is triggered", function() {
+	it("should create an element, then remove it when function is called", function() {
 		var customID = getUID("some-unique-id-")
 
 		fun($);
 		createEl(customID, "style");
 		expect(document.getElementById(customID)).toBeTruthy();
-		$(window).trigger("clear-img-styles", { styleIds: [customID] });
+		fun([customID]);
 		expect(document.getElementById(customID)).toBeFalsy();
 	});
 });

@@ -290,20 +290,6 @@
         return uid;
     }
 
-    function setClearImgStyles($) {
-
-        $(window).off("clear-img-styles").on("clear-img-styles", function (evt, data) {
-
-            if (!data || !data.styleIds) return;
-
-            for(var i = 0; i < data.styleIds.length; i++) {
-                var styleEl = document.getElementById(data.styleIds[i]);
-                if(styleEl)	                    document.body.removeChild( styleEl );
-                else if(!SELF.suppressWarnings) console.warn(NS, "setClearImgStyles", "Couldn't find style element with ID " + data.styleIds[i] );
-            }
-        });
-    }
-
 
     /**
      * @description Gets properties from the data attributes of the image (span) element.
@@ -560,6 +546,25 @@
         }
 
         /**
+         * @description Clears style elements by ID.
+         * @param styleIds (array of strings) IDs of the style elements to remove.
+         */
+        , clearStyles: function(styleIds) {
+
+            if(!styleIds || !styleIds.length) {
+                if(!SELF.suppressWarnings) 
+                    console.warn(NS, "clearStyles", "Argument 'styleIds' must be an array of IDs to clear. Returning early.", styleIds);
+                return;
+            }
+
+            for(var i = 0; i < styleIds.length; i++) {
+                var styleEl = document.getElementById(styleIds[i]);
+                     if(styleEl)                document.body.removeChild( styleEl );
+                else if(!SELF.suppressWarnings) console.warn(NS, "clearStyles", "Couldn't find style element with ID " + styleIds[i] );
+            }
+        }
+
+        /**
          * @description Searches DOM to find the '$container' and child elements of 'customCls' (these can be omitted to use defaults), 
          *   then starts loading images and setting heights based on data attributes for different responsive breakpoints.
          *
@@ -580,8 +585,6 @@
         , setImages: function ($, $container, customCls, customStyleID, parentCls, loadedCB) {
 
             if(!$) $ = window.$;
-
-            setClearImgStyles($);
 
             var clearExistingSrc = true // tells library to clear existing style element by id for images
               , clearExistingHeights = true // tells library to clear existing style element by id for heights
@@ -714,7 +717,6 @@
             , responsiveWidth: responsiveWidth
             , responsiveHeight: responsiveHeight
             , responsiveImage: responsiveImage
-            , setClearImgStyles: setClearImgStyles
             , getImgProps: getImgProps
             , addLoader: addLoader
             , getSpecificSelector: getSpecificSelector
