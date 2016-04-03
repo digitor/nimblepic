@@ -65,6 +65,8 @@ If you wish to reset to the default again, call `nimblePic.setDefaultImageClass(
 - 5th "parentCls": Use this if your "customCls" is not specific enough. Should be a class name of any parent element within the '$container'.
 - 6th "loadedCB": A callback when image has loaded. Useful when running tests.
 
+#### Clearing NimblePic styles
+If you need to clear styles already on the page, you can call 'clearStyles' and pass an array of IDs to remove. If you don't pass any params it will clear all image styles set by NimblePic.
 
 ## Notes on CSS
 - CSS doesn't include vendor prefixes because Auto-prefixer gulp task takes care of them.
