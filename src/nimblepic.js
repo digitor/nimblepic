@@ -280,6 +280,12 @@
         return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     }
 
+
+    /**
+     * @description Gets a unique string, with an optional prefix that can be useful for human readability.
+     * @param pref (string) optional - A prefix string for the unique id.
+     * @return (string) The unique id.
+     */
     function getUID(pref) {
         var uid = (pref || "") + Math.random().toString().replace(".", "");
 
