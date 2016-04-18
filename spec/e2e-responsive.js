@@ -29,7 +29,7 @@ var createEl = window.testUtils.createEl
   , getCompProp = window.testUtils.getCompProp
   , cleanupElement = window.testUtils.cleanupElement
   , $doc = $(document)
-
+  , domain = "http://localhost:8081/"
 
 var isRangeDt;
 
@@ -303,8 +303,8 @@ describe("responsiveHeight - 3 media queries on same element by ID, but with dif
 describe("responsiveImage", function() {
 	beforeEach(clearAll);
 	var fun = window.nimblePic.testable.responsiveImage
-	  , srcSm = "/demos/img/example-1-35.jpg"
-	  , srcMd = "/demos/img/example-1-58.jpg"
+	  , srcSm = domain+"demos/img/example-1-35.jpg"
+	  , srcMd = domain+"demos/img/example-1-58.jpg"
 	  , defId = window.nimblePic.vars.DEF_SRC_STYLE_ID
 
 	function bgImgExp(id, src, customID) {
@@ -502,8 +502,8 @@ describe("isInvalidResponsiveSrc", function() {
 describe("setImages", function() {
 	beforeEach(clearAll);
 	var fun = window.nimblePic.setImages
-	  , srcSm = "/demos/img/example-1-35.jpg"
-	  , srcMd = "/demos/img/example-1-58.jpg"
+	  , srcSm = domain+"demos/img/example-1-35.jpg"
+	  , srcMd = domain+"demos/img/example-1-58.jpg"
 
 	function bgImgCheck(img, done) {
 		if(isDt || isWideDt || isRangeDt || isTb)	expect(getCompProp(img, "background-image")).toContain(srcMd);
@@ -663,14 +663,14 @@ describe("setImages", function() {
 
 	describe("multiple images", function() {
 		var src = {
-			sm1: "/demos/img/example-1-35.jpg"
-		  , md1: "/demos/img/example-1-58.jpg"
-		  , sm2: "/demos/img/example-2-35.jpg"
-		  , md2: "/demos/img/example-2-58.jpg"
-		  , sm3: "/demos/img/example-3-35.jpg"
-		  , md3: "/demos/img/example-3-58.jpg"
-		  , sm4: "/demos/img/example-4-35.jpg"
-		  , md4: "/demos/img/example-4-58.jpg"
+			sm1: domain + "demos/img/example-1-35.jpg"
+		  , md1: domain + "demos/img/example-1-58.jpg"
+		  , sm2: domain + "demos/img/example-2-35.jpg"
+		  , md2: domain + "demos/img/example-2-58.jpg"
+		  , sm3: domain + "demos/img/example-3-35.jpg"
+		  , md3: domain + "demos/img/example-3-58.jpg"
+		  , sm4: domain + "demos/img/example-4-35.jpg"
+		  , md4: domain + "demos/img/example-4-58.jpg"
 		}
 
 

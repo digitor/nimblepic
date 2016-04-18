@@ -8,7 +8,7 @@ var createEl = window.testUtils.createEl
   , cleanupElement = window.testUtils.cleanupElement
   , getUID = window.nimblePic.testable.getUID
   , $doc = $(document)
-
+  , domain = "http://localhost:8081/"  // 
 
 
 function clearAll() {
@@ -20,7 +20,7 @@ describe("getDynamicHeight", function() {
 	beforeEach(clearAll);
 
 	var fun = window.nimblePic.testable.getDynamicHeight;
-	var mbImgSrc = "/demos/img/example-1-35.jpg"
+	var mbImgSrc = domain+"demos/img/example-1-35.jpg"
 
 	it("should get the height of the image loaded", function(done) {
 		
@@ -51,7 +51,7 @@ describe("getDynamicHeight", function() {
 
 	it("should say if the image was loaded and able to get height successfully, when src DOESN'T exist", function(done) {
 		
-		fun("/something-that/doesnt/exist.jpg", false, function(url, isSuccess, height) {
+		fun(domain+"something-that/doesnt/exist.jpg", false, function(url, isSuccess, height) {
 
 			expect(isSuccess).toBeFalsy();
 			done();
@@ -235,8 +235,8 @@ describe("setCustomEventHandler", function() {
 
 
 		var img = createImgEl()
-		  , PATH_1 = "/path/1.jpg"
-		  , PATH_2 = "/path/2.jpg"
+		  , PATH_1 = domain+"path/1.jpg"
+		  , PATH_2 = domain+"path/2.jpg"
 		  , SOME_VAL = "some value"
 
 		// add data attributes to override null values
