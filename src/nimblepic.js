@@ -432,13 +432,16 @@
     function isInvalidSrc(srcSm, srcMd) {
         // also accepts a proptery object as first arg
         if(typeof srcSm === "object") {
+
+            srcMd = srcSm.srcMd; //must go first, so doesn't override object
             srcSm = srcSm.srcSm;
-            srcMd = srcSm.srcMd;
         }
         
         // enforces strings
         if(typeof srcSm !== "string") srcSm = false;
         if(typeof srcMd !== "string") srcMd = false;
+
+
 
         return !srcSm && !srcMd;
     }
@@ -611,7 +614,10 @@
             var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, isGroupOrEvent, cb) {
 
                 // stops late events from interfering
-                if (uid !== UID) return;
+                if (uid !== UID) {
+                    console.warn(NS, "startLoading", "UIDs did not match", uid, UID);
+                    return;
+                }
 
                 var breakPointSize = getResponsiveWidth()
                   , isMb = breakPointSize === 'sm' || breakPointSize === 'xs';
@@ -710,7 +716,9 @@
                     if(!prp.group && !prp.customEvent) clearExistingHeights = false;
 
                     invalidSrc = isInvalidResponsiveSrc($img, prp.srcSm, prp.srcMd);
+
                     if (invalidSrc) return;
+
                     
                     setLoadingStates(this, "loading");
                    

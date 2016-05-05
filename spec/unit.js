@@ -68,8 +68,16 @@ describe("isInvalidSrc", function() {
 	
 	var fun = nimblePic.testable.isInvalidSrc
 
-	it("should return FALSE when both mobile and tablet/desktop sources are VALID", function() {
+	it("should return FALSE when both mobile and tablet/desktop sources are VALID and passed as strings", function() {
 		expect(fun("/path-to/img/mobile.jpg", "/path-to/img/desktop.jpg")).toBe(false);
+	})
+
+	it("should return FALSE when both mobile and tablet/desktop sources are VALID and passed as an object", function() {
+		expect(fun({srcSm: "/path-to/img/mobile.jpg", srcMd: "/path-to/img/desktop.jpg"})).toBe(false);
+	})
+
+	it("should return FALSE when just tablet/desktop source is VALID and passed as an object", function() {
+		expect(fun({srcSm: null, srcMd: "/path-to/img/desktop.jpg"})).toBe(false);
 	})
 
 	it("should return FALSE when mobile source is INVALID and tablet/desktop sources are VALID", function() {
