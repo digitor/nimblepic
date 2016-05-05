@@ -637,13 +637,8 @@
                 var breakPointSize = getResponsiveWidth()
                   , isMb = breakPointSize === 'sm' || breakPointSize === 'xs';
 
-                var thisSrc = isMb ? srcSm : srcMd
-                  , clearExisting = isGroupOrEvent ? false : clearExistingSrc; // If not a group or event, should clear out previous images of same ID
+                var thisSrc = isMb ? srcSm : srcMd;
 
-                if(!isGroupOrEvent) {
-                    // This tells library that the first image loaded will clear existing styles associated with this styleId, which are specifically for image sources
-                    clearExistingSrc = false;
-                }
 
                 // marks the image as "loading in progress", so other attempts to load it are blocked
                 $img.data(D_CUR_IMG_SRC, thisSrc);
@@ -653,8 +648,14 @@
                     var hSmall = hSm || nativeHeight
                       , hMedium = hMd || nativeHeight
                       , hLarge = hLg // large is optional, so should not fall back to native height
+                      , clearExisting = isGroupOrEvent ? false : clearExistingSrc // If not a group or event, should clear out previous images of same ID
                       , throwWarning = false // don't throw warning because 'responsiveHeight' has already set the style id
                       , addNoImgClass = false; // this already happens in 'responsiveHeight' so don't want to do it again
+
+                    if(!isGroupOrEvent) {
+                        // This tells library that the first image loaded will clear existing styles associated with this styleId, which are specifically for image sources
+                        clearExistingSrc = false;
+                    }
 
                     setLoadingStates($img[0], "loaded");
 
