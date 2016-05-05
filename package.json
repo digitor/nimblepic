@@ -1,6 +1,6 @@
 {
   "name": "nimblepic",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Responsive image loader that uses data attributes and events to define media query-sized images",
   "main": "src/nimblepic.js",
   "repository": {
