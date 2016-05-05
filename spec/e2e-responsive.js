@@ -452,29 +452,6 @@ describe("isInvalidResponsiveSrc", function() {
 			cleanupElement($el[0]);
 		})
 		
-		it("should return TRUE when loaded/loading data is added to jQuery element and source MATCHES", function() {
-			
-			var $el = $(createImgEl()) // must be a jQuery element
-			  , imgPath = "/path-to/img/mobile.jpg"
-
-			$el.data("current-image-src", imgPath)
-			
-			expect(fun($el, imgPath)).toBe(true);
-
-			cleanupElement($el[0]);
-		})
-
-		it("should return FALSE when loaded/loading data is added to jQuery element and source DOESN'T MATCH", function() {
-			
-			var $el = $(createImgEl()) // must be a jQuery element
-			  , imgPath = "/path-to/img/mobile.jpg"
-
-			$el.data("current-image-src", "a-different/img.jpg")
-			
-			expect(fun($el, "/path-to/img/mobile.jpg")).toBe(false);
-
-			cleanupElement($el[0]);
-		})		
 	} else if(isDt) {
 		it("should return FALSE when desktop source is VALID", function() {
 			
@@ -771,22 +748,24 @@ describe("setImages", function() {
 		it("should show how calling the method more than once clears previous images when 'customCls' or 'customStyleID' is NOT passed, plus how it attaches 'no-img' class to previous images - " + printBreakPoint(), function(done) {
 			var img1 = createImgEl();
 			setMultiImgAttr(img1, 1);
+			img1.setAttribute("id", "test-img-1");
 
 			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
 
-				expect(getCompProp(img1, "background-image")).toContain(url);
+				var url1 = url;
+				expect(getCompProp(img1, "background-image")).toContain(url1);
 				
 				var img2 = createImgEl();
 				setMultiImgAttr(img2, 2);
 				fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
 					
-					expect(img1.classList).toContain("no-img");
-					expect(getCompProp(img1, "background-image")).toBe('none');
-					expect(getCompProp(img2, "background-image")).toContain(url);
-					
-					cleanupElement(img1);
-					cleanupElement(img2);
-					done();
+					if(img === img2) {
+						expect(getCompProp(img1, "background-image")).toContain(url1);
+						expect(getCompProp(img2, "background-image")).toContain(url);
+						cleanupElement(img1);
+						cleanupElement(img2);
+						done();
+					}
 				})
 			})
 		})

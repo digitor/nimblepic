@@ -20,20 +20,28 @@
      * @param cb (function) - Callback to trigger with src, success/fail and height info.
      */
 	function getDynamicHeight(src, srcIsSelector, cb) {
-        setTimeout(function () {
 
-            if (srcIsSelector) src = $(src).css("background-image").replace("url(", "").replace(")", "").replace('"', '"').replace("'", "'");
-            var img = new Image();
-            img.onload = function () {
-                //console.log( "image loaded", this.src);
-                cb(src, true, this.height);
-            }
-            img.onerror = function () {
-                if(!SELF.suppressWarnings) console.warn("image error", this.src);
-                cb(src, false);
-            }
-            img.src = src;
-        }, 100);
+        (function(src, srcIsSelector, cb) {
+            //console.log("1", src)
+            
+            setTimeout(function () {
+
+                //console.log("srcIsSelector", srcIsSelector, src)
+
+                if (srcIsSelector) src = $(src).css("background-image").replace("url(", "").replace(")", "").replace('"', '"').replace("'", "'");
+                var img = new Image();
+                img.onload = function () {
+                    //console.log( "image loaded", this.src);
+                    cb(src, true, this.height);
+                }
+                img.onerror = function () {
+                    if(!SELF.suppressWarnings) console.warn("image error", this.src);
+                    cb(src, false);
+                }
+                img.src = src;
+            }, 100);
+            
+        })(src, srcIsSelector, cb);
     }
 
 
@@ -464,15 +472,21 @@
         if (!approvedSrc || typeof approvedSrc !== "string") {
             $img[0].classList.add(CLS_NO_IMG);
             $img.data(D_CUR_IMG_SRC, null);
-            return true; // if no image, stop here
+            return true; // mark as invalid if image not valid
         }
 
-        // check if loaded already (or currently loading)
+        // check if loaded already (or currently loading) - don't think we need this anymore, as calling 'setImages' multiple times shouldn't stop existing images from refreshing
+        /*
         var curImg = $img.data(D_CUR_IMG_SRC);
         if (curImg) {
-            // do nothing if approved image is already loaded
-            if (curImg === approvedSrc) return true;
+            if (curImg === approvedSrc) {
+                // when existsing styles were cleared, this 'no-img' class would have been added, but it can be removed now that we know the image was loaded or is currently loading
+                $img.removeClass(CLS_NO_IMG);
+                //console.log($img.css("background-image"));
+                return true; // mark as invalid if approved image is already loaded or loading, so it is left alone
+            }
         }
+        */
 
         return false;
     }
@@ -613,6 +627,7 @@
 
             var startLoading = function ($img, srcSm, srcMd, specificSel, hSm, hMd, hLg, uid, styleId, isGroupOrEvent, cb) {
 
+
                 // stops late events from interfering
                 if (uid !== UID) {
                     console.warn(NS, "startLoading", "UIDs did not match", uid, UID);
@@ -622,7 +637,13 @@
                 var breakPointSize = getResponsiveWidth()
                   , isMb = breakPointSize === 'sm' || breakPointSize === 'xs';
 
-                var thisSrc = isMb ? srcSm : srcMd;
+                var thisSrc = isMb ? srcSm : srcMd
+                  , clearExisting = isGroupOrEvent ? false : clearExistingSrc; // If not a group or event, should clear out previous images of same ID
+
+                if(!isGroupOrEvent) {
+                    // This tells library that the first image loaded will clear existing styles associated with this styleId, which are specifically for image sources
+                    clearExistingSrc = false;
+                }
 
                 // marks the image as "loading in progress", so other attempts to load it are blocked
                 $img.data(D_CUR_IMG_SRC, thisSrc);
@@ -633,19 +654,14 @@
                       , hMedium = hMd || nativeHeight
                       , hLarge = hLg // large is optional, so should not fall back to native height
                       , throwWarning = false // don't throw warning because 'responsiveHeight' has already set the style id
-                      , clearExisting = isGroupOrEvent ? false : clearExistingSrc // If not a group or event, should clear out previous images of same ID
                       , addNoImgClass = false; // this already happens in 'responsiveHeight' so don't want to do it again
 
                     setLoadingStates($img[0], "loaded");
 
-                    if(!isGroupOrEvent) {
-                        // This tells library that the first image loaded will clear existing styles associated with this styleId, which are specifically for image sources
-                        clearExistingSrc = false;
-                    }
-
                     if (isSuccess) {
                         var grad = $img.attr("data-grad") || null;
                         responsiveImage(null, srcSm, srcMd, specificSel, hSmall, hMedium, hLarge, clearExisting, styleId, grad, throwWarning, addNoImgClass);
+                        
                         $img.removeClass(CLS_NO_IMG);
                     } else {
                         $img.addClass(CLS_NO_IMG);
@@ -715,11 +731,11 @@
                      */
                     if(!prp.group && !prp.customEvent) clearExistingHeights = false;
 
+
                     invalidSrc = isInvalidResponsiveSrc($img, prp.srcSm, prp.srcMd);
 
                     if (invalidSrc) return;
 
-                    
                     setLoadingStates(this, "loading");
                    
 
