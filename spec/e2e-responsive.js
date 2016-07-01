@@ -797,7 +797,7 @@ describe("setImages", function() {
 		})
 
 
-		it("should show that images within the same group (using 'data-img-group') get there own style element and ID based on the group name and that default image styles are not affected.", function(done) {
+		it("should show that images within the same group (using 'data-img-group') get there own style element and ID based on the group name and that default image styles are not affected. Also checks that height styles are not removed when image styles are applied.", function(done) {
 			var loadedCount = 0
 			  , groupName = "example-group";
 
@@ -823,18 +823,45 @@ describe("setImages", function() {
 			groupImg.img1.setAttribute('data-img-group', groupName);
 			groupImg.img2.setAttribute('data-img-group', groupName);
 
+			// set heights so we can test their styles are kept
+			groupImg.img1.setAttribute("data-height-sm", 300);
+			groupImg.img2.setAttribute("data-height-sm", 300);
+
+
+			// ensures that heights styles have not been removed while we wait for images to load (for group) and again once they have loaded
+			var checkGroupHeightStylesExist = function() {
+
+				var smSrc = src.sm1
+				  , styleEl = document.getElementById(groupName).innerHTML
+
+				 // first checks that the style element is not empty (if heights are provided, it should not be empty)
+				 expect(styleEl).not.toBe("");
+
+				// then gets the unique class name of the style with the smSrc
+				var smSrcCustomID = ".nimblepic-custom-" + styleEl.split(smSrc)[0].split(".nimblepic-custom-")[1].split("{")[0].trim();
+
+				// then gets the first occurance of this unique class name, which should contain height info and no image info
+				var contentsOfFirstOccurance = styleEl.split(smSrcCustomID)[1].split("}")[0];
+				
+				expect(contentsOfFirstOccurance).not.toContain("background-image");
+			}
+
+
 			fun($, null, null, null, null, function(isSuccess, url, img, computedHeight, nativeHeight) {
 
 				loadedCount++;
 				if(loadedCount === 4)  {
+					checkGroupHeightStylesExist();
+
 					// checks group image styles exist
-					checkMultiImgStylesExist(groupName, groupImg, 2);
+					checkMultiImgStylesExist(groupName, groupImg, 2, true);
 
 					// checks normal image styles exist
 					checkMultiImgStylesExist(window.nimblePic.vars.DEF_SRC_STYLE_ID, normalImg, 2);
 					done();
 				}
-			})
+			}, checkGroupHeightStylesExist);
+
 		})
 
 		it("should show that images within delayed events (using 'data-delay-image-load-event') get there own style element and ID based on the event name and that default image styles are not affected.", function(done) {

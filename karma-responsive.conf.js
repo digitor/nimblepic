@@ -31,7 +31,7 @@ module.exports = function(config) {
   if(isWin81)  chScrollBarW = 33;
 
   config.set({
-  	browsers: browsers,
+  	browsers: browsers, // if you need to check just a single browser size, use this ['CHDesktopWideEx']
     browserNoActivityTimeout: 40000, // Slower machines (or VMs) may need extra time with all these chrome windows open at once. Default is 10 seconds.
     customLaunchers: {
       

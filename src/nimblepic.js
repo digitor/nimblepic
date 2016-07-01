@@ -615,8 +615,10 @@
          * parentCls (string) optional - Use this if your 'customCls' is not specific enough. Should be a class name of any parent element within the '$container'.
          *
          * loadedCB (function) optional - A callback when image has loaded. Useful when running tests.
+         *
+         * loopRunCB (function) optional - A callback when main DOM loop has run, after DOM has fully loaded. Useful when running tests.
          */
-        , setImages: function ($, $container, customCls, customStyleID, parentCls, loadedCB) {
+        , setImages: function ($, $container, customCls, customStyleID, parentCls, loadedCB, loopRunCB) {
 
             if(!$) $ = window.$;
 
@@ -727,11 +729,10 @@
 
                         
                     /**
-                     * This tells library that the first item in the loop will clear existing styles associated with this styleId, which are specifically for heights, but only if not part of a group or event, 
+                     * This tells library that the first item in the loop will clear existing styles associated with this styleId, which are specifically for heights, but only if not part of an event, 
                      * as they a treated as as unique entities.
                      */
-                    if(!prp.group && !prp.customEvent) clearExistingHeights = false;
-
+                    if(!prp.customEvent) clearExistingHeights = false;
 
                     invalidSrc = isInvalidResponsiveSrc($img, prp.srcSm, prp.srcMd);
 
@@ -747,6 +748,8 @@
                     }
                 
                 });
+
+                if(loopRunCB) loopRunCB();
             });
         }
 
